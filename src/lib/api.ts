@@ -1,3 +1,4 @@
+/// <reference types="../vite-env.d.ts" />
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 async function fetchAPI(endpoint: string, options: RequestInit = {}) {
