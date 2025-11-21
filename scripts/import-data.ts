@@ -44,8 +44,9 @@ const data = {
   "categories": [
     {
       "name": "Boissons",
+      "image": "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800&h=800&fit=crop&auto=format",
       "products": [
-        { "name": "Coca-Cola", "price": 350, "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Coca-Cola", "price": 350, "image": "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=800&h=800&fit=crop&auto=format" },
         { "name": "Sprite", "price": 350, "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=800&h=800&fit=crop&auto=format" },
         { "name": "Fanta Orange", "price": 350, "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=800&h=800&fit=crop&auto=format" },
         { "name": "Ice Tea Pêche", "price": 350, "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&h=800&fit=crop&auto=format" },
@@ -58,6 +59,7 @@ const data = {
     },
     {
       "name": "Snacks & Tapas",
+      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=800&fit=crop&auto=format",
       "products": [
         { "name": "Frites Faata", "price": 450, "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=800&fit=crop&auto=format" },
         { "name": "Frites Manioc", "price": 500, "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=800&fit=crop&auto=format" },
@@ -69,6 +71,7 @@ const data = {
     },
     {
       "name": "Burgers",
+      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=800&fit=crop&auto=format",
       "products": [
         { "name": "Burger Classic", "price": 1200, "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=800&fit=crop&auto=format" },
         { "name": "Cheese & Bacon", "price": 1400, "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&h=800&fit=crop&auto=format" },
@@ -78,6 +81,7 @@ const data = {
     },
     {
       "name": "Plats Mer",
+      "image": "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&h=800&fit=crop&auto=format",
       "products": [
         { "name": "Poisson grillé", "price": 1500, "image": "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&h=800&fit=crop&auto=format" },
         { "name": "Poisson cru à la tahitienne", "price": 1700, "image": "https://images.unsplash.com/photo-1574781330858-c0ff99397e2e?w=800&h=800&fit=crop&auto=format" },
@@ -86,6 +90,7 @@ const data = {
     },
     {
       "name": "Plats Terre",
+      "image": "https://images.unsplash.com/photo-1626645738195-c58a114b49b2?w=800&h=800&fit=crop&auto=format",
       "products": [
         { "name": "Poulet curry coco", "price": 1500, "image": "https://images.unsplash.com/photo-1626645738195-c58a114b49b2?w=800&h=800&fit=crop&auto=format" },
         { "name": "Poulet grillé BBQ", "price": 1400, "image": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=800&h=800&fit=crop&auto=format" },
@@ -94,6 +99,7 @@ const data = {
     },
     {
       "name": "Pizzas",
+      "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=800&fit=crop&auto=format",
       "products": [
         { "name": "Margherita", "price": 1100, "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=800&fit=crop&auto=format" },
         { "name": "Reine", "price": 1300, "image": "https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=800&h=800&fit=crop&auto=format" },
@@ -104,6 +110,7 @@ const data = {
     },
     {
       "name": "Sandwichs & Wraps",
+      "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=800&h=800&fit=crop&auto=format",
       "products": [
         { "name": "Tacos poulet", "price": 1000, "image": "https://images.unsplash.com/photo-1606643965684-5d2b5d42beb7?w=800&h=800&fit=crop&auto=format" },
         { "name": "Wrap chicken crispy", "price": 1200, "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=800&h=800&fit=crop&auto=format" },
@@ -113,6 +120,7 @@ const data = {
     },
     {
       "name": "Desserts",
+      "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&h=800&fit=crop&auto=format",
       "products": [
         { "name": "Glace 2 boules", "price": 450, "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&h=800&fit=crop&auto=format" },
         { "name": "Fondant chocolat", "price": 600, "image": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=800&h=800&fit=crop&auto=format" },
@@ -122,6 +130,7 @@ const data = {
     },
     {
       "name": "Menu Enfant",
+      "image": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=800&h=800&fit=crop&auto=format",
       "products": [
         { "name": "Nuggets (4 pcs) + frites + boisson", "price": 900, "image": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=800&h=800&fit=crop&auto=format" },
         { "name": "Mini burger + frites + boisson", "price": 950, "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=800&fit=crop&auto=format" }
@@ -150,6 +159,7 @@ async function importData() {
       // Créer la catégorie
       const category = new Category({
         name: categoryData.name,
+        imageUrl: categoryData.image, // Ajouter l'image de la catégorie
         isActive: true,
         displayOrder: categoryIndex + 1
       })
