@@ -2,7 +2,6 @@ import { useModalStore } from '../store/useModalStore'
 import { useCartStore } from '../store/useCartStore'
 import Header from '../components/layout/Header'
 import Hero from '../components/layout/Hero'
-import Footer from '../components/layout/Footer'
 import { CategoriesModal } from '../components/modals/CategoriesModal'
 import { ProductsModal } from '../components/modals/ProductsModal'
 import { ProductDetailModal } from '../components/modals/ProductDetailModal'
@@ -54,9 +53,6 @@ export default function Home() {
       {currentModal === 'confirmation' && <ConfirmationModal />}
       {currentModal === 'login' && <LoginModal />}
       {currentModal === 'signup' && <SignupModal />}
-
-      {/* Footer */}
-      <Footer />
     </div>
   )
 }
