@@ -25,7 +25,16 @@ export function CategoriesModal() {
         setCategories(data)
         setError(null)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erreur de chargement')
+        console.error('Error fetching categories:', err)
+        const errorMessage = err instanceof Error ? err.message : 'Erreur de chargement'
+        setError(errorMessage)
+        // Afficher plus de détails dans la console pour le débogage
+        if (err instanceof Error) {
+          console.error('Error details:', {
+            message: err.message,
+            stack: err.stack
+          })
+        }
       } finally {
         setLoading(false)
       }

@@ -13,14 +13,38 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}) {
     ...options,
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, config)
+  try {
+    const url = `${API_URL}${endpoint}`
+    console.log(`[API] Fetching: ${url}`)
+    
+    const response = await fetch(url, config)
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Une erreur est survenue' }))
-    throw new Error(error.message || 'Une erreur est survenue')
+    console.log(`[API] Response status: ${response.status} for ${endpoint}`)
+
+    if (!response.ok) {
+      let errorMessage = `Erreur ${response.status}: ${response.statusText}`
+      try {
+        const error = await response.json()
+        errorMessage = error.message || errorMessage
+        console.error(`[API] Error response:`, error)
+      } catch {
+        const text = await response.text().catch(() => '')
+        console.error(`[API] Error text:`, text)
+      }
+      throw new Error(errorMessage)
+    }
+
+    const data = await response.json()
+    console.log(`[API] Success for ${endpoint}:`, data?.length || 'data received')
+    return data
+  } catch (error) {
+    // Erreur réseau ou autre
+    console.error(`[API] Network/Fetch error for ${endpoint}:`, error)
+    if (error instanceof Error) {
+      throw error
+    }
+    throw new Error('Erreur de connexion au serveur')
   }
-
-  return response.json()
 }
 
 // API Auth
