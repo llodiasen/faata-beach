@@ -31,7 +31,7 @@ export function CartModal() {
                 )}
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-900">{item.name}</h3>
-                  <p className="text-faata-red font-bold">{item.price.toFixed(2)} €</p>
+                  <p className="text-faata-red font-bold">{item.price.toLocaleString('fr-FR')} CFA</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -64,7 +64,7 @@ export function CartModal() {
           <div className="border-t pt-4 mb-6">
             <div className="flex justify-between items-center mb-4">
               <span className="text-xl font-bold text-gray-900">Total</span>
-              <span className="text-2xl font-bold text-faata-red">{getTotal().toFixed(2)} €</span>
+              <span className="text-2xl font-bold text-faata-red">{getTotal().toLocaleString('fr-FR')} CFA</span>
             </div>
           </div>
 

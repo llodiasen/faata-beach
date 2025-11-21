@@ -40,6 +40,78 @@ if (!MONGODB_URI) {
 // Importer les modèles directement sans utiliser mongodb.ts
 const { Category, Product } = await import('../api/lib/models.js')
 
+// Taux de conversion EUR vers CFA (1 EUR ≈ 655 CFA)
+const EUR_TO_CFA = 655
+
+// Fonction pour convertir les prix de centimes EUR en CFA
+function convertPriceToCFA(priceInCentsEUR: number): number {
+  const priceInEUR = priceInCentsEUR / 100
+  return Math.round(priceInEUR * EUR_TO_CFA)
+}
+
+// Fonction pour obtenir les extras selon la catégorie
+function getExtrasForCategory(categoryName: string): Array<{ name: string; price: number }> {
+  const extras: Record<string, Array<{ name: string; price: number }>> = {
+    'Burgers': [
+      { name: 'Fromage supplémentaire', price: convertPriceToCFA(30) },
+      { name: 'Bacon supplémentaire', price: convertPriceToCFA(45) },
+      { name: 'Œuf', price: convertPriceToCFA(30) },
+      { name: 'Oignons frits', price: convertPriceToCFA(20) },
+      { name: 'Champignons', price: convertPriceToCFA(30) },
+      { name: 'Sauce supplémentaire', price: convertPriceToCFA(15) },
+    ],
+    'Pizzas': [
+      { name: 'Fromage supplémentaire', price: convertPriceToCFA(45) },
+      { name: 'Champignons', price: convertPriceToCFA(35) },
+      { name: 'Olives', price: convertPriceToCFA(30) },
+      { name: 'Jambon supplémentaire', price: convertPriceToCFA(50) },
+      { name: 'Légumes supplémentaires', price: convertPriceToCFA(20) },
+    ],
+    'Plats Mer': [
+      { name: 'Riz supplémentaire', price: convertPriceToCFA(15) },
+      { name: 'Frites supplémentaires', price: convertPriceToCFA(30) },
+      { name: 'Salade supplémentaire', price: convertPriceToCFA(20) },
+      { name: 'Sauce piquante', price: convertPriceToCFA(15) },
+      { name: 'Citron supplémentaire', price: convertPriceToCFA(10) },
+    ],
+    'Plats Terre': [
+      { name: 'Riz supplémentaire', price: convertPriceToCFA(15) },
+      { name: 'Frites supplémentaires', price: convertPriceToCFA(30) },
+      { name: 'Salade supplémentaire', price: convertPriceToCFA(20) },
+      { name: 'Sauce piquante', price: convertPriceToCFA(15) },
+      { name: 'Légumes supplémentaires', price: convertPriceToCFA(20) },
+    ],
+    'Sandwichs & Wraps': [
+      { name: 'Fromage supplémentaire', price: convertPriceToCFA(30) },
+      { name: 'Avocat', price: convertPriceToCFA(35) },
+      { name: 'Légumes supplémentaires', price: convertPriceToCFA(20) },
+      { name: 'Sauce supplémentaire', price: convertPriceToCFA(15) },
+      { name: 'Bacon supplémentaire', price: convertPriceToCFA(45) },
+    ],
+    'Boissons': [
+      { name: 'Glace supplémentaire', price: convertPriceToCFA(10) },
+      { name: 'Sirop supplémentaire', price: convertPriceToCFA(15) },
+      { name: 'Menthe supplémentaire', price: convertPriceToCFA(10) },
+    ],
+    'Snacks & Tapas': [
+      { name: 'Sauce supplémentaire', price: convertPriceToCFA(15) },
+      { name: 'Fromage supplémentaire', price: convertPriceToCFA(30) },
+    ],
+    'Desserts': [
+      { name: 'Chantilly supplémentaire', price: convertPriceToCFA(15) },
+      { name: 'Noix supplémentaires', price: convertPriceToCFA(20) },
+      { name: 'Sauce chocolat', price: convertPriceToCFA(15) },
+      { name: 'Fruits supplémentaires', price: convertPriceToCFA(25) },
+    ],
+    'Menu Enfant': [
+      { name: 'Sauce supplémentaire', price: convertPriceToCFA(15) },
+      { name: 'Fromage supplémentaire', price: convertPriceToCFA(30) },
+    ],
+  }
+  
+  return extras[categoryName] || []
+}
+
 const data = {
   "categories": [
     {
@@ -166,24 +238,28 @@ async function importData() {
       await category.save()
       console.log(`✅ Catégorie créée: ${category.name} (ID: ${category._id})`)
 
+      // Obtenir les extras pour cette catégorie
+      const categoryExtras = getExtrasForCategory(categoryData.name)
+      
       // Créer les produits de cette catégorie
       for (let productIndex = 0; productIndex < categoryData.products.length; productIndex++) {
         const productData = categoryData.products[productIndex]
         
-        // Convertir le prix de centimes en euros (350 centimes = 3.50 euros)
-        const priceInEuros = productData.price / 100
+        // Convertir le prix de centimes EUR en CFA
+        const priceInCFA = convertPriceToCFA(productData.price)
         
         const product = new Product({
           categoryId: category._id,
           name: productData.name,
-          price: priceInEuros,
-          imageUrl: productData.image, // Garder le chemin /img/ tel quel ou convertir si besoin
+          price: priceInCFA, // Prix en CFA
+          imageUrl: productData.image,
+          extras: categoryExtras, // Ajouter les extras de la catégorie
           isAvailable: true,
           displayOrder: productIndex + 1
         })
         
         await product.save()
-        console.log(`   ✅ Produit créé: ${product.name} (${priceInEuros.toFixed(2)}€)`)
+        console.log(`   ✅ Produit créé: ${product.name} (${priceInCFA} CFA) - ${categoryExtras.length} extras`)
       }
     }
 

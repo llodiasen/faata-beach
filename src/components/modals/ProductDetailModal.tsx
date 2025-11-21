@@ -5,12 +5,18 @@ import { productsAPI } from '../../lib/api'
 import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 
+interface Extra {
+  name: string
+  price: number
+}
+
 interface Product {
   _id: string
   name: string
   description?: string
   price: number
   imageUrl?: string
+  extras?: Extra[]
 }
 
 export function ProductDetailModal() {
@@ -20,6 +26,7 @@ export function ProductDetailModal() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
+  const [selectedExtras, setSelectedExtras] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -30,6 +37,8 @@ export function ProductDetailModal() {
         const data = await productsAPI.getById(selectedProduct)
         setProduct(data)
         setError(null)
+        setSelectedExtras({}) // Réinitialiser les extras quand on charge un nouveau produit
+        setQuantity(1) // Réinitialiser la quantité
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur de chargement')
       } finally {
@@ -42,14 +51,37 @@ export function ProductDetailModal() {
     }
   }, [currentModal, selectedProduct])
 
+  const handleToggleExtra = (extraName: string) => {
+    setSelectedExtras(prev => ({
+      ...prev,
+      [extraName]: !prev[extraName]
+    }))
+  }
+
+  const calculateTotalPrice = () => {
+    if (!product) return 0
+    let total = product.price
+    if (product.extras) {
+      product.extras.forEach(extra => {
+        if (selectedExtras[extra.name]) {
+          total += extra.price
+        }
+      })
+    }
+    return total
+  }
+
   const handleAddToCart = () => {
     if (!product) return
+
+    // Calculer le prix total avec les extras
+    const totalPrice = calculateTotalPrice()
 
     // Ajouter l'item (sans id, il sera généré automatiquement)
     const itemToAdd = {
       productId: product._id,
       name: product.name,
-      price: product.price,
+      price: totalPrice, // Prix incluant les extras
       imageUrl: product.imageUrl,
     }
 
@@ -58,6 +90,8 @@ export function ProductDetailModal() {
       addItem(itemToAdd)
     }
 
+    // Réinitialiser les extras sélectionnés
+    setSelectedExtras({})
     openModal('cart')
   }
 
@@ -72,7 +106,54 @@ export function ProductDetailModal() {
           )}
           <h2 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h2>
           {product.description && <p className="text-gray-600 mb-4">{product.description}</p>}
-          <p className="text-3xl font-bold text-faata-red mb-6">{product.price.toFixed(2)} €</p>
+          <p className="text-3xl font-bold text-faata-red mb-6">{product.price.toLocaleString('fr-FR')} CFA</p>
+
+          {/* Extras */}
+          {product.extras && product.extras.length > 0 && (
+            <div className="mb-6">
+              <label className="block text-gray-700 font-semibold mb-3">Extras disponibles</label>
+              <div className="space-y-2">
+                {product.extras.map((extra, index) => (
+                  <label
+                    key={index}
+                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedExtras[extra.name] || false}
+                        onChange={() => handleToggleExtra(extra.name)}
+                        className="w-5 h-5 text-faata-red rounded focus:ring-faata-red"
+                      />
+                      <span className="text-gray-900 font-medium">{extra.name}</span>
+                    </div>
+                    <span className="text-faata-red font-bold">+{extra.price.toLocaleString('fr-FR')} CFA</span>
+                  </label>
+                ))}
+              </div>
+              {Object.keys(selectedExtras).some(key => selectedExtras[key]) && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700 font-semibold">Prix de base:</span>
+                    <span className="text-gray-900 font-bold">{product.price.toLocaleString('fr-FR')} CFA</span>
+                  </div>
+                  <div className="flex justify-between items-center mt-1">
+                    <span className="text-gray-700 font-semibold">Extras:</span>
+                    <span className="text-gray-900 font-bold">
+                      +{product.extras
+                        .filter(extra => selectedExtras[extra.name])
+                        .reduce((sum, extra) => sum + extra.price, 0)
+                        .toLocaleString('fr-FR')} CFA
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-300">
+                    <span className="text-lg font-bold text-gray-900">Total:</span>
+                    <span className="text-xl font-bold text-faata-red">{calculateTotalPrice().toLocaleString('fr-FR')} CFA</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="mb-6">
             <label className="block text-gray-700 font-semibold mb-2">Quantité</label>
@@ -92,6 +173,15 @@ export function ProductDetailModal() {
               </button>
             </div>
           </div>
+
+          {quantity > 1 && (
+            <div className="mb-6 p-3 bg-gray-50 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-semibold">Total ({quantity}x):</span>
+                <span className="text-xl font-bold text-faata-red">{(calculateTotalPrice() * quantity).toLocaleString('fr-FR')} CFA</span>
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-4">
             <Button variant="primary" onClick={handleAddToCart} className="flex-1">

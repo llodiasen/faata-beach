@@ -65,7 +65,7 @@ export function ProductsModal() {
               )}
               <h3 className="text-lg font-bold text-gray-900 mb-1">{product.name}</h3>
               {product.description && <p className="text-gray-600 text-sm mb-2">{product.description}</p>}
-              <p className="text-faata-red font-bold text-lg">{product.price.toFixed(2)} €</p>
+              <p className="text-faata-red font-bold text-lg">{product.price.toLocaleString('fr-FR')} CFA</p>
             </button>
           ))}
         </div>

@@ -65,6 +65,12 @@ const categorySchema = new Schema<ICategory>(
 
 export const Category: Model<ICategory> = mongoose.models.Category || mongoose.model<ICategory>('Category', categorySchema)
 
+// Extra Model
+export interface IExtra {
+  name: string
+  price: number
+}
+
 // Product Model
 export interface IProduct extends Document {
   categoryId: mongoose.Types.ObjectId
@@ -72,11 +78,17 @@ export interface IProduct extends Document {
   description?: string
   price: number
   imageUrl?: string
+  extras?: IExtra[]
   isAvailable: boolean
   displayOrder: number
   createdAt: Date
   updatedAt: Date
 }
+
+const extraSchema = new Schema<IExtra>({
+  name: { type: String, required: true, trim: true },
+  price: { type: Number, required: true, min: 0 },
+}, { _id: false })
 
 const productSchema = new Schema<IProduct>(
   {
@@ -85,6 +97,7 @@ const productSchema = new Schema<IProduct>(
     description: { type: String, trim: true },
     price: { type: Number, required: true, min: 0 },
     imageUrl: { type: String },
+    extras: { type: [extraSchema], default: [] },
     isAvailable: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },

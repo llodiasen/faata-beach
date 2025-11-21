@@ -233,7 +233,7 @@ export function CheckoutModal() {
         <div className="bg-gray-50 rounded-lg p-4">
           <div className="flex justify-between items-center">
             <span className="text-lg font-bold text-gray-900">Total</span>
-            <span className="text-2xl font-bold text-faata-red">{getTotal().toFixed(2)} €</span>
+            <span className="text-2xl font-bold text-faata-red">{getTotal().toLocaleString('fr-FR')} CFA</span>
           </div>
         </div>
 
