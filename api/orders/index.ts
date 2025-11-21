@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import connectDB from '../lib/mongodb'
-import { Order, Product } from '../lib/models'
-import { getTokenFromRequest, verifyToken } from '../lib/auth'
+import connectDB from '../lib/mongodb.js'
+import { Order, Product } from '../lib/models.js'
+import { getTokenFromRequest, verifyToken } from '../lib/auth.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'POST') {

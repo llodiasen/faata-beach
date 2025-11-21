@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import connectDB from '../lib/mongodb'
-import { User } from '../lib/models'
-import { generateToken } from '../lib/auth'
+import connectDB from '../lib/mongodb.js'
+import { User } from '../lib/models.js'
+import { generateToken } from '../lib/auth.js'
 import bcrypt from 'bcryptjs'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

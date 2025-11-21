@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import connectDB from '../lib/mongodb'
-import { Category } from '../lib/models'
+import connectDB from '../lib/mongodb.js'
+import { Category } from '../lib/models.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
