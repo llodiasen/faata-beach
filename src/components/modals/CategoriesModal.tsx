@@ -60,17 +60,33 @@ export function CategoriesModal() {
             <button
               key={category._id}
               onClick={() => handleCategoryClick(category._id)}
-              className="bg-gray-50 hover:bg-gray-100 rounded-lg p-6 text-left transition-colors border-2 border-transparent hover:border-faata-red"
+              className="relative bg-gray-50 hover:bg-gray-100 rounded-xl p-0 text-left transition-all duration-200 border-2 border-transparent hover:border-faata-red overflow-hidden group"
             >
-              {category.imageUrl && (
-                <img
-                  src={category.imageUrl}
-                  alt={category.name}
-                  className="w-full h-32 object-cover rounded-lg mb-3"
-                />
+              {category.imageUrl ? (
+                <div className="relative w-full h-40 md:h-48 overflow-hidden">
+                  <img
+                    src={category.imageUrl}
+                    alt={category.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 className="text-xl md:text-2xl font-bold mb-1 drop-shadow-lg">{category.name}</h3>
+                    {category.description && (
+                      <p className="text-white/90 text-sm drop-shadow-md">{category.description}</p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full h-40 md:h-48 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                  <div className="text-center p-6">
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">{category.name}</h3>
+                    {category.description && (
+                      <p className="text-gray-600 text-sm">{category.description}</p>
+                    )}
+                  </div>
+                </div>
               )}
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{category.name}</h3>
-              {category.description && <p className="text-gray-600 text-sm">{category.description}</p>}
             </button>
           ))}
         </div>
