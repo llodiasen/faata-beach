@@ -23,23 +23,35 @@ if (!global.mongoose) {
 
 async function connectDB() {
   if (cached.conn) {
+    console.log('Using cached MongoDB connection')
     return cached.conn
   }
 
   if (!cached.promise) {
+    console.log('Creating new MongoDB connection...')
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 10000, // Timeout après 10 secondes
+      socketTimeoutMS: 45000, // Timeout socket après 45 secondes
     }
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
-      return mongoose
-    })
+    cached.promise = mongoose.connect(MONGODB_URI!, opts)
+      .then((mongoose) => {
+        console.log('MongoDB connection established')
+        return mongoose
+      })
+      .catch((error) => {
+        console.error('MongoDB connection error:', error)
+        cached.promise = null
+        throw error
+      })
   }
 
   try {
     cached.conn = await cached.promise
   } catch (e) {
     cached.promise = null
+    console.error('MongoDB connection failed:', e)
     throw e
   }
 
