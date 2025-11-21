@@ -45,21 +45,17 @@ export function ProductDetailModal() {
   const handleAddToCart = () => {
     if (!product) return
 
-    addItem({
+    // Ajouter l'item (sans id, il sera généré automatiquement)
+    const itemToAdd = {
       productId: product._id,
       name: product.name,
       price: product.price,
       imageUrl: product.imageUrl,
-    })
+    }
 
-    // Ajouter plusieurs fois si quantity > 1
-    for (let i = 1; i < quantity; i++) {
-      addItem({
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-        imageUrl: product.imageUrl,
-      })
+    // Ajouter l'item plusieurs fois selon la quantité
+    for (let i = 0; i < quantity; i++) {
+      addItem(itemToAdd)
     }
 
     openModal('cart')

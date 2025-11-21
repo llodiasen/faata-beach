@@ -37,6 +37,7 @@
     "typescript": "^5.3.3",
     "vercel": "^48.10.6",
     "vite": "^5.0.8",
-    "vite-plugin-pwa": "^0.17.4"
+    "vite-plugin-pwa": "^0.17.4",
+    "workbox-build": "^7.4.0"
   }
 }
