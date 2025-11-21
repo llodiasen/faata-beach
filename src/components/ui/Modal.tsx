@@ -7,9 +7,10 @@ interface ModalProps {
   title?: string
   children: ReactNode
   size?: 'sm' | 'md' | 'lg' | 'xl'
+  noScroll?: boolean // Option pour désactiver le scroll
 }
 
-export default function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, size = 'md', noScroll = false }: ModalProps) {
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-lg',
@@ -17,12 +18,16 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
     xl: 'max-w-4xl',
   }
 
+  const scrollClasses = noScroll 
+    ? 'overflow-y-visible max-h-none' 
+    : 'max-h-[95vh] md:max-h-[90vh] overflow-y-auto'
+
   return (
     <Dialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-fadeIn" />
         <Dialog.Content
-          className={`fixed bottom-0 left-0 right-0 md:top-1/2 md:left-1/2 md:right-auto md:transform md:-translate-x-1/2 md:-translate-y-1/2 bg-white rounded-t-3xl md:rounded-2xl shadow-2xl z-50 w-full ${sizeClasses[size]} max-h-[95vh] md:max-h-[90vh] overflow-y-auto animate-slideUp`}
+          className={`fixed bottom-0 left-0 right-0 md:top-1/2 md:left-1/2 md:right-auto md:transform md:-translate-x-1/2 md:-translate-y-1/2 bg-white rounded-t-3xl md:rounded-2xl shadow-2xl z-50 w-full ${sizeClasses[size]} ${scrollClasses} animate-slideUp`}
         >
           {title && (
             <div className="px-5 md:px-6 py-4 md:py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
