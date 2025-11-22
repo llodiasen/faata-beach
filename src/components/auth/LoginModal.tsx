@@ -8,7 +8,7 @@ import Button from '../ui/Button'
 
 export function LoginModal() {
   const navigate = useNavigate()
-  const { currentModal, closeModal, openModal } = useModalStore()
+  const { currentModal, closeModal } = useModalStore()
   const { login, isLoading } = useAuthStore()
   const [formData, setFormData] = useState({ email: '', password: '' })
   const [error, setError] = useState<string | null>(null)

@@ -35,7 +35,7 @@ export function DeliveryTrackingModal() {
   const [loading, setLoading] = useState(true)
   const [deliveryLocation, setDeliveryLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [routePolyline, setRoutePolyline] = useState<[number, number][]>([])
-  const trackingIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const trackingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     if (currentModal === 'deliveryTracking' && selectedOrder) {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { useModalStore } from '../store/useModalStore'
-import { ordersAPI, reservationsAPI, authAPI } from '../lib/api'
+import { ordersAPI, authAPI } from '../lib/api'
 import { ReservationModal } from '../components/modals/ReservationModal'
 import { OrderTrackingModal } from '../components/modals/OrderTrackingModal'
 
@@ -15,20 +15,12 @@ interface Order {
   orderType?: string
 }
 
-interface Reservation {
-  _id: string
-  date: string
-  time: string
-  numberOfGuests: number
-  status: string
-}
 
 export default function ProfilePage() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const { openModal, currentModal } = useModalStore()
   const [orders, setOrders] = useState<Order[]>([])
-  const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedNav, setSelectedNav] = useState<'dashboard' | 'orders' | 'payment' | 'tracking' | 'profile' | 'notifications'>('dashboard')
   const [selectedOrderForTracking, setSelectedOrderForTracking] = useState<string | null>(null)
@@ -57,7 +49,6 @@ export default function ProfilePage() {
     }
 
     loadOrders()
-    loadReservations()
     if (user) {
       setFormData({
         name: user.name || '',
@@ -78,14 +69,6 @@ export default function ProfilePage() {
     }
   }
 
-  const loadReservations = async () => {
-    try {
-      const data = await reservationsAPI.getAll()
-      setReservations(data)
-    } catch (error) {
-      console.error('Erreur chargement réservations:', error)
-    }
-  }
 
   const handleUpdateProfile = async () => {
     try {

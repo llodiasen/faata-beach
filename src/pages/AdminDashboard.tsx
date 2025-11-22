@@ -135,14 +135,6 @@ export default function AdminDashboard() {
     }
   }
 
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
-    try {
-      await ordersAPI.updateStatus(orderId, newStatus)
-      loadData()
-    } catch (error) {
-      console.error('Erreur mise à jour statut:', error)
-    }
-  }
 
   const handleAssignDelivery = (orderId: string) => {
     useModalStore.getState().setSelectedOrder(orderId)
@@ -430,7 +422,7 @@ export default function AdminDashboard() {
     const sortedMonths = Object.keys(months).sort().slice(-4)
     
     return sortedMonths.map(key => {
-      const [year, month] = key.split('-')
+      const [, month] = key.split('-')
       return {
         label: monthNames[parseInt(month) - 1],
         value: months[key],
@@ -839,7 +831,7 @@ export default function AdminDashboard() {
                     ) : topProducts.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">Aucun produit vendu</div>
                     ) : (
-                      topProducts.map((product, index) => (
+                      topProducts.map((product) => (
                         <div key={product.productId} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                           {product.imageUrl ? (
                             <img
