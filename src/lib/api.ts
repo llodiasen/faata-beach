@@ -47,7 +47,7 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   }
 }
 
-// API Auth
+// API Auth - routes consolidées dans api/auth/[action].ts
 export const authAPI = {
   register: (data: { name: string; email: string; password: string; phone?: string }) =>
     fetchAPI('/auth/register', {
@@ -76,24 +76,24 @@ export const authAPI = {
     }),
 }
 
-// API Categories
+// API Categories - route consolidée dans api/categories.ts
 export const categoriesAPI = {
   getAll: () => fetchAPI('/categories'),
-  getById: (id: string) => fetchAPI(`/categories/${id}`),
+  getById: (id: string) => fetchAPI(`/categories?id=${id}`),
 }
 
-// API Products
+// API Products - route consolidée dans api/products.ts
 export const productsAPI = {
   getAll: (categoryId?: string) => {
     const query = categoryId ? `?categoryId=${categoryId}` : ''
     return fetchAPI(`/products${query}`)
   },
-  getById: (id: string) => fetchAPI(`/products/${id}`),
+  getById: (id: string) => fetchAPI(`/products?id=${id}`),
 }
 
-// API Users
+// API Users - routes consolidées dans api/users/[action].ts
 export const usersAPI = {
-  getAll: () => fetchAPI('/users'),
+  getAll: () => fetchAPI('/users/all'),
   getDeliveryUsers: () => fetchAPI('/users/delivery'),
 }
 
@@ -144,14 +144,14 @@ export const reservationsAPI = {
     }),
 
   getAll: () => fetchAPI('/reservations'),
-  getById: (id: string) => fetchAPI(`/reservations/${id}`),
+  getById: (id: string) => fetchAPI(`/reservations?id=${id}`),
   update: (id: string, status: string) =>
-    fetchAPI(`/reservations/${id}`, {
+    fetchAPI(`/reservations?id=${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     }),
   cancel: (id: string) =>
-    fetchAPI(`/reservations/${id}`, {
+    fetchAPI(`/reservations?id=${id}`, {
       method: 'DELETE',
     }),
 }
