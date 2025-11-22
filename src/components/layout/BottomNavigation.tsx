@@ -1,11 +1,9 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
 
 export default function BottomNavigation() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { openModal } = useModalStore()
   const { getItemCount } = useCartStore()
 
   const cartCount = getItemCount()

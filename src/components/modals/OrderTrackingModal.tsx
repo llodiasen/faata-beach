@@ -33,15 +33,6 @@ const homeIcon = new L.Icon({
   shadowSize: [41, 41],
 })
 
-// Icône personnalisée pour livreur
-const deliveryIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-})
 
 interface Order {
   _id: string
@@ -70,7 +61,6 @@ export function OrderTrackingModal() {
   const [loading, setLoading] = useState(true)
   const [estimatedTime, setEstimatedTime] = useState(15) // minutes
   const [tipAmount, setTipAmount] = useState<number | null>(null)
-  const [customTip, setCustomTip] = useState('')
   const trackingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -167,21 +157,6 @@ export function OrderTrackingModal() {
   const deliveryCoords = order?.deliveryAddress?.coordinates
     ? [order.deliveryAddress.coordinates.lat, order.deliveryAddress.coordinates.lng] as [number, number]
     : null
-
-  // Calculer les bounds pour centrer la carte
-  const getMapBounds = () => {
-    if (!deliveryCoords) return restaurantCoords
-    return [
-      [
-        Math.min(restaurantCoords[0], deliveryCoords[0]) - 0.01,
-        Math.min(restaurantCoords[1], deliveryCoords[1]) - 0.01,
-      ],
-      [
-        Math.max(restaurantCoords[0], deliveryCoords[0]) + 0.01,
-        Math.max(restaurantCoords[1], deliveryCoords[1]) + 0.01,
-      ],
-    ]
-  }
 
   if (!selectedOrder) return null
 

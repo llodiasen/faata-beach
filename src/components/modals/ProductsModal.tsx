@@ -13,7 +13,7 @@ interface Product {
 }
 
 export function ProductsModal() {
-  const { currentModal, closeModal, openModal, setSelectedProduct, selectedCategory } = useModalStore()
+  const { currentModal, closeModal, openModal, selectedCategory } = useModalStore()
   const { addItem } = useCartStore()
   const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([])

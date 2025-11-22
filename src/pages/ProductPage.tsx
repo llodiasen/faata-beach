@@ -28,7 +28,7 @@ interface Category {
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { items, addItem, updateQuantity, removeItem, getTotal } = useCartStore()
+  const { items, addItem, updateQuantity, getTotal } = useCartStore()
   const { openModal } = useModalStore()
   const [product, setProduct] = useState<Product | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
