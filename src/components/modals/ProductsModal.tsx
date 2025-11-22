@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
 import { productsAPI } from '../../lib/api'
+import Modal from '../ui/Modal'
 
 interface Product {
   _id: string
@@ -77,20 +78,19 @@ export function ProductsModal() {
     (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
-  if (currentModal !== 'products') return null
-
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 h-screen z-50 bg-gray-50 flex flex-col">
-      {/* Header avec recherche */}
-      <div className="bg-white px-4 pt-4 pb-3 flex-shrink-0 shadow-sm">
+    <Modal isOpen={currentModal === 'products'} onClose={closeModal} size="xl">
+      {/* Barre de recherche et bouton retour */}
+      <div className="mb-6">
         {/* Bouton retour */}
         <button
           onClick={() => openModal('categories')}
-          className="mb-3 text-gray-600 hover:text-gray-900 transition-colors"
+          className="mb-3 text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
+          <span className="text-sm font-medium">Retour aux catégories</span>
         </button>
 
         {/* Barre de recherche */}
@@ -120,96 +120,93 @@ export function ProductsModal() {
         </div>
       </div>
 
-      {/* Contenu scrollable */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
-        {loading && (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-gray-500">Chargement...</div>
-          </div>
-        )}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-gray-500">Chargement...</div>
+        </div>
+      )}
 
-        {error && (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-red-600 text-center p-4">{error}</div>
-          </div>
-        )}
+      {error && (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-red-600 text-center p-4">{error}</div>
+        </div>
+      )}
 
-        {!loading && !error && (
-          <>
-            {filteredProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">Aucun produit trouvé</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {filteredProducts.map((product) => (
-                  <button
-                    key={product._id}
-                    onClick={() => handleProductClick(product._id)}
-                    className="bg-white rounded-xl p-0 text-left transition-all duration-200 hover:shadow-lg overflow-hidden group"
-                  >
-                    {/* Image produit */}
-                    <div className="w-full h-40 bg-gray-100 overflow-hidden">
-                      {product.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Contenu texte */}
-                    <div className="p-4">
-                      <h3 className="text-base font-bold text-gray-900 mb-1 line-clamp-1">
-                        {product.name}
-                      </h3>
-                      
-                      {product.description && (
-                        <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
-                          {product.description}
-                        </p>
-                      )}
-
-                      {/* Prix et bouton + */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-gray-900">
-                          {product.price.toLocaleString('fr-FR')} CFA
-                        </span>
-                        
-                        <button
-                          onClick={(e) => handleQuickAddToCart(e, product)}
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
-                            addedProducts.has(product._id)
-                              ? 'bg-green-500'
-                              : 'bg-orange-500 hover:bg-orange-600'
-                          } shadow-sm hover:shadow-md`}
-                        >
-                          {addedProducts.has(product._id) ? (
-                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          ) : (
-                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                          )}
-                        </button>
+      {!loading && !error && (
+        <>
+          {filteredProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Aucun produit trouvé</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {filteredProducts.map((product) => (
+                <button
+                  key={product._id}
+                  onClick={() => handleProductClick(product._id)}
+                  className="bg-white rounded-xl p-0 text-left transition-all duration-200 hover:shadow-lg overflow-hidden group border border-gray-100"
+                >
+                  {/* Image produit */}
+                  <div className="w-full h-40 bg-gray-100 overflow-hidden">
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
                       </div>
+                    )}
+                  </div>
+
+                  {/* Contenu texte */}
+                  <div className="p-4">
+                    <h3 className="text-sm md:text-base font-bold text-gray-900 mb-1 line-clamp-1">
+                      {product.name}
+                    </h3>
+                    
+                    {product.description && (
+                      <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
+                        {product.description}
+                      </p>
+                    )}
+
+                    {/* Prix et bouton + */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm md:text-base font-bold text-gray-900">
+                        {product.price.toLocaleString('fr-FR')} CFA
+                      </span>
+                      
+                      <button
+                        onClick={(e) => handleQuickAddToCart(e, product)}
+                        className={`w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                          addedProducts.has(product._id)
+                            ? 'bg-green-500'
+                            : 'bg-orange-500 hover:bg-orange-600'
+                        } shadow-sm hover:shadow-md flex-shrink-0`}
+                      >
+                        {addedProducts.has(product._id) ? (
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        )}
+                      </button>
                     </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </Modal>
   )
 }
