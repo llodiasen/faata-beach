@@ -97,25 +97,25 @@ export function CategoriesModal() {
             <h2 className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide">
               What's on your mind?
             </h2>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {filteredCategories.slice(0, 8).map((category) => (
                 <button
                   key={category._id}
                   onClick={() => handleCategoryClick(category._id)}
-                  className="flex flex-col items-center gap-3 p-3 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border border-gray-100"
+                  className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border border-gray-100 group"
                 >
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden shadow-md ring-2 ring-orange-200/50">
+                  <div className="w-28 h-28 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-orange-200/50 group-hover:ring-orange-400/70 transition-all">
                     {category.imageUrl ? (
                       <img
                         src={category.imageUrl}
                         alt={category.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                     ) : (
-                      <span className="text-3xl">🍽️</span>
+                      <span className="text-4xl md:text-3xl">🍽️</span>
                     )}
                   </div>
-                  <span className="text-xs font-medium text-gray-700 text-center leading-relaxed min-h-[32px] flex items-center justify-center px-1">
+                  <span className="text-sm md:text-xs font-medium text-gray-700 text-center leading-relaxed min-h-[40px] md:min-h-[32px] flex items-center justify-center px-2">
                     {category.name}
                   </span>
                 </button>
@@ -128,7 +128,7 @@ export function CategoriesModal() {
             <h2 className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide">
               Explore
             </h2>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {/* Offers */}
               <button className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border border-gray-100">
                 <div className="w-14 h-14 rounded-xl bg-red-100 flex items-center justify-center">
