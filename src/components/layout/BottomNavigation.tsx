@@ -12,12 +12,21 @@ export default function BottomNavigation() {
 
   const cartCount = getItemCount()
 
+  const { openModal } = useModalStore()
+
   const handleNavigate = (path: string) => {
     // Fermer tous les modals avant de naviguer
     closeModal()
     // Petite pause pour permettre la fermeture des modals
     setTimeout(() => {
       navigate(path)
+    }, 100)
+  }
+
+  const handleCartClick = () => {
+    closeModal()
+    setTimeout(() => {
+      openModal('cart')
     }, 100)
   }
 
@@ -39,28 +48,6 @@ export default function BottomNavigation() {
       onClick: () => handleNavigate('/'),
     },
     {
-      id: 'orders',
-      label: 'Commandes',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-      ),
-      activeIcon: (
-        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
-        </svg>
-      ),
-      path: '/profile',
-      onClick: () => {
-        if (user) {
-          handleNavigate('/profile?tab=orders')
-        } else {
-          handleNavigate('/login')
-        }
-      },
-    },
-    {
       id: 'favorites',
       label: 'Favoris',
       icon: (
@@ -79,19 +66,43 @@ export default function BottomNavigation() {
       onClick: () => handleNavigate('/favourites'),
     },
     {
-      id: 'profile',
-      label: 'Profil',
+      id: 'cart',
+      label: 'Panier',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
       activeIcon: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.15.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
         </svg>
       ),
-      path: '/profile',
+      path: '/cart',
+      onClick: handleCartClick,
+    },
+    {
+      id: user ? 'profile' : 'login',
+      label: user ? 'Profil' : 'Se connecter',
+      icon: user ? (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ) : (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+      ),
+      activeIcon: user ? (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+        </svg>
+      ) : (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+      ),
+      path: user ? '/profile' : '/login',
       onClick: () => {
         if (user) {
           handleNavigate('/profile')
@@ -106,9 +117,9 @@ export default function BottomNavigation() {
     if (path === '/') {
       return location.pathname === '/'
     }
-    if (id === 'orders') {
-      // Actif si on est sur /profile avec le tab orders
-      return location.pathname === '/profile' && location.search.includes('tab=orders')
+    if (id === 'cart') {
+      // Actif si le modal cart est ouvert
+      return false // Le panier n'est pas une route mais un modal
     }
     return location.pathname.startsWith(path)
   }
@@ -133,16 +144,11 @@ export default function BottomNavigation() {
               aria-label={item.label}
               type="button"
             >
-              {/* Badge pour le panier sur l'icône home */}
-              {item.id === 'home' && cartCount > 0 && (
+              {/* Badge pour le panier sur l'icône cart */}
+              {item.id === 'cart' && cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
                   {cartCount > 9 ? '9+' : cartCount}
                 </span>
-              )}
-              
-              {/* Indicateur actif pour favoris */}
-              {item.id === 'favorites' && active && (
-                <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-yellow-400 rounded-full -z-10 opacity-20" />
               )}
               
               <div className={active ? 'text-orange-500' : 'text-gray-500'}>

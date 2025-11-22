@@ -15,7 +15,6 @@ export function CategoriesModal() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -43,40 +42,8 @@ export function CategoriesModal() {
     openModal('products')
   }
 
-  // Filtrer les catégories selon la recherche
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
   return (
     <Modal isOpen={currentModal === 'categories'} onClose={closeModal} size="lg">
-      {/* Barre de recherche */}
-      <div className="mb-6">
-        <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">
-            <svg className="w-5 h-5 text-faata-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <input
-            type="text"
-            placeholder="Search for categories..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-12 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-faata-red focus:border-transparent text-gray-900 placeholder-gray-400"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
 
       {loading && (
         <div className="flex items-center justify-center py-12">
@@ -98,7 +65,7 @@ export function CategoriesModal() {
               What's on your mind?
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {filteredCategories.slice(0, 8).map((category) => (
+              {categories.slice(0, 8).map((category) => (
                 <button
                   key={category._id}
                   onClick={() => handleCategoryClick(category._id)}
@@ -124,13 +91,13 @@ export function CategoriesModal() {
           </div>
 
           {/* Toutes les catégories restantes en grille */}
-          {filteredCategories.length > 8 && (
+          {categories.length > 8 && (
             <div>
               <h2 className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide">
                 All Categories
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {filteredCategories.slice(8).map((category) => (
+                {categories.slice(8).map((category) => (
                   <button
                     key={category._id}
                     onClick={() => handleCategoryClick(category._id)}
