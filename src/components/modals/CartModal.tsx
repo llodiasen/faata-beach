@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
-import { categoriesAPI, productsAPI } from '../../lib/api'
+import { categoriesAPI } from '../../lib/api'
 
 interface Category {
   _id: string
@@ -11,11 +11,10 @@ interface Category {
 
 export function CartModal() {
   const { currentModal, closeModal, openModal, setSelectedCategory } = useModalStore()
-  const { items, removeItem, updateQuantity, getTotal } = useCartStore()
+  const { items, updateQuantity } = useCartStore()
   const { user } = useAuthStore()
   const [categories, setCategories] = useState<Category[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -115,11 +114,7 @@ export function CartModal() {
             <button
               key={category._id}
               onClick={() => handleCategoryClick(category._id)}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                selectedCategoryFilter === category._id
-                  ? 'bg-black text-white'
-                  : 'bg-yellow-300 text-black hover:bg-yellow-200'
-              }`}
+                className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors bg-yellow-300 text-black hover:bg-yellow-200"
             >
               {category.name}
             </button>

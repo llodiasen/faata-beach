@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useModalStore } from '../../store/useModalStore'
 import { ordersAPI } from '../../lib/api'
-import { OrderTrackingModal } from './OrderTrackingModal'
 
 interface OrderItem {
   productId: {
@@ -98,8 +97,7 @@ export function ConfirmationModal() {
   if (currentModal !== 'confirmation') return null
 
   return (
-    <>
-      <div className="fixed top-0 left-0 right-0 bottom-0 h-screen z-50 bg-yellow-50 flex flex-col overflow-y-auto">
+    <div className="fixed top-0 left-0 right-0 bottom-0 h-screen z-50 bg-yellow-50 flex flex-col overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-gray-500">Chargement...</div>
@@ -289,7 +287,5 @@ export function ConfirmationModal() {
           </button>
         </div>
       </div>
-      {currentModal === 'orderTracking' && <OrderTrackingModal />}
-    </>
   )
 }

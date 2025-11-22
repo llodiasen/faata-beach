@@ -6,10 +6,10 @@ import { useGeolocation } from '../../hooks/useGeolocation'
 import { ordersAPI } from '../../lib/api'
 
 export function CheckoutModal() {
-  const { currentModal, closeModal, openModal } = useModalStore()
+  const { currentModal, openModal } = useModalStore()
   const { items, getTotal, clearCart } = useCartStore()
   const { user } = useAuthStore()
-  const { getCurrentLocation, loading: geoLoading, error: geoError } = useGeolocation()
+  const { getCurrentLocation, loading: geoLoading } = useGeolocation()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [detectingLocation, setDetectingLocation] = useState(false)

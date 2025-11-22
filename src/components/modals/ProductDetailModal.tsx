@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
-import { productsAPI, categoriesAPI } from '../../lib/api'
+import { productsAPI } from '../../lib/api'
 
 interface Extra {
   name: string
@@ -19,7 +19,7 @@ interface Product {
 }
 
 export function ProductDetailModal() {
-  const { currentModal, closeModal, openModal, selectedProduct } = useModalStore()
+  const { currentModal, closeModal, selectedProduct } = useModalStore()
   const { addItem } = useCartStore()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
@@ -42,7 +42,7 @@ export function ProductDetailModal() {
         // Définir le poids par défaut si des extras de type poids sont disponibles
         if (data.extras && data.extras.length > 0) {
           // Chercher un extra qui ressemble à un poids (contient "g" ou "kg")
-          const weightExtra = data.extras.find(e => /g|kg/i.test(e.name))
+          const weightExtra = data.extras.find((e: Extra) => /g|kg/i.test(e.name))
           if (weightExtra) {
             setSelectedWeight(weightExtra.name)
           } else {
@@ -63,21 +63,6 @@ export function ProductDetailModal() {
       fetchProduct()
     }
   }, [currentModal, selectedProduct])
-
-  const calculateTotalPrice = () => {
-    if (!product) return 0
-    let total = product.price
-    
-    // Ajouter le prix de l'extra sélectionné (poids)
-    if (product.extras && selectedWeight) {
-      const selectedExtra = product.extras.find(e => e.name === selectedWeight)
-      if (selectedExtra) {
-        total = selectedExtra.price // Utiliser le prix de l'extra comme prix de base
-      }
-    }
-    
-    return total * quantity
-  }
 
   const handleConfirmAndChange = () => {
     if (!product) return
