@@ -1,12 +1,25 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useCartStore } from '../../store/useCartStore'
+import { useModalStore } from '../../store/useModalStore'
+import { useAuthStore } from '../../store/useAuthStore'
 
 export default function BottomNavigation() {
   const navigate = useNavigate()
   const location = useLocation()
   const { getItemCount } = useCartStore()
+  const { closeModal } = useModalStore()
+  const { user } = useAuthStore()
 
   const cartCount = getItemCount()
+
+  const handleNavigate = (path: string) => {
+    // Fermer tous les modals avant de naviguer
+    closeModal()
+    // Petite pause pour permettre la fermeture des modals
+    setTimeout(() => {
+      navigate(path)
+    }, 100)
+  }
 
   const navItems = [
     {
@@ -23,7 +36,7 @@ export default function BottomNavigation() {
         </svg>
       ),
       path: '/',
-      onClick: () => navigate('/'),
+      onClick: () => handleNavigate('/'),
     },
     {
       id: 'orders',
@@ -38,10 +51,13 @@ export default function BottomNavigation() {
           <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
         </svg>
       ),
-      path: '/orders',
+      path: '/profile',
       onClick: () => {
-        // TODO: Navigate to orders page or open orders modal
-        navigate('/profile?tab=orders')
+        if (user) {
+          handleNavigate('/profile?tab=orders')
+        } else {
+          handleNavigate('/login')
+        }
       },
     },
     {
@@ -60,8 +76,7 @@ export default function BottomNavigation() {
         </div>
       ),
       path: '/favourites',
-      onClick: () => navigate('/favourites'),
-      badge: undefined, // Pas de badge pour favoris pour l'instant
+      onClick: () => handleNavigate('/favourites'),
     },
     {
       id: 'profile',
@@ -77,31 +92,46 @@ export default function BottomNavigation() {
         </svg>
       ),
       path: '/profile',
-      onClick: () => navigate('/profile'),
+      onClick: () => {
+        if (user) {
+          handleNavigate('/profile')
+        } else {
+          handleNavigate('/login')
+        }
+      },
     },
   ]
 
-  const isActive = (path: string) => {
+  const isActive = (path: string, id: string) => {
     if (path === '/') {
       return location.pathname === '/'
+    }
+    if (id === 'orders') {
+      // Actif si on est sur /profile avec le tab orders
+      return location.pathname === '/profile' && location.search.includes('tab=orders')
     }
     return location.pathname.startsWith(path)
   }
 
   // Afficher uniquement sur mobile
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[60] md:hidden shadow-lg">
       <div className="grid grid-cols-4 h-16">
         {navItems.map((item) => {
-          const active = isActive(item.path)
+          const active = isActive(item.path, item.id)
           return (
             <button
               key={item.id}
-              onClick={item.onClick}
-              className={`flex flex-col items-center justify-center gap-1 relative transition-colors ${
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                item.onClick()
+              }}
+              className={`flex flex-col items-center justify-center gap-1 relative transition-colors touch-manipulation ${
                 active ? 'text-orange-500' : 'text-gray-500'
-              }`}
+              } active:bg-gray-100`}
               aria-label={item.label}
+              type="button"
             >
               {/* Badge pour le panier sur l'icône home */}
               {item.id === 'home' && cartCount > 0 && (

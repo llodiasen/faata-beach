@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { useModalStore } from '../store/useModalStore'
 import { ordersAPI, authAPI } from '../lib/api'
 import { ReservationModal } from '../components/modals/ReservationModal'
 import { OrderTrackingModal } from '../components/modals/OrderTrackingModal'
+import BottomNavigation from '../components/layout/BottomNavigation'
 
 interface Order {
   _id: string
@@ -18,6 +19,7 @@ interface Order {
 
 export default function ProfilePage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { user, logout } = useAuthStore()
   const { openModal, currentModal } = useModalStore()
   const [orders, setOrders] = useState<Order[]>([])
@@ -41,6 +43,14 @@ export default function ProfilePage() {
     email: user?.email || '',
     phone: user?.phone || '',
   })
+
+  // Lire le tab depuis l'URL query params
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['dashboard', 'orders', 'payment', 'tracking', 'profile', 'notifications'].includes(tab)) {
+      setSelectedNav(tab as typeof selectedNav)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     if (!user) {
@@ -232,9 +242,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-white flex pb-20 md:pb-0">
       {/* Sidebar Navigation */}
-      <aside className="w-72 bg-white fixed left-0 top-0 h-full z-10">
+      <aside className="w-72 bg-white fixed left-0 top-0 h-full z-10 md:block hidden">
         {/* User Profile */}
         <div className="p-6">
           <div className="flex items-center gap-4">
@@ -909,6 +919,9 @@ export default function ProfilePage() {
       {/* Modals */}
       {currentModal === 'reservation' && <ReservationModal />}
       {currentModal === 'orderTracking' && <OrderTrackingModal />}
+
+      {/* Bottom Navigation - Mobile uniquement */}
+      <BottomNavigation />
     </div>
   )
 }
