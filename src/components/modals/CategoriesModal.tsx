@@ -44,7 +44,6 @@ export function CategoriesModal() {
 
   return (
     <Modal isOpen={currentModal === 'categories'} onClose={closeModal} size="lg">
-
       {loading && (
         <div className="flex items-center justify-center py-12">
           <div className="text-gray-500">Chargement...</div>
@@ -58,79 +57,54 @@ export function CategoriesModal() {
       )}
 
       {!loading && !error && (
-        <>
-          {/* Section "WHAT'S ON YOUR MIND?" */}
-          <div className="mb-8">
-            <h2 className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide">
-              What's on your mind?
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {categories.slice(0, 8).map((category) => (
-                <button
-                  key={category._id}
-                  onClick={() => handleCategoryClick(category._id)}
-                  className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border border-gray-100 group"
-                >
-                  <div className="w-28 h-28 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden shadow-2xl ring-4 ring-orange-300/60 group-hover:ring-orange-500/90 transition-all group-hover:shadow-orange-300/50">
-                    {category.imageUrl ? (
-                      <img
-                        src={category.imageUrl}
-                        alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-115 transition-transform duration-300 brightness-110 contrast-110"
-                      />
-                    ) : (
-                      <span className="text-4xl md:text-3xl">🍽️</span>
-                    )}
-                  </div>
-                  <span className="text-sm md:text-xs font-medium text-gray-700 text-center leading-relaxed min-h-[40px] md:min-h-[32px] flex items-center justify-center px-2">
+        <div className="space-y-3">
+          {categories.map((category, index) => {
+            // Alterner entre gris foncé et vert clair
+            const isDark = index % 2 === 0
+            const bgColor = isDark ? 'bg-gray-800' : 'bg-green-100'
+            const textColor = isDark ? 'text-white' : 'text-gray-900'
+            
+            return (
+              <button
+                key={category._id}
+                onClick={() => handleCategoryClick(category._id)}
+                className={`w-full ${bgColor} rounded-2xl p-6 flex items-center justify-between transition-all duration-200 hover:scale-[1.02] hover:shadow-xl relative overflow-hidden group`}
+              >
+                {/* Contenu texte à gauche */}
+                <div className="flex-1 text-left z-10">
+                  <h3 className={`text-2xl font-bold mb-2 ${textColor}`}>
                     {category.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
+                  </h3>
+                  {category.description && (
+                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-1`}>
+                      {category.description}
+                    </p>
+                  )}
+                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    FAATA Beach - Dakar
+                  </p>
+                </div>
 
-          {/* Toutes les catégories restantes en grille */}
-          {categories.length > 8 && (
-            <div>
-              <h2 className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide">
-                All Categories
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {categories.slice(8).map((category) => (
-                  <button
-                    key={category._id}
-                    onClick={() => handleCategoryClick(category._id)}
-                    className="flex items-center gap-4 p-4 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md border border-gray-100"
-                  >
-                    <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-xl ring-4 ring-orange-300/60 hover:ring-orange-500/90 transition-all hover:shadow-2xl hover:shadow-orange-300/50">
-                      {category.imageUrl ? (
-                        <img
-                          src={category.imageUrl}
-                          alt={category.name}
-                          className="w-full h-full object-cover brightness-110 contrast-110 hover:scale-110 transition-transform duration-300"
-                        />
-                      ) : (
-                        <span className="text-2xl">🍽️</span>
-                      )}
+                {/* Image à droite */}
+                <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/20 group-hover:ring-white/40 transition-all ml-4 flex-shrink-0 relative z-10">
+                  {category.imageUrl ? (
+                    <img
+                      src={category.imageUrl}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 brightness-105 contrast-110"
+                    />
+                  ) : (
+                    <div className={`w-full h-full flex items-center justify-center ${isDark ? 'bg-gray-700' : 'bg-green-200'}`}>
+                      <span className="text-5xl md:text-6xl">🍽️</span>
                     </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <h3 className="font-semibold text-gray-900 text-sm leading-tight break-words">
-                        {category.name}
-                      </h3>
-                      {category.description && (
-                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{category.description}</p>
-                      )}
-                    </div>
-                    <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
+                  )}
+                  {/* Overlay gradient subtil */}
+                  <div className="absolute inset-0 bg-gradient-to-l from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
       )}
     </Modal>
   )
