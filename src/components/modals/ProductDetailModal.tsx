@@ -122,12 +122,14 @@ export function ProductDetailModal() {
         <div className="space-y-6">
           {/* Image produit */}
           {product.imageUrl && (
-            <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden">
+            <div className="w-full h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-orange-200/40 relative">
               <img
                 src={product.imageUrl}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover brightness-105 contrast-110"
               />
+              {/* Overlay gradient subtil */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none"></div>
             </div>
           )}
 

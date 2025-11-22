@@ -147,12 +147,12 @@ export function ProductsModal() {
                   className="bg-white rounded-xl p-0 text-left transition-all duration-200 hover:shadow-lg overflow-hidden group border border-gray-100"
                 >
                   {/* Image produit */}
-                  <div className="w-full h-40 bg-gray-100 overflow-hidden">
+                  <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden relative shadow-xl ring-2 ring-gray-200/50 group-hover:ring-orange-300/70 group-hover:shadow-2xl transition-all duration-300">
                     {product.imageUrl ? (
                       <img
                         src={product.imageUrl}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 brightness-105 contrast-105"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -161,6 +161,8 @@ export function ProductsModal() {
                         </svg>
                       </div>
                     )}
+                    {/* Overlay gradient pour plus de profondeur */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
 
                   {/* Contenu texte */}

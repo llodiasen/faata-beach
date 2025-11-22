@@ -71,12 +71,12 @@ export function CategoriesModal() {
                   onClick={() => handleCategoryClick(category._id)}
                   className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-white hover:bg-gray-50 transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border border-gray-100 group"
                 >
-                  <div className="w-28 h-28 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-orange-200/50 group-hover:ring-orange-400/70 transition-all">
+                  <div className="w-28 h-28 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden shadow-2xl ring-4 ring-orange-300/60 group-hover:ring-orange-500/90 transition-all group-hover:shadow-orange-300/50">
                     {category.imageUrl ? (
                       <img
                         src={category.imageUrl}
                         alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-115 transition-transform duration-300 brightness-110 contrast-110"
                       />
                     ) : (
                       <span className="text-4xl md:text-3xl">🍽️</span>
@@ -103,12 +103,12 @@ export function CategoriesModal() {
                     onClick={() => handleCategoryClick(category._id)}
                     className="flex items-center gap-4 p-4 rounded-xl bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md border border-gray-100"
                   >
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-md ring-2 ring-orange-200/50">
+                    <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-xl ring-4 ring-orange-300/60 hover:ring-orange-500/90 transition-all hover:shadow-2xl hover:shadow-orange-300/50">
                       {category.imageUrl ? (
                         <img
                           src={category.imageUrl}
                           alt={category.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover brightness-110 contrast-110 hover:scale-110 transition-transform duration-300"
                         />
                       ) : (
                         <span className="text-2xl">🍽️</span>

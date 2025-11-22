@@ -206,13 +206,17 @@ export default function ProductPage() {
                 {/* Image produit */}
                 <div>
                   {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="w-full h-64 object-cover rounded-lg"
-                    />
+                    <div className="w-full h-96 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-orange-200/40 relative">
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover brightness-105 contrast-110"
+                      />
+                      {/* Overlay gradient subtil */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none"></div>
+                    </div>
                   ) : (
-                    <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <div className="w-full h-96 bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl shadow-2xl ring-4 ring-gray-300/40 flex items-center justify-center">
                       <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
@@ -347,13 +351,15 @@ export default function ProductPage() {
                         <div key={item.id} className="border-2 border-dashed border-gray-200 rounded-lg p-3">
                           <div className="flex items-center gap-3">
                             {item.imageUrl ? (
-                              <img
-                                src={item.imageUrl}
-                                alt={item.name}
-                                className="w-16 h-16 object-cover rounded-lg"
-                              />
+                              <div className="w-20 h-20 rounded-xl overflow-hidden shadow-xl ring-2 ring-orange-200/50 flex-shrink-0">
+                                <img
+                                  src={item.imageUrl}
+                                  alt={item.name}
+                                  className="w-full h-full object-cover brightness-105 contrast-105"
+                                />
+                              </div>
                             ) : (
-                              <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                              <div className="w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl shadow-xl ring-2 ring-gray-300/50 flex-shrink-0"></div>
                             )}
                             <div className="flex-1 min-w-0">
                               <h3 className="font-semibold text-gray-900 text-sm truncate">{item.name}</h3>
