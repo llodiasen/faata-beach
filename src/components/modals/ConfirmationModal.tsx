@@ -53,7 +53,11 @@ export function ConfirmationModal() {
 
   const handleTrackOrder = () => {
     if (selectedOrder) {
-      openModal('orderTracking')
+      closeModal() // Fermer le modal de confirmation
+      // Ouvrir le modal de suivi de commande après un court délai pour permettre la fermeture
+      setTimeout(() => {
+        openModal('orderTracking')
+      }, 100)
     }
   }
 
