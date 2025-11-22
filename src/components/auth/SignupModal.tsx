@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useModalStore } from '../../store/useModalStore'
 import { useAuthStore } from '../../store/useAuthStore'
+import { getUserRole } from '../../lib/permissions'
 import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 
 export function SignupModal() {
+  const navigate = useNavigate()
   const { currentModal, closeModal, openModal } = useModalStore()
   const { register, isLoading } = useAuthStore()
   const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '' })
@@ -26,14 +29,32 @@ export function SignupModal() {
         password: formData.password,
         phone: formData.phone || undefined,
       })
-      closeModal()
+      // Le user est mis à jour dans le store après register
+      // On attend un peu pour que le store se mette à jour
+      setTimeout(() => {
+        const store = useAuthStore.getState()
+        const userRole = getUserRole(store.user)
+        if (userRole === 'admin') {
+          navigate('/dashboard-admin')
+        } else if (userRole === 'delivery') {
+          navigate('/dashboard-livreur')
+        } else {
+          navigate('/')
+        }
+        closeModal()
+      }, 100)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de l\'inscription')
     }
   }
 
+  const handleClose = () => {
+    closeModal()
+    navigate('/')
+  }
+
   return (
-    <Modal isOpen={currentModal === 'signup'} onClose={closeModal} title="S'inscrire" size="sm" noScroll>
+    <Modal isOpen={currentModal === 'signup'} onClose={handleClose} title="S'inscrire" size="sm" noScroll>
       <form onSubmit={handleSubmit} className="space-y-3 md:space-y-3.5">
         <div>
           <label className="block text-gray-700 font-semibold mb-1.5 text-sm md:text-base">Nom complet</label>
@@ -99,7 +120,7 @@ export function SignupModal() {
         <div className="flex flex-col sm:flex-row gap-2.5 md:gap-3 pt-1">
           <Button 
             variant="outline" 
-            onClick={closeModal} 
+            onClick={handleClose} 
             type="button" 
             className="flex-1 w-full sm:w-auto py-2.5 md:py-2 text-base md:text-sm font-medium"
           >
@@ -120,7 +141,7 @@ export function SignupModal() {
             type="button"
             onClick={() => {
               closeModal()
-              openModal('login')
+              navigate('/login')
             }}
             className="text-faata-red hover:underline text-sm md:text-xs font-medium"
           >

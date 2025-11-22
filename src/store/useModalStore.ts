@@ -9,6 +9,11 @@ export type ModalType =
   | 'confirmation'
   | 'login'
   | 'signup'
+  | 'orderTracking'
+  | 'reservation'
+  | 'orderDetails'
+  | 'assignDelivery'
+  | 'deliveryTracking'
   | null
 
 interface ModalStore {
@@ -19,6 +24,8 @@ interface ModalStore {
   setSelectedCategory: (category: string | null) => void
   selectedProduct: string | null
   setSelectedProduct: (productId: string | null) => void
+  selectedOrder: string | null
+  setSelectedOrder: (orderId: string | null) => void
 }
 
 export const useModalStore = create<ModalStore>((set) => ({
@@ -29,5 +36,7 @@ export const useModalStore = create<ModalStore>((set) => ({
   setSelectedCategory: (category) => set({ selectedCategory: category }),
   selectedProduct: null,
   setSelectedProduct: (productId) => set({ selectedProduct: productId }),
+  selectedOrder: null,
+  setSelectedOrder: (orderId) => set({ selectedOrder: orderId }),
 }))
 

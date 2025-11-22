@@ -126,7 +126,13 @@ export function CheckoutModal() {
         }
       }
 
-      await ordersAPI.create(orderData)
+      const order = await ordersAPI.create(orderData)
+
+      // Stocker l'ID de la commande pour le suivi
+      const orderId = (order._id || order.id)?.toString()
+      if (orderId) {
+        useModalStore.getState().setSelectedOrder(orderId)
+      }
 
       // Nettoyer les données de livraison après succès
       if (orderType === 'livraison') {

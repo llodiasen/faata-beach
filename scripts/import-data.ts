@@ -46,60 +46,50 @@ const { Category, Product } = await import('../api/lib/models.js')
 // Fonction pour obtenir les extras selon la catégorie (prix en CFA Sénégalais)
 function getExtrasForCategory(categoryName: string): Array<{ name: string; price: number }> {
   const extras: Record<string, Array<{ name: string; price: number }>> = {
-    'Burgers': [
-      { name: 'Fromage supplémentaire', price: 500 },
-      { name: 'Bacon supplémentaire', price: 800 },
-      { name: 'Œuf', price: 500 },
-      { name: 'Oignons frits', price: 300 },
-      { name: 'Champignons', price: 500 },
-      { name: 'Sauce supplémentaire', price: 200 },
+    'Entrées': [
+      { name: 'Pain supplémentaire', price: 500 },
+      { name: 'Huile d\'olive extra', price: 300 },
+      { name: 'Vinaigrette maison', price: 200 },
     ],
-    'Pizzas': [
-      { name: 'Fromage supplémentaire', price: 800 },
-      { name: 'Champignons', price: 600 },
-      { name: 'Olives', price: 500 },
-      { name: 'Jambon supplémentaire', price: 900 },
-      { name: 'Légumes supplémentaires', price: 400 },
-    ],
-    'Plats Mer': [
+    'Plats — À base de poisson': [
       { name: 'Riz supplémentaire', price: 500 },
       { name: 'Frites supplémentaires', price: 1000 },
       { name: 'Salade supplémentaire', price: 600 },
-      { name: 'Sauce piquante', price: 300 },
+      { name: 'Sauce citron-beurre', price: 300 },
+      { name: 'Légumes vapeur', price: 600 },
+    ],
+    'Plats — À base de fruits de mer': [
+      { name: 'Riz pilaf supplémentaire', price: 500 },
+      { name: 'Pain grillé', price: 500 },
       { name: 'Citron supplémentaire', price: 200 },
+      { name: 'Sauce aïoli', price: 300 },
     ],
-    'Plats Terre': [
+    'Plats — À base de poulet': [
       { name: 'Riz supplémentaire', price: 500 },
       { name: 'Frites supplémentaires', price: 1000 },
       { name: 'Salade supplémentaire', price: 600 },
-      { name: 'Sauce piquante', price: 300 },
-      { name: 'Légumes supplémentaires', price: 400 },
+      { name: 'Sauce BBQ supplémentaire', price: 300 },
+      { name: 'Légumes sautés', price: 600 },
     ],
-    'Sandwichs & Wraps': [
-      { name: 'Fromage supplémentaire', price: 500 },
-      { name: 'Avocat', price: 600 },
-      { name: 'Légumes supplémentaires', price: 400 },
-      { name: 'Sauce supplémentaire', price: 200 },
-      { name: 'Bacon supplémentaire', price: 800 },
+    'Plats — À base de viande': [
+      { name: 'Riz supplémentaire', price: 500 },
+      { name: 'Frites supplémentaires', price: 1000 },
+      { name: 'Sauce au poivre', price: 400 },
+      { name: 'Légumes sautés', price: 600 },
+    ],
+    'Accompagnements': [
+      { name: 'Sauce supplémentaire', price: 300 },
+      { name: 'Beurre supplémentaire', price: 200 },
     ],
     'Boissons': [
       { name: 'Glace supplémentaire', price: 300 },
       { name: 'Sirop supplémentaire', price: 400 },
-      { name: 'Menthe supplémentaire', price: 300 },
-    ],
-    'Snacks & Tapas': [
-      { name: 'Sauce supplémentaire', price: 300 },
-      { name: 'Fromage supplémentaire', price: 500 },
+      { name: 'Menthe fraîche', price: 300 },
     ],
     'Desserts': [
       { name: 'Chantilly supplémentaire', price: 400 },
       { name: 'Noix supplémentaires', price: 500 },
-      { name: 'Sauce chocolat', price: 400 },
-      { name: 'Fruits supplémentaires', price: 600 },
-    ],
-    'Menu Enfant': [
-      { name: 'Sauce supplémentaire', price: 300 },
-      { name: 'Fromage supplémentaire', price: 500 },
+      { name: 'Coulis de fruits', price: 400 },
     ],
   }
   
@@ -108,6 +98,70 @@ function getExtrasForCategory(categoryName: string): Array<{ name: string; price
 
 const data = {
   "categories": [
+    {
+      "name": "Entrées",
+      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&h=800&fit=crop&auto=format",
+      "products": [
+        { "name": "Salade niçoise", "price": 4000, "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Salade chef", "price": 4500, "image": "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Cocktail avocat crevettes", "price": 5000, "image": "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Salade italienne", "price": 4200, "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Salade exotique", "price": 4500, "image": "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d1?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Salade chinoise", "price": 4300, "image": "https://images.unsplash.com/photo-1505252585461-04c2a47d63d8?w=800&h=800&fit=crop&auto=format" }
+      ]
+    },
+    {
+      "name": "Plats — À base de poisson",
+      "image": "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&h=800&fit=crop&auto=format",
+      "products": [
+        { "name": "Brochettes lotte", "price": 6500, "image": "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Poisson braisé", "price": 7000, "image": "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Filet lotte pané", "price": 7500, "image": "https://images.unsplash.com/photo-1559847844-5315695dadae?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Sole meunière", "price": 8000, "image": "https://images.unsplash.com/photo-1574781330858-c0ff99397e2e?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Sole Colbert", "price": 8500, "image": "https://images.unsplash.com/photo-1574781330858-c0ff99397e2e?w=800&h=800&fit=crop&auto=format" }
+      ]
+    },
+    {
+      "name": "Plats — À base de fruits de mer",
+      "image": "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&h=800&fit=crop&auto=format",
+      "products": [
+        { "name": "Crevettes sautées ail", "price": 8000, "image": "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Gambas grillées", "price": 9500, "image": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=800&h=800&fit=crop&auto=format" }
+      ]
+    },
+    {
+      "name": "Plats — À base de poulet",
+      "image": "https://images.unsplash.com/photo-1626645738195-c58a114b49b2?w=800&h=800&fit=crop&auto=format",
+      "products": [
+        { "name": "Brochettes poulet", "price": 5500, "image": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Poulet grillé", "price": 6000, "image": "https://images.unsplash.com/photo-1626645738195-c58a114b49b2?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Poulet pané", "price": 5800, "image": "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Cordon bleu", "price": 6500, "image": "https://images.unsplash.com/photo-1562967914-608f82629710?w=800&h=800&fit=crop&auto=format" }
+      ]
+    },
+    {
+      "name": "Plats — À base de viande",
+      "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&h=800&fit=crop&auto=format",
+      "products": [
+        { "name": "Steak grillé", "price": 8500, "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Émincé bœuf", "price": 7500, "image": "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Brochettes mixtes", "price": 7000, "image": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Ragoût bœuf", "price": 7200, "image": "https://images.unsplash.com/photo-1626645738195-c58a114b49b2?w=800&h=800&fit=crop&auto=format" }
+      ]
+    },
+    {
+      "name": "Accompagnements",
+      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=800&fit=crop&auto=format",
+      "products": [
+        { "name": "Riz pilaf", "price": 1500, "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Riz blanc", "price": 1200, "image": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Frites", "price": 2000, "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Légumes sautés", "price": 2500, "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Pommes terre sautées", "price": 2200, "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Spaghetti", "price": 2000, "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Gratin dauphinois", "price": 2800, "image": "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&h=800&fit=crop&auto=format" }
+      ]
+    },
     {
       "name": "Boissons",
       "image": "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800&h=800&fit=crop&auto=format",
@@ -118,70 +172,9 @@ const data = {
         { "name": "Ice Tea Pêche", "price": 1200, "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&h=800&fit=crop&auto=format" },
         { "name": "Eau minérale", "price": 800, "image": "https://images.unsplash.com/photo-1548839140-5a6d0e05be54?w=800&h=800&fit=crop&auto=format" },
         { "name": "Eau gazeuse", "price": 900, "image": "https://images.unsplash.com/photo-1548839140-5a6d0e05be54?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Faata Fresh", "price": 2500, "image": "https://images.unsplash.com/photo-1523677011781-c91d1bbe2fdc?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Sunset Beach", "price": 2800, "image": "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Faata Fresh (Jus frais)", "price": 2500, "image": "https://images.unsplash.com/photo-1523677011781-c91d1bbe2fdc?w=800&h=800&fit=crop&auto=format" },
+        { "name": "Sunset Beach (Cocktail sans alcool)", "price": 2800, "image": "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800&h=800&fit=crop&auto=format" },
         { "name": "Virgin Mojito", "price": 3000, "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800&h=800&fit=crop&auto=format" }
-      ]
-    },
-    {
-      "name": "Snacks & Tapas",
-      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=800&fit=crop&auto=format",
-      "products": [
-        { "name": "Frites Faata", "price": 2000, "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Frites Manioc", "price": 2200, "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Nuggets (6 pcs)", "price": 3500, "image": "https://images.unsplash.com/photo-1562967914-608f82629710?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Fish Fingers (6 pcs)", "price": 4000, "image": "https://images.unsplash.com/photo-1559847844-5315695dadae?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Samoussas poulet (4 pcs)", "price": 3000, "image": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Beignets de crevettes (6 pcs)", "price": 4500, "image": "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&h=800&fit=crop&auto=format" }
-      ]
-    },
-    {
-      "name": "Burgers",
-      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=800&fit=crop&auto=format",
-      "products": [
-        { "name": "Burger Classic", "price": 4500, "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Cheese & Bacon", "price": 5500, "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Faata Chicken Burger", "price": 5000, "image": "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Burger Poisson", "price": 5000, "image": "https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=800&h=800&fit=crop&auto=format" }
-      ]
-    },
-    {
-      "name": "Plats Mer",
-      "image": "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&h=800&fit=crop&auto=format",
-      "products": [
-        { "name": "Poisson grillé", "price": 6500, "image": "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Poisson cru à la tahitienne", "price": 7500, "image": "https://images.unsplash.com/photo-1574781330858-c0ff99397e2e?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Crevettes ail & persil", "price": 8000, "image": "https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=800&h=800&fit=crop&auto=format" }
-      ]
-    },
-    {
-      "name": "Plats Terre",
-      "image": "https://images.unsplash.com/photo-1626645738195-c58a114b49b2?w=800&h=800&fit=crop&auto=format",
-      "products": [
-        { "name": "Poulet curry coco", "price": 6500, "image": "https://images.unsplash.com/photo-1626645738195-c58a114b49b2?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Poulet grillé BBQ", "price": 6000, "image": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Steak grillé", "price": 8500, "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&h=800&fit=crop&auto=format" }
-      ]
-    },
-    {
-      "name": "Pizzas",
-      "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=800&fit=crop&auto=format",
-      "products": [
-        { "name": "Margherita", "price": 5000, "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Reine", "price": 6000, "image": "https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=800&h=800&fit=crop&auto=format" },
-        { "name": "4 Fromages", "price": 6500, "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Tropicale", "price": 6200, "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Faata Spéciale", "price": 6800, "image": "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?w=800&h=800&fit=crop&auto=format" }
-      ]
-    },
-    {
-      "name": "Sandwichs & Wraps",
-      "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=800&h=800&fit=crop&auto=format",
-      "products": [
-        { "name": "Tacos poulet", "price": 4000, "image": "https://images.unsplash.com/photo-1606643965684-5d2b5d42beb7?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Wrap chicken crispy", "price": 4500, "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Panini jambon-fromage", "price": 3500, "image": "https://images.unsplash.com/photo-1559496417-e7f25cb24745?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Panini poulet BBQ", "price": 4000, "image": "https://images.unsplash.com/photo-1604909993693-4e7ae6d55afd?w=800&h=800&fit=crop&auto=format" }
       ]
     },
     {
@@ -192,14 +185,6 @@ const data = {
         { "name": "Fondant chocolat", "price": 3000, "image": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=800&h=800&fit=crop&auto=format" },
         { "name": "Tarte coco", "price": 2800, "image": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&h=800&fit=crop&auto=format" },
         { "name": "Mousse passion", "price": 3200, "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&h=800&fit=crop&auto=format" }
-      ]
-    },
-    {
-      "name": "Menu Enfant",
-      "image": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=800&h=800&fit=crop&auto=format",
-      "products": [
-        { "name": "Nuggets (4 pcs) + frites + boisson", "price": 4500, "image": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=800&h=800&fit=crop&auto=format" },
-        { "name": "Mini burger + frites + boisson", "price": 5000, "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=800&fit=crop&auto=format" }
       ]
     }
   ]

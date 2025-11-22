@@ -60,10 +60,10 @@ export default function Hero() {
             <label className="block text-gray-800 font-medium mb-3 text-left text-sm tracking-wide">
               Mode de commande
             </label>
-            <div className="grid grid-cols-3 gap-2.5 mb-6">
+            <div className="grid grid-cols-3 gap-2 mb-6">
               <button
                 onClick={() => setOrderType('sur_place')}
-                className={`py-2.5 px-2 rounded-xl font-medium transition-all duration-200 text-xs md:text-sm ${
+                className={`py-1.5 px-2 rounded-lg font-medium transition-all duration-200 text-xs ${
                   orderType === 'sur_place'
                     ? 'bg-faata-red text-white shadow-sm'
                     : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
@@ -73,7 +73,7 @@ export default function Hero() {
               </button>
               <button
                 onClick={() => setOrderType('emporter')}
-                className={`py-2.5 px-2 rounded-xl font-medium transition-all duration-200 text-xs md:text-sm ${
+                className={`py-1.5 px-2 rounded-lg font-medium transition-all duration-200 text-xs ${
                   orderType === 'emporter'
                     ? 'bg-faata-red text-white shadow-sm'
                     : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
@@ -83,7 +83,7 @@ export default function Hero() {
               </button>
               <button
                 onClick={() => setOrderType('livraison')}
-                className={`py-2.5 px-2 rounded-xl font-medium transition-all duration-200 text-xs md:text-sm ${
+                className={`py-1.5 px-2 rounded-lg font-medium transition-all duration-200 text-xs ${
                   orderType === 'livraison'
                     ? 'bg-faata-red text-white shadow-sm'
                     : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
@@ -113,7 +113,7 @@ export default function Hero() {
           {/* Bouton Commander - Design épuré */}
           <button
             onClick={handleCommander}
-            className="w-full bg-faata-red hover:bg-red-600 active:bg-red-700 text-white font-medium py-3.5 px-6 rounded-xl transition-all duration-200 text-sm md:text-base tracking-wide shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            className="w-full bg-faata-red hover:bg-red-600 active:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-xs tracking-wide shadow-md hover:shadow-lg"
           >
             Commander
           </button>

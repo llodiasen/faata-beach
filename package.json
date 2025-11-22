@@ -8,18 +8,23 @@
     "dev:vercel": "vercel dev",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "import-data": "tsx scripts/import-data.ts"
+    "import-data": "tsx scripts/import-data.ts",
+    "create-users": "tsx scripts/create-users.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-select": "^2.0.0",
+    "@types/leaflet": "^1.9.21",
     "@vercel/node": "^3.0.7",
     "bcryptjs": "^2.4.3",
     "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.2",
+    "leaflet": "^1.9.4",
     "mongoose": "^8.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-leaflet": "^4.2.1",
+    "react-router-dom": "^6.20.1",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
@@ -28,6 +33,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
+    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
     "express": "^5.1.0",

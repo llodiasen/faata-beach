@@ -27,9 +27,9 @@ export default function Home() {
       {getItemCount() > 0 && (
         <button
           onClick={() => openModal('cart')}
-          className="fixed bottom-6 right-6 bg-faata-red text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2 z-40 hover:bg-red-700 transition-colors"
+          className="fixed bottom-6 right-6 bg-faata-red text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 z-40 hover:bg-red-700 transition-colors text-xs"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -38,7 +38,7 @@ export default function Home() {
             />
           </svg>
           <span>Panier</span>
-          <span className="bg-white text-faata-red rounded-full px-2 py-1 text-sm font-bold">
+          <span className="bg-white text-faata-red rounded-full px-1.5 py-0.5 text-xs font-bold">
             {getItemCount()}
           </span>
         </button>

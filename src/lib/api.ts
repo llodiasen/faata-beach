@@ -62,6 +62,18 @@ export const authAPI = {
     }),
 
   getProfile: () => fetchAPI('/auth/profile'),
+
+  updateProfile: (data: { name?: string; email?: string; phone?: string; address?: any }) =>
+    fetchAPI('/auth/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    fetchAPI('/auth/password', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
 }
 
 // API Categories
@@ -77,6 +89,12 @@ export const productsAPI = {
     return fetchAPI(`/products${query}`)
   },
   getById: (id: string) => fetchAPI(`/products/${id}`),
+}
+
+// API Users
+export const usersAPI = {
+  getAll: () => fetchAPI('/users'),
+  getDeliveryUsers: () => fetchAPI('/users/delivery'),
 }
 
 // API Orders
@@ -104,5 +122,47 @@ export const ordersAPI = {
 
   getAll: () => fetchAPI('/orders'),
   getById: (id: string) => fetchAPI(`/orders/${id}`),
+  updateStatus: (id: string, status: string, assignedDeliveryId?: string) =>
+    fetchAPI(`/orders/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, assignedDeliveryId }),
+    }),
+}
+
+// API Reservations
+export const reservationsAPI = {
+  create: (data: {
+    customerInfo: { name: string; phone: string; email?: string }
+    date: string
+    time: string
+    numberOfGuests: number
+    notes?: string
+  }) =>
+    fetchAPI('/reservations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getAll: () => fetchAPI('/reservations'),
+  getById: (id: string) => fetchAPI(`/reservations/${id}`),
+  update: (id: string, status: string) =>
+    fetchAPI(`/reservations/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+  cancel: (id: string) =>
+    fetchAPI(`/reservations/${id}`, {
+      method: 'DELETE',
+    }),
+}
+
+// API Delivery
+export const deliveryAPI = {
+  getAssignedOrders: () => fetchAPI('/orders/delivery/assigned'),
+  updateOrderStatus: (orderId: string, status: string) =>
+    fetchAPI(`/orders/${orderId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
 }
 

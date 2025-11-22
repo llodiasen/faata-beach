@@ -7,6 +7,7 @@ export interface User {
   name: string
   email: string
   phone?: string
+  role?: string
   address?: {
     street?: string
     city?: string
@@ -22,6 +23,7 @@ interface AuthStore {
   register: (data: { name: string; email: string; password: string; phone?: string }) => Promise<void>
   logout: () => void
   loadProfile: () => Promise<void>
+  setUser: (user: User) => void
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -72,6 +74,8 @@ export const useAuthStore = create<AuthStore>()(
           set({ user: null, token: null })
         }
       },
+
+      setUser: (user) => set({ user }),
     }),
     {
       name: 'faata-auth-storage',

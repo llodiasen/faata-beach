@@ -50,6 +50,14 @@ function createVercelResponse(res) {
 async function startServer() {
   const app = express()
   
+  // Middleware pour logger toutes les requêtes
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+      console.log(`📥 [DEV-SERVER] ${req.method} ${req.path}`)
+    }
+    next()
+  })
+  
   // Middleware
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
@@ -137,14 +145,23 @@ async function startServer() {
 
   // Routes API - Auth
   app.use('/api/auth/login', async (req, res) => {
+    console.log('🔵 [DEV-SERVER] Login request received - Method:', req.method)
+    console.log('🔵 [DEV-SERVER] Login request body:', { email: req.body?.email, hasPassword: !!req.body?.password })
     try {
+      console.log('🔵 [DEV-SERVER] Loading login handler...')
       const handler = await import('./api/auth/login.ts')
+      console.log('🔵 [DEV-SERVER] Login handler loaded, creating Vercel request/response...')
       const vercelReq = createVercelRequest(req)
       const vercelRes = createVercelResponse(res)
+      console.log('🔵 [DEV-SERVER] Calling login handler...')
       await handler.default(vercelReq, vercelRes)
+      console.log('🔵 [DEV-SERVER] Login handler completed')
     } catch (error) {
-      console.error('Login API Error:', error)
-      res.status(500).json({ message: error.message || 'Erreur serveur' })
+      console.error('🔴 [DEV-SERVER] Login API Error:', error)
+      console.error('🔴 [DEV-SERVER] Error stack:', error.stack)
+      if (!res.headersSent) {
+        res.status(500).json({ message: error.message || 'Erreur serveur' })
+      }
     }
   })
 

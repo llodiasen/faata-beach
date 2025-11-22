@@ -13,34 +13,34 @@ interface ModalProps {
 export default function Modal({ isOpen, onClose, title, children, size = 'md', noScroll = false }: ModalProps) {
   const sizeClasses = {
     sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
+    md: 'max-w-2xl',
+    lg: 'max-w-4xl',
+    xl: 'max-w-6xl',
   }
 
   const scrollClasses = noScroll 
     ? 'overflow-y-visible max-h-none' 
-    : 'max-h-[95vh] md:max-h-[90vh] overflow-y-auto'
+    : 'max-h-[90vh] overflow-y-auto'
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-fadeIn" />
         <Dialog.Content
-          className={`fixed bottom-0 left-0 right-0 md:top-1/2 md:left-1/2 md:right-auto md:transform md:-translate-x-1/2 md:-translate-y-1/2 bg-white rounded-t-3xl md:rounded-2xl shadow-2xl z-50 w-full ${sizeClasses[size]} ${scrollClasses} animate-slideUp`}
+          className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full ${sizeClasses[size]} ${scrollClasses} animate-slideUp flex flex-col max-h-[90vh]`}
         >
           {title && (
-            <div className="px-5 md:px-6 py-4 md:py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
-              <Dialog.Title className="text-xl md:text-2xl font-bold text-gray-900">{title}</Dialog.Title>
+            <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0 bg-white z-10">
+              <Dialog.Title className="text-xl font-bold text-gray-900">{title}</Dialog.Title>
             </div>
           )}
-          <div className="p-5 md:p-6">{children}</div>
+          <div className={`p-6 flex-1 ${noScroll ? '' : 'overflow-y-auto'}`}>{children}</div>
           <Dialog.Close asChild>
             <button
-              className="absolute top-3 md:top-4 right-3 md:right-4 text-gray-400 hover:text-gray-600 transition-colors p-1 md:p-0"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1 z-20"
               aria-label="Fermer"
             >
-              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>

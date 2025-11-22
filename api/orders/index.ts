@@ -87,10 +87,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ message: 'Non autorisé' })
       }
 
-      const { userId } = verifyToken(token)
+      const payload = verifyToken(token)
+      const { userId } = payload
+      let role = payload.role
+      
+      // Si le rôle n'est pas dans le token, vérifier en base
+      if (!role) {
+        const { User } = await import('../lib/models.js')
+        const user = await User.findById(userId)
+        if (!user) {
+          return res.status(401).json({ message: 'Utilisateur non trouvé' })
+        }
+        role = user.role
+      }
 
-      const orders = await Order.find({ userId })
+      // Filtrer selon le rôle
+      let query: any = {}
+      if (role === 'admin') {
+        // Admin voit toutes les commandes
+        query = {}
+      } else if (role === 'delivery') {
+        // Livreur voit seulement les commandes qui lui sont assignées
+        query = { assignedDeliveryId: userId }
+      } else {
+        // Client voit seulement ses commandes
+        query = { userId }
+      }
+
+      const orders = await Order.find(query)
         .populate('items.productId', 'name imageUrl')
+        .populate('userId', 'name email')
+        .populate('assignedDeliveryId', 'name phone')
         .sort({ createdAt: -1 })
 
       res.status(200).json(orders)

@@ -11,7 +11,12 @@ export interface IUser extends Document {
     city?: string
     zipCode?: string
   }
-  role: 'customer' | 'admin'
+  role: 'customer' | 'admin' | 'delivery'
+  geoLocation?: {
+    lat: number
+    lng: number
+    lastUpdate: Date
+  }
   createdAt: Date
   updatedAt: Date
   comparePassword(candidatePassword: string): Promise<boolean>
@@ -28,15 +33,21 @@ const userSchema = new Schema<IUser>(
       city: String,
       zipCode: String,
     },
-    role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
+    role: { type: String, enum: ['customer', 'admin', 'delivery'], default: 'customer' },
+    geoLocation: {
+      lat: { type: Number },
+      lng: { type: Number },
+      lastUpdate: { type: Date },
+    },
   },
   { timestamps: true }
 )
 
 // Hash password before save (will be handled in the API route with bcrypt)
 userSchema.methods.comparePassword = async function (candidatePassword: string) {
-  const bcrypt = await import('bcryptjs')
-  return bcrypt.compare(candidatePassword, this.password)
+  // Utiliser la fonction helper pour comparer les mots de passe
+  const { comparePassword } = await import('./bcrypt.js')
+  return comparePassword(candidatePassword, this.password)
 }
 
 export const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', userSchema)
@@ -136,7 +147,8 @@ export interface IOrder extends Document {
       lng: number
     }
   }
-  status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'completed'
+  status: 'pending' | 'accepted' | 'preparing' | 'ready' | 'assigned' | 'on_the_way' | 'delivered' | 'cancelled'
+  assignedDeliveryId?: mongoose.Types.ObjectId
   items: IOrderItem[]
   totalAmount: number
   customerInfo?: {
@@ -163,7 +175,8 @@ const orderSchema = new Schema<IOrder>(
         lng: { type: Number },
       },
     },
-    status: { type: String, enum: ['pending', 'confirmed', 'preparing', 'ready', 'completed'], default: 'pending' },
+    status: { type: String, enum: ['pending', 'accepted', 'preparing', 'ready', 'assigned', 'on_the_way', 'delivered', 'cancelled'], default: 'pending' },
+    assignedDeliveryId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
     items: [orderItemSchema],
     totalAmount: { type: Number, required: true, min: 0 },
     customerInfo: {
@@ -176,4 +189,46 @@ const orderSchema = new Schema<IOrder>(
 )
 
 export const Order: Model<IOrder> = mongoose.models.Order || mongoose.model<IOrder>('Order', orderSchema)
+
+// Reservation Model
+export interface IReservation extends Document {
+  userId?: mongoose.Types.ObjectId
+  customerInfo: {
+    name: string
+    phone: string
+    email?: string
+  }
+  date: Date
+  time: string
+  numberOfGuests: number
+  tableNumber?: string
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
+  notes?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+const reservationSchema = new Schema<IReservation>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    customerInfo: {
+      name: { type: String, required: true, trim: true },
+      phone: { type: String, required: true, trim: true },
+      email: { type: String, trim: true },
+    },
+    date: { type: Date, required: true },
+    time: { type: String, required: true },
+    numberOfGuests: { type: Number, required: true, min: 1 },
+    tableNumber: { type: String },
+    status: { 
+      type: String, 
+      enum: ['pending', 'confirmed', 'cancelled', 'completed'], 
+      default: 'pending' 
+    },
+    notes: { type: String },
+  },
+  { timestamps: true }
+)
+
+export const Reservation: Model<IReservation> = mongoose.models.Reservation || mongoose.model<IReservation>('Reservation', reservationSchema)
 

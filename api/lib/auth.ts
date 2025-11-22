@@ -4,17 +4,26 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 export interface JWTPayload {
   userId: string
+  role?: string
 }
 
-export function generateToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_SECRET, {
+export function generateToken(userId: string, role?: string): string {
+  const payload: any = { userId }
+  if (role) {
+    payload.role = role
+  }
+  return jwt.sign(payload, JWT_SECRET, {
     expiresIn: '30d',
   })
 }
 
 export function verifyToken(token: string): JWTPayload {
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload
+    const decoded = jwt.verify(token, JWT_SECRET) as any
+    return {
+      userId: decoded.userId,
+      role: decoded.role,
+    } as JWTPayload
   } catch (error) {
     throw new Error('Token invalide')
   }

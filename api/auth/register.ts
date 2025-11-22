@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import connectDB from '../lib/mongodb.js'
 import { User } from '../lib/models.js'
 import { generateToken } from '../lib/auth.js'
-import bcrypt from 'bcryptjs'
+import { hashPassword } from '../lib/bcrypt.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -27,7 +27,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ message: 'Cet email est déjà utilisé' })
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    // Utiliser la fonction helper pour hasher le mot de passe
+    const hashedPassword = await hashPassword(password, 10)
 
     const user = new User({
       name,
@@ -38,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     await user.save()
 
-    const token = generateToken(user._id.toString())
+    const token = generateToken(user._id.toString(), user.role)
 
     res.status(201).json({
       token,
@@ -47,6 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        role: user.role,
       },
     })
   } catch (error: any) {
