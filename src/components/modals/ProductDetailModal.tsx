@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
 import { productsAPI } from '../../lib/api'
+import Modal from '../ui/Modal'
 
 interface Extra {
   name: string
@@ -99,86 +100,127 @@ export function ProductDetailModal() {
   const defaultWeights = weightOptions.length === 0 ? ['450g', '1200g'] : weightOptions
   const currentWeight = selectedWeight || (defaultWeights.length > 1 ? defaultWeights[1] : defaultWeights[0])
 
-  if (currentModal !== 'productDetail') return null
+  const currentPrice = selectedWeight && product?.extras
+    ? product.extras.find(e => e.name === selectedWeight)?.price || product?.price || 0
+    : product?.price || 0
 
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 h-screen z-50 bg-white flex flex-col">
+    <Modal isOpen={currentModal === 'productDetail'} onClose={closeModal} size="lg">
       {loading && (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center justify-center py-12">
           <div className="text-gray-500">Chargement...</div>
         </div>
       )}
 
       {error && (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center justify-center py-12">
           <div className="text-red-600 text-center p-4">{error}</div>
         </div>
       )}
 
       {!loading && !error && product && (
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6">
-            {/* Nom du produit */}
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">{product.name}</h1>
+        <div className="space-y-6">
+          {/* Image produit */}
+          {product.imageUrl && (
+            <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden">
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
 
-            {/* Section Weight */}
-            {defaultWeights.length > 0 && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-3">Weight</label>
-                <div className="flex gap-3">
-                  {defaultWeights.map((weight, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedWeight(weight)}
-                      className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
-                        currentWeight === weight
-                          ? 'bg-orange-500 text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
-                    >
-                      {weight}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+          {/* Nom et prix */}
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h1>
+            <p className="text-xl font-bold text-gray-900">
+              {currentPrice.toLocaleString('fr-FR')} CFA
+            </p>
+          </div>
 
-            {/* Section Quantity */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">Quantity</label>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-colors ${
-                    quantity <= 1
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  -
-                </button>
-                <div className="flex-1 text-center">
-                  <span className="text-xl font-semibold text-gray-900">{quantity}</span>
-                </div>
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center font-bold text-lg transition-colors"
-                >
-                  +
-                </button>
+          {/* Section Weight */}
+          {defaultWeights.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Weight</label>
+              <div className="flex gap-3 flex-wrap">
+                {defaultWeights.map((weight, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedWeight(weight)}
+                    className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
+                      currentWeight === weight
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {weight}
+                  </button>
+                ))}
               </div>
             </div>
+          )}
 
-            {/* Section Allergens (expandable) */}
-            <div className="mb-4 pb-4 border-b border-gray-200">
+          {/* Section Quantity */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Quantity</label>
+            <div className="flex items-center gap-4 max-w-xs">
               <button
-                onClick={() => setShowAllergens(!showAllergens)}
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                disabled={quantity <= 1}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-colors ${
+                  quantity <= 1
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                -
+              </button>
+              <div className="flex-1 text-center">
+                <span className="text-xl font-semibold text-gray-900">{quantity}</span>
+              </div>
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="w-10 h-10 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center font-bold text-lg transition-colors"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          {/* Section Allergens (expandable) */}
+          <div className="pb-4 border-b border-gray-200">
+            <button
+              onClick={() => setShowAllergens(!showAllergens)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <span className="text-sm font-medium text-gray-700">Allergens</span>
+              <svg
+                className={`w-5 h-5 text-gray-500 transition-transform ${showAllergens ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {showAllergens && (
+              <div className="mt-3 text-sm text-gray-600">
+                <p>Gluten, Lait, Œufs</p>
+              </div>
+            )}
+          </div>
+
+          {/* Section Description (expandable) */}
+          {product.description && (
+            <div className="pb-4 border-b border-gray-200">
+              <button
+                onClick={() => setShowDescription(!showDescription)}
                 className="w-full flex items-center justify-between text-left"
               >
-                <span className="text-sm font-medium text-gray-700">Allergens</span>
+                <span className="text-sm font-medium text-gray-700">Description</span>
                 <svg
-                  className={`w-5 h-5 text-gray-500 transition-transform ${showAllergens ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-gray-500 transition-transform ${showDescription ? 'rotate-180' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -186,55 +228,18 @@ export function ProductDetailModal() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              {showAllergens && (
-                <div className="mt-3 text-sm text-gray-600">
-                  <p>Gluten, Lait, Œufs</p>
+              {showDescription && (
+                <div className="mt-3 text-sm text-gray-600 leading-relaxed">
+                  {product.description}
                 </div>
               )}
             </div>
-
-            {/* Section Description (expandable) */}
-            {product.description && (
-              <div className="mb-6 pb-4 border-b border-gray-200">
-                <button
-                  onClick={() => setShowDescription(!showDescription)}
-                  className="w-full flex items-center justify-between text-left"
-                >
-                  <span className="text-sm font-medium text-gray-700">Description</span>
-                  <svg
-                    className={`w-5 h-5 text-gray-500 transition-transform ${showDescription ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {showDescription && (
-                  <div className="mt-3 text-sm text-gray-600 leading-relaxed">
-                    {product.description}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Barre d'action fixée en bas */}
-      <div className="bg-white border-t border-gray-200 px-4 py-4 flex-shrink-0">
-        <div className="flex items-center gap-3 mb-2">
-          {/* Bouton edit (crayon) */}
-          <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-          </button>
+          )}
 
           {/* Bouton Confirm and change */}
           <button
             onClick={handleConfirmAndChange}
-            className="flex-1 bg-black text-white py-3 px-6 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors"
+            className="w-full bg-black text-white py-4 px-6 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -242,12 +247,7 @@ export function ProductDetailModal() {
             Confirm and change
           </button>
         </div>
-
-        {/* Texte d'instruction */}
-        <p className="text-xs text-gray-500 text-center mt-2">
-          Tap and hold to update this item to your cart and add another with different options
-        </p>
-      </div>
-    </div>
+      )}
+    </Modal>
   )
 }

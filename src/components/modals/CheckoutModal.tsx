@@ -4,9 +4,10 @@ import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
 import { useGeolocation } from '../../hooks/useGeolocation'
 import { ordersAPI } from '../../lib/api'
+import Modal from '../ui/Modal'
 
 export function CheckoutModal() {
-  const { currentModal, openModal } = useModalStore()
+  const { currentModal, openModal, closeModal } = useModalStore()
   const { items, getTotal, clearCart } = useCartStore()
   const { user } = useAuthStore()
   const { getCurrentLocation, loading: geoLoading } = useGeolocation()
@@ -148,6 +149,7 @@ export function CheckoutModal() {
       }
 
       clearCart()
+      closeModal()
       openModal('confirmation')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la commande')
@@ -156,211 +158,197 @@ export function CheckoutModal() {
     }
   }
 
-  if (currentModal !== 'checkout') return null
+  const total = getTotal()
 
   return (
-    <div className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto">
-      {/* Header */}
-      <div className="sticky top-0 bg-white z-10 flex items-center justify-between p-4 border-b border-gray-100">
-        <button
-          onClick={() => openModal('cart')}
-          className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-        >
-          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <h2 className="text-lg font-bold text-gray-900">Checkout</h2>
-        <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-          </svg>
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="pb-24">
-        <div className="p-4 space-y-6">
-          {/* Sélection Pickup/Delivery */}
-          <div className="bg-white rounded-xl p-4">
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setOrderType('sur_place')}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  orderType === 'sur_place'
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 bg-white'
-                }`}
-              >
-                <div className="text-left">
-                  <div className={`font-semibold mb-1 ${orderType === 'sur_place' ? 'text-orange-500' : 'text-gray-900'}`}>
-                    Sur place
-                  </div>
-                  <div className="text-xs text-gray-600">15 minutes</div>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setOrderType('livraison')}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  orderType === 'livraison'
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 bg-white'
-                }`}
-              >
-                <div className="text-left">
-                  <div className={`font-semibold mb-1 ${orderType === 'livraison' ? 'text-orange-500' : 'text-gray-900'}`}>
-                    Livraison
-                  </div>
-                  <div className="text-xs text-gray-600">20-30 minutes</div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Pickup Address / Delivery Address */}
-          <div className="bg-white rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-gray-900 mb-1">
-                  {orderType === 'sur_place' ? 'Adresse de retrait' : 'Adresse de livraison'}
-                </div>
-                {orderType === 'sur_place' ? (
-                  <div className="text-sm text-gray-600">{pickupAddress}</div>
-                ) : (
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      required
-                      placeholder="Votre adresse complète"
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleDetectLocation}
-                      disabled={detectingLocation || geoLoading}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-orange-500 hover:bg-orange-50 rounded transition-colors disabled:opacity-50"
-                      title="Détecter ma position"
-                    >
-                      {detectingLocation || geoLoading ? (
-                        <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                      ) : (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Pickup Time */}
-          {orderType === 'sur_place' && (
-            <div className="bg-white rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-start gap-3 flex-1">
-                  <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-gray-900 mb-1">Heure de retrait</div>
-                    <div className="text-sm text-gray-600">{getCurrentTime()}</div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-                >
-                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Contact Details */}
-          <div className="bg-white rounded-xl p-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Détails de contact</h3>
-            <div className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  placeholder="Nom complet *"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                />
-              </div>
-              <div>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                  placeholder="Numéro de téléphone *"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                />
-              </div>
-              <div>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                  placeholder="Email *"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Add Coupon */}
-          <div className="bg-white rounded-xl p-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Ajouter un coupon</h3>
-            <input
-              type="text"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
-              placeholder="Insérer votre code coupon"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
+    <Modal isOpen={currentModal === 'checkout'} onClose={closeModal} size="xl">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Header avec retour */}
+        <div className="flex items-center gap-3 mb-4 -mt-2">
+          <button
+            type="button"
+            onClick={() => openModal('cart')}
+            className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+          >
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h2 className="text-xl font-bold text-gray-900">Checkout</h2>
         </div>
 
-        {/* Bouton Place Order fixé en bas */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+        {/* Sélection Pickup/Delivery */}
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setOrderType('sur_place')}
+              className={`p-4 rounded-xl border-2 transition-all ${
+                orderType === 'sur_place'
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-gray-200 bg-white'
+              }`}
+            >
+              <div className="text-left">
+                <div className={`font-semibold mb-1 ${orderType === 'sur_place' ? 'text-orange-500' : 'text-gray-900'}`}>
+                  Sur place
+                </div>
+                <div className="text-xs text-gray-600">15 minutes</div>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setOrderType('livraison')}
+              className={`p-4 rounded-xl border-2 transition-all ${
+                orderType === 'livraison'
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-gray-200 bg-white'
+              }`}
+            >
+              <div className="text-left">
+                <div className={`font-semibold mb-1 ${orderType === 'livraison' ? 'text-orange-500' : 'text-gray-900'}`}>
+                  Livraison
+                </div>
+                <div className="text-xs text-gray-600">20-30 minutes</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Pickup Address / Delivery Address */}
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-gray-900 mb-2">
+                {orderType === 'sur_place' ? 'Adresse de retrait' : 'Adresse de livraison'}
+              </div>
+              {orderType === 'sur_place' ? (
+                <div className="text-sm text-gray-600">{pickupAddress}</div>
+              ) : (
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    required
+                    placeholder="Votre adresse complète"
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleDetectLocation}
+                    disabled={detectingLocation || geoLoading}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-orange-500 hover:bg-orange-50 rounded transition-colors disabled:opacity-50"
+                    title="Détecter ma position"
+                  >
+                    {detectingLocation || geoLoading ? (
+                      <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Pickup Time */}
+        {orderType === 'sur_place' && (
+          <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-start gap-3 flex-1">
+                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-gray-900 mb-1">Heure de retrait</div>
+                  <div className="text-sm text-gray-600">{getCurrentTime()}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Contact Details */}
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Détails de contact</h3>
+          <div className="space-y-4">
+            <div>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                placeholder="Nom complet *"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+              />
+            </div>
+            <div>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                required
+                placeholder="Numéro de téléphone *"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+              />
+            </div>
+            <div>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+                placeholder="Email *"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Add Coupon */}
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Ajouter un coupon</h3>
+          <input
+            type="text"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value)}
+            placeholder="Insérer votre code coupon"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+          />
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        {/* Bouton Place Order */}
+        <div className="pt-4 border-t border-gray-200">
           <button
             type="submit"
             disabled={loading || items.length === 0}
             className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl transition-colors"
           >
-            {loading ? 'Traitement...' : `Passer la commande • ${getTotal().toLocaleString('fr-FR')} CFA`}
+            {loading ? 'Traitement...' : `Passer la commande • ${total.toLocaleString('fr-FR')} CFA`}
           </button>
         </div>
       </form>
-    </div>
+    </Modal>
   )
 }

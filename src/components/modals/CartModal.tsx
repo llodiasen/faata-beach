@@ -3,6 +3,7 @@ import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
 import { categoriesAPI } from '../../lib/api'
+import Modal from '../ui/Modal'
 
 interface Category {
   _id: string
@@ -11,10 +12,11 @@ interface Category {
 
 export function CartModal() {
   const { currentModal, closeModal, openModal, setSelectedCategory } = useModalStore()
-  const { items, updateQuantity } = useCartStore()
+  const { items, updateQuantity, getTotal } = useCartStore()
   const { user } = useAuthStore()
   const [categories, setCategories] = useState<Category[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -44,77 +46,52 @@ export function CartModal() {
   // Filtrer les items selon la recherche et la catégorie
   const filteredItems = items.filter((item) => {
     const matchesSearch = searchQuery === '' || item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    // Note: On ne peut pas filtrer par catégorie sans charger les produits complets
-    // Pour l'instant, on filtre juste par recherche
     return matchesSearch
   })
 
-  // Miniatures pour la barre du bas (max 3 visibles)
-  const visibleThumbnails = items.slice(0, 3)
-  const remainingCount = items.length - 3
-
-  if (currentModal !== 'cart') return null
+  const total = getTotal()
 
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 h-screen z-50 bg-white flex flex-col">
-      {/* Header jaune */}
-      <div className="bg-yellow-400 px-4 pt-4 pb-3 flex-shrink-0">
-        <div className="flex items-center gap-3 mb-3">
-          {/* Bouton X */}
-          <button
-            onClick={closeModal}
-            className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors"
-          >
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    <Modal isOpen={currentModal === 'cart'} onClose={closeModal} size="xl">
+      {/* Header jaune avec recherche */}
+      <div className="bg-yellow-400 px-4 py-3 rounded-t-lg mb-4 -mx-6 -mt-6">
+        {/* Barre de recherche */}
+        <div className="relative mb-3">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2">
+            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-          </button>
-
-          {/* Barre de recherche */}
-          <div className="flex-1 relative">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2">
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              placeholder="I want to buy..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border-0 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-gray-900 placeholder-gray-400"
-            />
           </div>
-
-          {/* Icônes notification et profil */}
-          <div className="flex items-center gap-2">
-            <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-gray-100 transition-colors">
-              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">!</span>
-            </button>
-            <button className="w-10 h-10 rounded-full bg-white overflow-hidden border-2 border-gray-300">
-              {user?.name ? (
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-              ) : (
-                <svg className="w-full h-full text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
-              )}
-            </button>
-          </div>
+          <input
+            type="text"
+            placeholder="I want to buy..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border-0 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-gray-900 placeholder-gray-400"
+          />
         </div>
 
         {/* Tags de catégories scrollables */}
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <button
+            onClick={() => setSelectedCategoryFilter(null)}
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              selectedCategoryFilter === null
+                ? 'bg-yellow-300 text-black'
+                : 'bg-white text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Tous
+          </button>
           {categories.map((category) => (
             <button
               key={category._id}
-              onClick={() => handleCategoryClick(category._id)}
-                className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors bg-yellow-300 text-black hover:bg-yellow-200"
+              onClick={() => setSelectedCategoryFilter(category._id)}
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                selectedCategoryFilter === category._id
+                  ? 'bg-yellow-300 text-black'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
             >
               {category.name}
             </button>
@@ -123,7 +100,7 @@ export function CartModal() {
       </div>
 
       {/* Contenu principal - Shopping list */}
-      <div className="flex-1 overflow-y-auto bg-white px-4 py-4">
+      <div className="min-h-[400px] max-h-[60vh] overflow-y-auto">
         {/* Titre Shopping list */}
         <div className="flex items-center gap-2 mb-4">
           <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
@@ -152,7 +129,7 @@ export function CartModal() {
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-4"
+                className="bg-gray-50 rounded-xl p-4 border border-gray-200 flex items-center gap-4 hover:shadow-md transition-shadow"
               >
                 {/* Image produit */}
                 {item.imageUrl ? (
@@ -172,7 +149,10 @@ export function CartModal() {
                 {/* Informations produit */}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-gray-900 mb-1 truncate">{item.name}</h3>
-                  <p className="text-sm text-gray-600">{item.quantity}pcs</p>
+                  <p className="text-sm text-gray-600 mb-2">{item.quantity}pcs</p>
+                  <p className="text-base font-bold text-gray-900">
+                    {(item.price * item.quantity).toLocaleString('fr-FR')} CFA
+                  </p>
                 </div>
 
                 {/* Sélecteur de quantité */}
@@ -197,55 +177,24 @@ export function CartModal() {
         )}
       </div>
 
-      {/* Barre noire en bas - View Cart */}
+      {/* Footer avec total et bouton checkout */}
       {items.length > 0 && (
-        <div className="bg-black rounded-t-2xl px-4 py-4 flex-shrink-0">
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-lg font-semibold text-gray-700">Total:</span>
+            <span className="text-xl font-bold text-gray-900">{total.toLocaleString('fr-FR')} CFA</span>
+          </div>
           <button
             onClick={handleCheckout}
-            className="w-full flex items-center justify-between text-white"
+            className="w-full bg-black text-white py-4 px-6 rounded-xl font-semibold hover:bg-gray-900 transition-colors flex items-center justify-center gap-2"
           >
-            {/* Miniatures des produits */}
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {visibleThumbnails.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="w-10 h-10 rounded-full border-2 border-black overflow-hidden bg-white"
-                    style={{ zIndex: visibleThumbnails.length - index }}
-                  >
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {remainingCount > 0 && (
-                  <div className="w-10 h-10 rounded-full border-2 border-black bg-white flex items-center justify-center text-black font-bold text-xs">
-                    +{remainingCount}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Texte View Cart */}
-            <span className="flex-1 text-center font-semibold">View Cart</span>
-
-            {/* Flèche droite */}
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span>View Cart</span>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
       )}
-    </div>
+    </Modal>
   )
 }
