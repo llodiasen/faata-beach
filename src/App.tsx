@@ -12,6 +12,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import DeliveryDashboard from './pages/DeliveryDashboard'
 import ProductPage from './pages/ProductPage'
 import FavouritesPage from './pages/FavouritesPage'
+import MenuPage from './pages/MenuPage'
 
 // Protected Route Component
 function ProtectedRoute({ 
@@ -43,6 +44,7 @@ function App() {
       <Routes>
         {/* Routes publiques */}
         <Route path="/" element={<Home />} />
+        <Route path="/menu" element={<MenuPage />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/favourites" element={<FavouritesPage />} />
         <Route path="/login" element={<LoginPage />} />

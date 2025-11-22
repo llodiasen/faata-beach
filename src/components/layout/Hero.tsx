@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useModalStore } from '../../store/useModalStore'
 import { LocationModal } from '../modals/LocationModal'
 
 export default function Hero() {
+  const navigate = useNavigate()
   const { openModal } = useModalStore()
   const [orderType, setOrderType] = useState<'sur_place' | 'emporter' | 'livraison'>('sur_place')
   const [tableNumber, setTableNumber] = useState('')
@@ -18,12 +20,12 @@ export default function Hero() {
       return
     }
     
-    // Pour sur_place et emporter, continuer normalement
+    // Pour sur_place et emporter, naviguer vers la page Menu
     localStorage.setItem('faata_orderType', orderType)
     if (tableNumber) {
       localStorage.setItem('faata_tableNumber', tableNumber)
     }
-    openModal('categories')
+    navigate('/menu')
   }
 
 
@@ -126,7 +128,7 @@ export default function Hero() {
         onClose={() => setShowLocationModal(false)}
         onSuccess={() => {
           setShowLocationModal(false)
-          openModal('categories')
+          navigate('/menu')
         }}
       />
     </div>

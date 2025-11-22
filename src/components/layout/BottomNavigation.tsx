@@ -48,6 +48,22 @@ export default function BottomNavigation() {
       onClick: () => handleNavigate('/'),
     },
     {
+      id: 'menu',
+      label: 'Menu',
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      ),
+      activeIcon: (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
+        </svg>
+      ),
+      path: '/menu',
+      onClick: () => handleNavigate('/menu'),
+    },
+    {
       id: 'favorites',
       label: 'Favoris',
       icon: (
@@ -127,7 +143,7 @@ export default function BottomNavigation() {
   // Afficher uniquement sur mobile
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[60] md:hidden shadow-lg">
-      <div className="grid grid-cols-4 h-16">
+      <div className="grid grid-cols-5 h-16">
         {navItems.map((item) => {
           const active = isActive(item.path, item.id)
           return (
