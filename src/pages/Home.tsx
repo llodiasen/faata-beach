@@ -2,6 +2,7 @@ import { useModalStore } from '../store/useModalStore'
 import { useCartStore } from '../store/useCartStore'
 import Header from '../components/layout/Header'
 import Hero from '../components/layout/Hero'
+import BottomNavigation from '../components/layout/BottomNavigation'
 import { CategoriesModal } from '../components/modals/CategoriesModal'
 import { ProductsModal } from '../components/modals/ProductsModal'
 import { ProductDetailModal } from '../components/modals/ProductDetailModal'
@@ -16,7 +17,7 @@ export default function Home() {
   const { getItemCount } = useCartStore()
 
   return (
-    <div className="min-h-screen relative flex flex-col">
+    <div className="min-h-screen relative flex flex-col pb-20 md:pb-0">
       {/* Hero avec background image */}
       <Hero />
 
@@ -27,7 +28,7 @@ export default function Home() {
       {getItemCount() > 0 && (
         <button
           onClick={() => openModal('cart')}
-          className="fixed bottom-6 right-6 bg-faata-red text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 z-40 hover:bg-red-700 transition-colors text-xs"
+          className="fixed bottom-24 md:bottom-6 right-6 bg-faata-red text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 z-40 hover:bg-red-700 transition-colors text-xs"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -53,6 +54,9 @@ export default function Home() {
       {currentModal === 'confirmation' && <ConfirmationModal />}
       {currentModal === 'login' && <LoginModal />}
       {currentModal === 'signup' && <SignupModal />}
+
+      {/* Bottom Navigation - Mobile uniquement */}
+      <BottomNavigation />
     </div>
   )
 }

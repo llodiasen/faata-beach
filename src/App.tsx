@@ -10,6 +10,8 @@ import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import AdminDashboard from './pages/AdminDashboard'
 import DeliveryDashboard from './pages/DeliveryDashboard'
+import ProductPage from './pages/ProductPage'
+import FavouritesPage from './pages/FavouritesPage'
 
 // Protected Route Component
 function ProtectedRoute({ 
@@ -41,6 +43,8 @@ function App() {
       <Routes>
         {/* Routes publiques */}
         <Route path="/" element={<Home />} />
+        <Route path="/product/:id" element={<ProductPage />} />
+        <Route path="/favourites" element={<FavouritesPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         
