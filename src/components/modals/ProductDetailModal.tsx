@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
-import { productsAPI } from '../../lib/api'
-import Modal from '../ui/Modal'
-import Button from '../ui/Button'
+import { productsAPI, categoriesAPI } from '../../lib/api'
 
 interface Extra {
   name: string
@@ -17,6 +15,7 @@ interface Product {
   price: number
   imageUrl?: string
   extras?: Extra[]
+  categoryId?: any
 }
 
 export function ProductDetailModal() {
@@ -26,7 +25,10 @@ export function ProductDetailModal() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
-  const [selectedExtras, setSelectedExtras] = useState<Record<string, boolean>>({})
+  const [selectedWeight, setSelectedWeight] = useState<string | null>(null)
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [showAllergens, setShowAllergens] = useState(false)
+  const [showDescription, setShowDescription] = useState(false)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -36,9 +38,20 @@ export function ProductDetailModal() {
         setLoading(true)
         const data = await productsAPI.getById(selectedProduct)
         setProduct(data)
+        
+        // Définir le poids par défaut si des extras de type poids sont disponibles
+        if (data.extras && data.extras.length > 0) {
+          // Chercher un extra qui ressemble à un poids (contient "g" ou "kg")
+          const weightExtra = data.extras.find(e => /g|kg/i.test(e.name))
+          if (weightExtra) {
+            setSelectedWeight(weightExtra.name)
+          } else {
+            setSelectedWeight(data.extras[0].name)
+          }
+        }
+        
         setError(null)
-        setSelectedExtras({}) // Réinitialiser les extras quand on charge un nouveau produit
-        setQuantity(1) // Réinitialiser la quantité
+        setQuantity(1)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur de chargement')
       } finally {
@@ -51,163 +64,247 @@ export function ProductDetailModal() {
     }
   }, [currentModal, selectedProduct])
 
-  const handleToggleExtra = (extraName: string) => {
-    setSelectedExtras(prev => ({
-      ...prev,
-      [extraName]: !prev[extraName]
-    }))
-  }
-
   const calculateTotalPrice = () => {
     if (!product) return 0
     let total = product.price
-    if (product.extras) {
-      product.extras.forEach(extra => {
-        if (selectedExtras[extra.name]) {
-          total += extra.price
-        }
-      })
+    
+    // Ajouter le prix de l'extra sélectionné (poids)
+    if (product.extras && selectedWeight) {
+      const selectedExtra = product.extras.find(e => e.name === selectedWeight)
+      if (selectedExtra) {
+        total = selectedExtra.price // Utiliser le prix de l'extra comme prix de base
+      }
     }
-    return total
+    
+    return total * quantity
   }
 
-  const handleAddToCart = () => {
+  const handleConfirmAndChange = () => {
     if (!product) return
 
-    // Calculer le prix total avec les extras
-    const totalPrice = calculateTotalPrice()
+    const basePrice = selectedWeight && product.extras
+      ? product.extras.find(e => e.name === selectedWeight)?.price || product.price
+      : product.price
 
-    // Ajouter l'item (sans id, il sera généré automatiquement)
     const itemToAdd = {
       productId: product._id,
-      name: product.name,
-      price: totalPrice, // Prix incluant les extras
+      name: `${product.name}${selectedWeight ? ` (${selectedWeight})` : ''}`,
+      price: basePrice,
       imageUrl: product.imageUrl,
     }
 
-    // Ajouter l'item plusieurs fois selon la quantité
     for (let i = 0; i < quantity; i++) {
       addItem(itemToAdd)
     }
 
-    // Réinitialiser les extras sélectionnés
-    setSelectedExtras({})
-    openModal('cart')
+    // Réinitialiser et fermer
+    setQuantity(1)
+    closeModal()
   }
 
-  return (
-    <Modal isOpen={currentModal === 'productDetail'} onClose={closeModal} title="Détails du produit" size="md">
-      {loading && <div className="text-center py-8">Chargement...</div>}
-      {error && <div className="text-red-600 text-center py-4">{error}</div>}
-      {!loading && !error && product && (
-        <div>
-          {product.imageUrl && (
-            <img src={product.imageUrl} alt={product.name} className="w-full h-64 object-cover rounded-lg mb-4" />
-          )}
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h2>
-          {product.description && <p className="text-gray-600 mb-4">{product.description}</p>}
-          <p className="text-3xl font-bold text-faata-red mb-6">{product.price.toLocaleString('fr-FR')} CFA</p>
+  // Préparer les options de poids depuis les extras
+  // Si aucun extra n'est disponible, créer des options par défaut
+  const weightOptions = product?.extras && product.extras.length > 0
+    ? product.extras.map(e => e.name)
+    : ['450g', '1200g'] // Options par défaut si pas d'extras
 
-          {/* Extras - Toujours affiché, même s'il n'y en a pas */}
-          <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-3 text-lg">Extras disponibles</label>
-            {product.extras && product.extras.length > 0 ? (
-              <>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {product.extras.map((extra, index) => (
-                    <label
-                      key={index}
-                      className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                        selectedExtras[extra.name]
-                          ? 'border-faata-red bg-red-50'
-                          : 'border-gray-200 hover:border-faata-red hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 flex-1">
-                        <input
-                          type="checkbox"
-                          checked={selectedExtras[extra.name] || false}
-                          onChange={() => handleToggleExtra(extra.name)}
-                          className="w-5 h-5 text-faata-red rounded focus:ring-faata-red focus:ring-2"
-                        />
-                        <span className="text-gray-900 font-medium">{extra.name}</span>
-                      </div>
-                      <span className="text-faata-red font-bold ml-3">+{extra.price.toLocaleString('fr-FR')} CFA</span>
-                    </label>
-                  ))}
-                </div>
-                
-                {/* Résumé du prix avec extras */}
-                <div className="mt-4 pt-4 border-t-2 border-gray-200 bg-gray-50 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-700 font-semibold">Prix de base:</span>
-                    <span className="text-gray-900 font-bold">{product.price.toLocaleString('fr-FR')} CFA</span>
-                  </div>
-                  {Object.keys(selectedExtras).some(key => selectedExtras[key]) && (
-                    <>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-gray-700 font-semibold">Extras sélectionnés:</span>
-                        <span className="text-gray-900 font-bold">
-                          +{product.extras
-                            .filter(extra => selectedExtras[extra.name])
-                            .reduce((sum, extra) => sum + extra.price, 0)
-                            .toLocaleString('fr-FR')} CFA
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center pt-2 border-t border-gray-300">
-                        <span className="text-lg font-bold text-gray-900">Total unitaire:</span>
-                        <span className="text-xl font-bold text-faata-red">{calculateTotalPrice().toLocaleString('fr-FR')} CFA</span>
-                      </div>
-                      {quantity > 1 && (
-                        <div className="flex justify-between items-center mt-2 pt-2 border-t-2 border-faata-red">
-                          <span className="text-xl font-bold text-gray-900">Total ({quantity}x):</span>
-                          <span className="text-2xl font-bold text-faata-red">{(calculateTotalPrice() * quantity).toLocaleString('fr-FR')} CFA</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                  {!Object.keys(selectedExtras).some(key => selectedExtras[key]) && (
-                    <p className="text-sm text-gray-500 italic">Aucun extra sélectionné</p>
-                  )}
-                </div>
-              </>
+  // Utiliser le poids sélectionné ou le premier par défaut
+  const currentWeight = selectedWeight || weightOptions[0]
+
+  if (currentModal !== 'productDetail') return null
+
+  return (
+    <div className="fixed top-0 left-0 right-0 bottom-0 h-screen z-50 bg-yellow-50 flex flex-col">
+      {loading && (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-gray-500">Chargement...</div>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-red-600 text-center p-4">{error}</div>
+        </div>
+      )}
+
+      {!loading && !error && product && (
+        <>
+          {/* Image produit grande */}
+          <div className="relative w-full h-64 bg-gray-100 flex-shrink-0">
+            {/* Boutons retour et favoris sur l'image */}
+            <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+              <button
+                onClick={closeModal}
+                className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors shadow-sm"
+              >
+                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setIsFavorited(!isFavorited)}
+                className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors shadow-sm"
+              >
+                <svg
+                  className={`w-6 h-6 ${isFavorited ? 'text-red-500 fill-red-500' : 'text-gray-700'}`}
+                  fill={isFavorited ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {product.imageUrl ? (
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 text-center">
-                <p className="text-gray-500">Aucun extra disponible pour ce produit</p>
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
               </div>
             )}
           </div>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2 text-lg">Quantité</label>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-12 h-12 rounded-lg bg-gray-200 hover:bg-gray-300 font-bold text-xl transition-colors"
-              >
-                -
-              </button>
-              <span className="text-2xl font-bold w-16 text-center">{quantity}</span>
-              <button
-                onClick={() => setQuantity(quantity + 1)}
-                className="w-12 h-12 rounded-lg bg-gray-200 hover:bg-gray-300 font-bold text-xl transition-colors"
-              >
-                +
-              </button>
+          {/* Section blanche avec détails */}
+          <div className="flex-1 overflow-y-auto bg-white rounded-t-3xl -mt-4 relative z-10">
+            <div className="p-6">
+              {/* Nom du produit */}
+              <h1 className="text-2xl font-bold text-gray-900 mb-6">{product.name}</h1>
+
+              {/* Sélecteur de poids */}
+              {weightOptions.length > 0 && (
+                <div className="mb-6">
+                  <label className="block text-sm text-gray-600 mb-2">Weight</label>
+                  <div className="flex gap-2">
+                    {weightOptions.map((weight, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedWeight(weight)}
+                        className={`flex-1 px-4 py-3 rounded-xl font-medium transition-colors ${
+                          currentWeight === weight
+                            ? 'bg-yellow-400 text-black'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                      >
+                        {weight}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Sélecteur de quantité */}
+              <div className="mb-6">
+                <label className="block text-sm text-gray-600 mb-2">Quantity</label>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center font-bold text-gray-700 transition-colors"
+                  >
+                    -
+                  </button>
+                  <div className="flex-1 bg-white border border-gray-300 rounded-lg py-2 px-4 text-center font-semibold">
+                    {quantity}
+                  </div>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-10 h-10 rounded-full bg-yellow-400 hover:bg-yellow-500 flex items-center justify-center font-bold text-black transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Section Allergens (expandable) */}
+              <div className="mb-4 border-b border-gray-200 pb-4">
+                <button
+                  onClick={() => setShowAllergens(!showAllergens)}
+                  className="w-full flex items-center justify-between text-left"
+                >
+                  <span className="text-sm text-gray-600">Allergens</span>
+                  <svg
+                    className={`w-5 h-5 text-gray-500 transition-transform ${showAllergens ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {showAllergens && (
+                  <div className="mt-2 text-sm text-gray-700">
+                    <p>Gluten, Lait, Œufs</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Section Description (expandable) */}
+              {product.description && (
+                <div className="mb-6 border-b border-gray-200 pb-4">
+                  <button
+                    onClick={() => setShowDescription(!showDescription)}
+                    className="w-full flex items-center justify-between text-left"
+                  >
+                    <span className="text-sm text-gray-600">Description</span>
+                    <svg
+                      className={`w-5 h-5 text-gray-500 transition-transform ${showDescription ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {showDescription && (
+                    <div className="mt-2 text-sm text-gray-700 leading-relaxed">
+                      {product.description}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="flex gap-4">
-            <Button variant="primary" onClick={handleAddToCart} className="flex-1">
-              Ajouter au panier
-            </Button>
-            <Button variant="outline" onClick={() => openModal('products')}>
-              Retour
-            </Button>
+          {/* Barre d'action en bas */}
+          <div className="bg-white border-t border-gray-200 px-4 py-4 flex-shrink-0">
+            <div className="flex items-center gap-3 mb-2">
+              {/* Bouton edit */}
+              <button className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors">
+                <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+
+              {/* Bouton Confirm and change */}
+              <button
+                onClick={handleConfirmAndChange}
+                className="flex-1 bg-black text-white py-3 px-6 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Confirm and change
+              </button>
+            </div>
+
+            {/* Texte d'instruction */}
+            <p className="text-xs text-gray-500 text-center">
+              Tap and hold to update this item to your cart and add another with different options
+            </p>
           </div>
-        </div>
+        </>
       )}
-    </Modal>
+    </div>
   )
 }
-

@@ -134,60 +134,52 @@ async function startServer() {
   }
 
   // Routes API avec paramètres d'abord (plus spécifiques)
-  app.all('/api/categories/:id', createApiRoute('/api/categories/:id', './api/categories/[id].ts', true))
-  app.all('/api/products/:id', createApiRoute('/api/products/:id', './api/products/[id].ts', true))
   app.all('/api/orders/:id', createApiRoute('/api/orders/:id', './api/orders/[id].ts', true))
+  app.all('/api/categories/:id', createApiRoute('/api/categories/:id', './api/categories.ts', true))
+  app.all('/api/products/:id', createApiRoute('/api/products/:id', './api/products.ts', true))
 
   // Routes API sans paramètres (moins spécifiques)
-  app.all('/api/categories', createApiRoute('/api/categories', './api/categories/index.ts'))
-  app.all('/api/products', createApiRoute('/api/products', './api/products/index.ts'))
+  app.all('/api/categories', createApiRoute('/api/categories', './api/categories.ts'))
+  app.all('/api/products', createApiRoute('/api/products', './api/products.ts'))
   app.all('/api/orders', createApiRoute('/api/orders', './api/orders/index.ts'))
-
-  // Routes API - Auth
-  app.use('/api/auth/login', async (req, res) => {
-    console.log('🔵 [DEV-SERVER] Login request received - Method:', req.method)
-    console.log('🔵 [DEV-SERVER] Login request body:', { email: req.body?.email, hasPassword: !!req.body?.password })
+  app.all('/api/reservations', createApiRoute('/api/reservations', './api/reservations.ts'))
+  
+  // Routes API - Auth (consolidées dans [action].ts)
+  app.all('/api/auth/:action', async (req, res) => {
     try {
-      console.log('🔵 [DEV-SERVER] Loading login handler...')
-      const handler = await import('./api/auth/login.ts')
-      console.log('🔵 [DEV-SERVER] Login handler loaded, creating Vercel request/response...')
+      const handler = await import('./api/auth/[action].ts')
       const vercelReq = createVercelRequest(req)
+      // Extraire l'action depuis l'URL si elle n'est pas déjà dans query
+      vercelReq.query.action = req.params.action || vercelReq.query.action
       const vercelRes = createVercelResponse(res)
-      console.log('🔵 [DEV-SERVER] Calling login handler...')
       await handler.default(vercelReq, vercelRes)
-      console.log('🔵 [DEV-SERVER] Login handler completed')
     } catch (error) {
-      console.error('🔴 [DEV-SERVER] Login API Error:', error)
-      console.error('🔴 [DEV-SERVER] Error stack:', error.stack)
+      console.error('Auth API Error:', error)
       if (!res.headersSent) {
         res.status(500).json({ message: error.message || 'Erreur serveur' })
       }
     }
   })
-
-  app.use('/api/auth/register', async (req, res) => {
+  
+  // Routes API - Users (consolidées dans [action].ts)
+  app.all('/api/users/:action', async (req, res) => {
     try {
-      const handler = await import('./api/auth/register.ts')
+      const handler = await import('./api/users/[action].ts')
       const vercelReq = createVercelRequest(req)
+      vercelReq.query.action = req.params.action || vercelReq.query.action
       const vercelRes = createVercelResponse(res)
       await handler.default(vercelReq, vercelRes)
     } catch (error) {
-      console.error('Register API Error:', error)
-      res.status(500).json({ message: error.message || 'Erreur serveur' })
+      console.error('Users API Error:', error)
+      if (!res.headersSent) {
+        res.status(500).json({ message: error.message || 'Erreur serveur' })
+      }
     }
   })
+  
+  // Route API - Orders delivery
+  app.all('/api/orders/delivery/assigned', createApiRoute('/api/orders/delivery/assigned', './api/orders/delivery/assigned.ts'))
 
-  app.use('/api/auth/profile', async (req, res) => {
-    try {
-      const handler = await import('./api/auth/profile.ts')
-      const vercelReq = createVercelRequest(req)
-      const vercelRes = createVercelResponse(res)
-      await handler.default(vercelReq, vercelRes)
-    } catch (error) {
-      console.error('Profile API Error:', error)
-      res.status(500).json({ message: error.message || 'Erreur serveur' })
-    }
-  })
 
   // Utiliser Vite pour servir le frontend
   app.use(vite.middlewares)
