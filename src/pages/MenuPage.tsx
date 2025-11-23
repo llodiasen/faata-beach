@@ -33,22 +33,18 @@ export default function MenuPage() {
   const { toggleFavorite, isFavorite } = useFavoritesStore()
 
   const [categories, setCategories] = useState<Category[]>([])
-  const [products, setProducts] = useState<Product[]>([])
   const [popularProducts, setPopularProducts] = useState<Product[]>([])
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true)
         const [categoriesData, productsData] = await Promise.all([
           categoriesAPI.getAll(),
           productsAPI.getAll()
         ])
         
         setCategories(categoriesData)
-        setProducts(productsData)
         
         // Sélectionner les 6 premiers produits comme populaires
         setPopularProducts(productsData.slice(0, 6))
@@ -58,22 +54,14 @@ export default function MenuPage() {
         setRecommendedProducts(shuffled.slice(0, 4))
       } catch (err) {
         console.error('Error fetching data:', err)
-      } finally {
-        setLoading(false)
       }
     }
 
     fetchData()
   }, [])
 
-  const handleCategoryClick = (categoryId: string) => {
+  const handleCategoryClick = () => {
     openModal('categories')
-    setTimeout(() => {
-      const categoryModal = document.querySelector('[data-modal="categories"]')
-      if (categoryModal) {
-        // Scroll vers la catégorie sélectionnée
-      }
-    }, 100)
   }
 
   const handleProductClick = (productId: string) => {
@@ -91,9 +79,15 @@ export default function MenuPage() {
     addItem(itemToAdd)
   }
 
-  const handleFavoriteClick = (e: React.MouseEvent, productId: string) => {
+  const handleFavoriteClick = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation()
-    toggleFavorite(productId)
+    toggleFavorite({
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      description: product.description,
+    })
   }
 
   // Récupérer le nom du premier mot de l'utilisateur
@@ -157,7 +151,7 @@ export default function MenuPage() {
             {categories.slice(0, 6).map((category) => (
               <button
                 key={category._id}
-                onClick={() => handleCategoryClick(category._id)}
+                onClick={handleCategoryClick}
                 className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex-shrink-0 min-w-[80px]"
               >
                 {category.imageUrl ? (
@@ -272,7 +266,7 @@ export default function MenuPage() {
                           Quick Add
                         </button>
                         <button
-                          onClick={(e) => handleFavoriteClick(e, product._id)}
+                          onClick={(e) => handleFavoriteClick(e, product)}
                           className={`p-2 rounded-lg transition-colors ${
                             isFavorite(product._id)
                               ? 'bg-red-100 text-red-500'

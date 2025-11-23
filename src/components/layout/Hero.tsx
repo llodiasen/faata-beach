@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useModalStore } from '../../store/useModalStore'
 import { LocationModal } from '../modals/LocationModal'
 
 export default function Hero() {
   const navigate = useNavigate()
-  const { openModal } = useModalStore()
   const [orderType, setOrderType] = useState<'sur_place' | 'emporter' | 'livraison'>('sur_place')
   const [tableNumber, setTableNumber] = useState('')
   const [showLocationModal, setShowLocationModal] = useState(false)

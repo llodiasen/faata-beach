@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
@@ -14,10 +14,6 @@ export function CheckoutModal() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [detectingLocation, setDetectingLocation] = useState(false)
-  const [orderType, setOrderType] = useState<'sur_place' | 'emporter' | 'livraison'>(
-    (localStorage.getItem('faata_orderType') as any) || 'sur_place'
-  )
-  const [couponCode, setCouponCode] = useState('')
 
   // Récupérer l'adresse de livraison depuis localStorage si disponible
   const getDeliveryAddress = (): string => {
@@ -48,17 +44,6 @@ export function CheckoutModal() {
     } finally {
       setDetectingLocation(false)
     }
-  }
-
-  // Obtenir l'heure actuelle formatée
-  const getCurrentTime = () => {
-    const now = new Date()
-    const hours = now.getHours()
-    const minutes = now.getMinutes()
-    const ampm = hours >= 12 ? 'PM' : 'AM'
-    const displayHours = hours % 12 || 12
-    const displayMinutes = minutes.toString().padStart(2, '0')
-    return `${displayHours}:${displayMinutes} ${ampm}`
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
