@@ -5,6 +5,7 @@ export interface Address {
   street?: string
   city?: string
   zipCode?: string
+  zone?: string
   coordinates: {
     lat: number
     lng: number

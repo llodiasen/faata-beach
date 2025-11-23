@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useModalStore } from '../store/useModalStore'
 import { useCartStore } from '../store/useCartStore'
-import { useFavoritesStore } from '../store/useFavoritesStore'
+// import { useFavoritesStore } from '../store/useFavoritesStore' // Non utilisé pour le moment
 import { categoriesAPI, productsAPI } from '../lib/api'
 import BottomNavigation from '../components/layout/BottomNavigation'
 import { CartModal } from '../components/modals/CartModal'
@@ -30,7 +30,7 @@ export default function MenuPage() {
   const location = useLocation()
   const { openModal, selectedCategory: storeSelectedCategory, setSelectedCategory: setStoreSelectedCategory, setSelectedProduct } = useModalStore()
   const { addItem } = useCartStore()
-  const { toggleFavorite, isFavorite } = useFavoritesStore()
+  // const { toggleFavorite } = useFavoritesStore() // Non utilisé pour le moment
 
   const [categories, setCategories] = useState<Category[]>([])
   const [allProducts, setAllProducts] = useState<Product[]>([])
@@ -109,24 +109,24 @@ export default function MenuPage() {
     addItem(itemToAdd)
   }
 
-  const handleFavoriteClick = (e: React.MouseEvent, product: Product) => {
-    e.stopPropagation()
-    toggleFavorite({
-      productId: product._id,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.imageUrl,
-      description: product.description,
-    })
-  }
+  // const handleFavoriteClick = (e: React.MouseEvent, product: Product) => {
+  //   e.stopPropagation()
+  //   toggleFavorite({
+  //     productId: product._id,
+  //     name: product.name,
+  //     price: product.price,
+  //     imageUrl: product.imageUrl,
+  //     description: product.description,
+  //   })
+  // }
 
-  const getCategoryName = (product: Product): string => {
-    if (typeof product.categoryId === 'object' && product.categoryId?.name) {
-      return product.categoryId.name
-    }
-    const category = categories.find(c => c._id === product.categoryId)
-    return category?.name || 'Menu'
-  }
+  // const getCategoryName = (product: Product): string => {
+  //   if (typeof product.categoryId === 'object' && product.categoryId?.name) {
+  //     return product.categoryId.name
+  //   }
+  //   const category = categories.find(c => c._id === product.categoryId)
+  //   return category?.name || 'Menu'
+  // }
 
   const { getItemCount } = useCartStore()
 

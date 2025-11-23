@@ -5,7 +5,7 @@ import Modal from '../ui/Modal'
 
 export function CartModal() {
   const navigate = useNavigate()
-  const { currentModal, closeModal, openModal } = useModalStore()
+  const { currentModal, closeModal } = useModalStore()
   const { items, updateQuantity, removeItem, getTotal } = useCartStore()
 
   const handleCheckout = () => {

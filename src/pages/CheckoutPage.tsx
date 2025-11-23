@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/useCartStore'
 import { useAuthStore } from '../store/useAuthStore'
 import { useModalStore } from '../store/useModalStore'
-import { useGeolocation } from '../hooks/useGeolocation'
+// import { useGeolocation } from '../hooks/useGeolocation' // Utilisé via LocationModal
 import { ordersAPI } from '../lib/api'
 import BottomNavigation from '../components/layout/BottomNavigation'
 import { LocationModal } from '../components/modals/LocationModal'
@@ -13,10 +13,9 @@ export default function CheckoutPage() {
   const { items, getTotal, clearCart, getItemCount } = useCartStore()
   const { user } = useAuthStore()
   const { openModal } = useModalStore()
-  const { getCurrentLocation, loading: geoLoading } = useGeolocation()
+  // const { getCurrentLocation } = useGeolocation() // Utilisé via LocationModal
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [detectingLocation, setDetectingLocation] = useState(false)
 
   // Récupérer le type de commande depuis localStorage
   const getOrderType = (): 'sur_place' | 'emporter' | 'livraison' => {
@@ -68,21 +67,21 @@ export default function CheckoutPage() {
   const subtotal = getTotal()
   const total = subtotal + deliveryFee
 
-  // Fonction pour détecter la position et mettre à jour l'adresse
-  const handleDetectLocation = async () => {
-    setDetectingLocation(true)
-    setError(null)
-    try {
-      const addressData = await getCurrentLocation()
-      setAddress(addressData.fullAddress || '')
-      setDeliveryZone(addressData.zone || 'BARGNY')
-      localStorage.setItem('faata_deliveryAddress', JSON.stringify(addressData))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la détection de la position')
-    } finally {
-      setDetectingLocation(false)
-    }
-  }
+  // Fonction pour détecter la position et mettre à jour l'adresse (utilisée via LocationModal)
+  // const handleDetectLocation = async () => {
+  //   setDetectingLocation(true)
+  //   setError(null)
+  //   try {
+  //     const addressData = await getCurrentLocation()
+  //     setAddress(addressData.fullAddress || '')
+  //     setDeliveryZone(addressData.zone || 'BARGNY')
+  //     localStorage.setItem('faata_deliveryAddress', JSON.stringify(addressData))
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : 'Erreur lors de la détection de la position')
+  //   } finally {
+  //     setDetectingLocation(false)
+  //   }
+  // }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

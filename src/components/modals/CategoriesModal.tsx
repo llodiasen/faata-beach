@@ -13,7 +13,7 @@ interface Category {
 
 export function CategoriesModal() {
   const navigate = useNavigate()
-  const { currentModal, closeModal, openModal, setSelectedCategory } = useModalStore()
+  const { currentModal, closeModal, setSelectedCategory } = useModalStore()
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

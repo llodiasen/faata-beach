@@ -13,7 +13,7 @@ interface Category {
 
 export default function Hero() {
   const navigate = useNavigate()
-  const { openModal, setSelectedCategory } = useModalStore()
+  const { setSelectedCategory } = useModalStore()
   const [orderType, setOrderType] = useState<'sur_place' | 'emporter' | 'livraison'>('sur_place')
   const [showLocationModal, setShowLocationModal] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])

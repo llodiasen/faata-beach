@@ -15,21 +15,30 @@ export function CheckoutModal() {
   const [error, setError] = useState<string | null>(null)
   const [detectingLocation, setDetectingLocation] = useState(false)
 
+  // Récupérer le type de commande depuis localStorage
+  const getOrderType = (): 'sur_place' | 'emporter' | 'livraison' => {
+    const savedOrderType = localStorage.getItem('faata_orderType')
+    return (savedOrderType as 'sur_place' | 'emporter' | 'livraison') || 'livraison'
+  }
+
+  const orderType = getOrderType()
+
   // Récupérer l'adresse de livraison depuis localStorage si disponible
   const getDeliveryAddress = (): string => {
     const savedAddress = localStorage.getItem('faata_deliveryAddress')
     if (savedAddress) {
       try {
         const address = JSON.parse(savedAddress)
-        return address.fullAddress || '1234 Address Blvd'
+        return address.fullAddress || ''
       } catch (e) {
-        return '1234 Address Blvd'
+        return ''
       }
     }
-    return '1234 Address Blvd'
+    return ''
   }
 
   const [address, setAddress] = useState(getDeliveryAddress())
+  const [tableNumber, setTableNumber] = useState('')
 
   // Fonction pour détecter la position et mettre à jour l'adresse
   const handleDetectLocation = async () => {
@@ -59,7 +68,7 @@ export function CheckoutModal() {
 
       const orderData: any = {
         items: orderItems,
-        orderType: 'livraison',
+        orderType: orderType,
         customerInfo: {
           name: user?.name || '',
           phone: user?.phone || '',
@@ -67,7 +76,23 @@ export function CheckoutModal() {
         },
       }
 
-      if (address) {
+      // Si sur place, ajouter le numéro de table
+      if (orderType === 'sur_place') {
+        if (!tableNumber.trim()) {
+          setError('Veuillez indiquer le numéro de table')
+          setLoading(false)
+          return
+        }
+        orderData.tableNumber = tableNumber.trim()
+      }
+
+      // Si livraison, ajouter l'adresse de livraison
+      if (orderType === 'livraison') {
+        if (!address.trim()) {
+          setError('Veuillez indiquer une adresse de livraison')
+          setLoading(false)
+          return
+        }
         const savedAddress = localStorage.getItem('faata_deliveryAddress')
         if (savedAddress) {
           try {
@@ -99,6 +124,7 @@ export function CheckoutModal() {
       }
 
       localStorage.removeItem('faata_deliveryAddress')
+      localStorage.removeItem('faata_orderType')
 
       clearCart()
       closeModal()
@@ -129,39 +155,58 @@ export function CheckoutModal() {
           <h2 className="text-xl font-bold text-gray-900">Checkout</h2>
         </div>
 
-        {/* Adresse de livraison uniquement */}
-        <div className="bg-white border border-gray-200 rounded-lg p-3 flex items-center gap-2">
-          <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-            placeholder="Adresse de livraison"
-            className="flex-1 text-sm text-gray-700 border-0 focus:outline-none bg-transparent"
-          />
-          <button
-            type="button"
-            onClick={handleDetectLocation}
-            disabled={detectingLocation || geoLoading}
-            className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
-            title="Détecter ma position"
-          >
-            {detectingLocation || geoLoading ? (
-              <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            )}
-          </button>
-        </div>
+        {/* Numéro de table pour sur place */}
+        {orderType === 'sur_place' && (
+          <div className="bg-white border border-gray-200 rounded-lg p-3">
+            <label className="block text-gray-700 font-medium mb-2 text-sm">
+              Numéro de table *
+            </label>
+            <input
+              type="text"
+              value={tableNumber}
+              onChange={(e) => setTableNumber(e.target.value)}
+              required
+              placeholder="Ex: Table 5"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red/30 focus:border-faata-red text-sm transition-all bg-white text-gray-800 placeholder:text-gray-400"
+            />
+          </div>
+        )}
+
+        {/* Adresse de livraison pour livraison */}
+        {orderType === 'livraison' && (
+          <div className="bg-white border border-gray-200 rounded-lg p-3 flex items-center gap-2">
+            <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+              placeholder="Adresse de livraison"
+              className="flex-1 text-sm text-gray-700 border-0 focus:outline-none bg-transparent"
+            />
+            <button
+              type="button"
+              onClick={handleDetectLocation}
+              disabled={detectingLocation || geoLoading}
+              className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
+              title="Détecter ma position"
+            >
+              {detectingLocation || geoLoading ? (
+                <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              )}
+            </button>
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
