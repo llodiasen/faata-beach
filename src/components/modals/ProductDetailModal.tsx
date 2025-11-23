@@ -17,6 +17,8 @@ interface Product {
   imageUrl?: string
   extras?: Extra[]
   categoryId?: any
+  preparationTime?: number
+  deliveryTime?: number
 }
 
 export function ProductDetailModal() {
@@ -136,9 +138,28 @@ export function ProductDetailModal() {
           {/* Nom et prix */}
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h1>
-            <p className="text-xl font-bold text-gray-900">
+            <p className="text-xl font-bold text-gray-900 mb-2">
               {currentPrice.toLocaleString('fr-FR')} CFA
             </p>
+            {/* Temps de livraison */}
+            {(product.preparationTime || product.deliveryTime) && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="font-medium">
+                  {product.preparationTime || 0} min préparation
+                </span>
+                <span className="text-gray-400">+</span>
+                <span className="font-medium">
+                  {product.deliveryTime || 0} min livraison
+                </span>
+                <span className="text-gray-400">=</span>
+                <span className="font-semibold text-orange-500">
+                  {(product.preparationTime || 0) + (product.deliveryTime || 0)} min total
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Section Weight */}

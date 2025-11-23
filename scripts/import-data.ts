@@ -43,6 +43,22 @@ const { Category, Product } = await import('../api/lib/models.js')
 // Les prix sont maintenant directement en CFA (Franc CFA Sénégalais)
 // Plus besoin de conversion, les prix sont déjà adaptés au marché sénégalais
 
+// Fonction pour obtenir les temps de préparation et livraison selon la catégorie
+function getDeliveryTimesForCategory(categoryName: string): { preparationTime: number; deliveryTime: number } {
+  const times: Record<string, { preparationTime: number; deliveryTime: number }> = {
+    'Entrées': { preparationTime: 10, deliveryTime: 15 }, // 10 min préparation + 15 min livraison = 25 min total
+    'Plats — À base de poisson': { preparationTime: 20, deliveryTime: 20 }, // 20 min préparation + 20 min livraison = 40 min total
+    'Plats — À base de fruits de mer': { preparationTime: 25, deliveryTime: 20 }, // 25 min préparation + 20 min livraison = 45 min total
+    'Plats — À base de poulet': { preparationTime: 18, deliveryTime: 20 }, // 18 min préparation + 20 min livraison = 38 min total
+    'Plats — À base de viande': { preparationTime: 22, deliveryTime: 20 }, // 22 min préparation + 20 min livraison = 42 min total
+    'Accompagnements': { preparationTime: 12, deliveryTime: 15 }, // 12 min préparation + 15 min livraison = 27 min total
+    'Boissons': { preparationTime: 5, deliveryTime: 15 }, // 5 min préparation + 15 min livraison = 20 min total
+    'Desserts': { preparationTime: 8, deliveryTime: 15 }, // 8 min préparation + 15 min livraison = 23 min total
+  }
+  
+  return times[categoryName] || { preparationTime: 15, deliveryTime: 20 } // Valeurs par défaut
+}
+
 // Fonction pour obtenir les extras selon la catégorie (prix en CFA Sénégalais)
 function getExtrasForCategory(categoryName: string): Array<{ name: string; price: number }> {
   const extras: Record<string, Array<{ name: string; price: number }>> = {
@@ -217,8 +233,9 @@ async function importData() {
       await category.save()
       console.log(`✅ Catégorie créée: ${category.name} (ID: ${category._id})`)
 
-      // Obtenir les extras pour cette catégorie
+      // Obtenir les extras et les temps pour cette catégorie
       const categoryExtras = getExtrasForCategory(categoryData.name)
+      const deliveryTimes = getDeliveryTimesForCategory(categoryData.name)
       
       // Créer les produits de cette catégorie
       for (let productIndex = 0; productIndex < categoryData.products.length; productIndex++) {
@@ -231,12 +248,15 @@ async function importData() {
           price: productData.price, // Prix déjà en CFA
           imageUrl: productData.image,
           extras: categoryExtras, // Ajouter les extras de la catégorie
+          preparationTime: deliveryTimes.preparationTime, // Temps de préparation en minutes
+          deliveryTime: deliveryTimes.deliveryTime, // Temps de livraison en minutes
           isAvailable: true,
           displayOrder: productIndex + 1
         })
         
         await product.save()
-        console.log(`   ✅ Produit créé: ${product.name} (${productData.price} CFA) - ${categoryExtras.length} extras`)
+        const totalTime = deliveryTimes.preparationTime + deliveryTimes.deliveryTime
+        console.log(`   ✅ Produit créé: ${product.name} (${productData.price} CFA) - ${categoryExtras.length} extras - ${totalTime} min (${deliveryTimes.preparationTime} min prép + ${deliveryTimes.deliveryTime} min livraison)`)
       }
     }
 

@@ -11,6 +11,8 @@ interface Product {
   description?: string
   price: number
   imageUrl?: string
+  preparationTime?: number
+  deliveryTime?: number
 }
 
 export function ProductsModal() {

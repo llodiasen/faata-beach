@@ -90,6 +90,8 @@ export interface IProduct extends Document {
   price: number
   imageUrl?: string
   extras?: IExtra[]
+  preparationTime: number // Temps de préparation en minutes
+  deliveryTime: number // Temps de livraison en minutes
   isAvailable: boolean
   displayOrder: number
   createdAt: Date
@@ -109,6 +111,8 @@ const productSchema = new Schema<IProduct>(
     price: { type: Number, required: true, min: 0 },
     imageUrl: { type: String },
     extras: { type: [extraSchema], default: [] },
+    preparationTime: { type: Number, required: true, min: 0, default: 15 }, // Temps de préparation en minutes
+    deliveryTime: { type: Number, required: true, min: 0, default: 20 }, // Temps de livraison en minutes
     isAvailable: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },

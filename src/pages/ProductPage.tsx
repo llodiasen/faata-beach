@@ -19,6 +19,8 @@ interface Product {
   imageUrl?: string
   extras?: Extra[]
   categoryId?: any
+  preparationTime?: number
+  deliveryTime?: number
 }
 
 interface Category {
@@ -248,7 +250,28 @@ export default function ProductPage() {
 
                 {/* Informations produit */}
                 <div className="space-y-4">
-                  <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+                    {/* Temps de livraison */}
+                    {(product.preparationTime || product.deliveryTime) && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                        <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="font-medium">
+                          Temps de préparation: {product.preparationTime || 0} min
+                        </span>
+                        <span className="text-gray-400">•</span>
+                        <span className="font-medium">
+                          Livraison: {product.deliveryTime || 0} min
+                        </span>
+                        <span className="text-gray-400">•</span>
+                        <span className="font-semibold text-orange-500">
+                          Total: {(product.preparationTime || 0) + (product.deliveryTime || 0)} min
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   
                   {product.description && (
                     <p className="text-gray-600">{product.description}</p>
