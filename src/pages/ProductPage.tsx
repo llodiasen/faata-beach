@@ -183,21 +183,22 @@ export default function ProductPage() {
         </button>
       )}
       
-      <div className="container mx-auto px-4 py-5">
-        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="container mx-auto px-4 py-6 max-w-5xl">
+        <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Image produit */}
             <div>
-              <div className="relative" style={{ aspectRatio: '160 / 191', paddingBottom: 'calc(191 / 160 * 100%)' }}>
+              <div className="relative max-w-md mx-auto">
                 {product.imageUrl ? (
                   <img
                     src={product.imageUrl}
                     alt={product.name}
-                    className="w-full h-full object-cover rounded-2xl"
+                    className="w-full h-auto object-cover rounded-xl"
+                    style={{ maxHeight: '400px' }}
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gray-200 rounded-2xl flex items-center justify-center">
-                    <span className="text-5xl">🍽️</span>
+                  <div className="w-full h-64 bg-gray-200 rounded-xl flex items-center justify-center">
+                    <span className="text-4xl">🍽️</span>
                   </div>
                 )}
               </div>
@@ -205,24 +206,24 @@ export default function ProductPage() {
 
             {/* Informations produit */}
             <div>
-              <div className="text-xl font-semibold mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight">{product.name}</h3>
+              <div className="text-base font-medium text-gray-700 mb-3">
                 {((selectedSize && product.extras ? product.extras.find(e => e.name === selectedSize)?.price || product.price : product.price) * quantity).toLocaleString('fr-FR')} FCFA
               </div>
-              <h3 className="text-lg font-medium mb-2">{product.name}</h3>
               {product.description && (
-                <p className="text-xs text-gray-600 mt-1 mb-4">{product.description}</p>
+                <p className="text-sm text-gray-600 leading-relaxed mb-6">{product.description}</p>
               )}
 
               {/* Options SIZE */}
               {sizeOptions.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="text-sm font-semibold mb-2">SIZE</h4>
+                <div className="mb-6">
+                  <h4 className="text-xs font-medium text-gray-700 mb-3 uppercase tracking-wide">Taille</h4>
                   <div className="flex flex-wrap gap-2">
                     {sizeOptions.map((size, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedSize(size)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                           selectedSize === size
                             ? 'bg-gray-900 text-white'
                             : 'bg-white border border-gray-300 text-gray-700 hover:border-gray-400'
@@ -237,8 +238,8 @@ export default function ProductPage() {
 
               {/* Build Your Meal */}
               {mealOptions.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="text-sm font-semibold mb-2">BUILD YOUR MEAL</h4>
+                <div className="mb-6">
+                  <h4 className="text-xs font-medium text-gray-700 mb-3 uppercase tracking-wide">Compléments</h4>
                   <div className="grid grid-cols-3 gap-2">
                     {mealOptions.map((extra, index) => (
                       <button
@@ -247,16 +248,16 @@ export default function ProductPage() {
                           ...prev,
                           [extra.name]: !prev[extra.name]
                         }))}
-                        className={`p-2 border rounded-lg transition-colors ${
+                        className={`p-2 border rounded-lg transition-all ${
                           selectedExtras[extra.name]
                             ? 'border-faata-red bg-red-50'
                             : 'border-gray-300 hover:border-gray-400'
                         }`}
                       >
-                        <div className="w-12 h-12 bg-gray-100 rounded mx-auto mb-1 flex items-center justify-center">
-                          <span className="text-2xl">🍽️</span>
+                        <div className="w-10 h-10 bg-gray-100 rounded mx-auto mb-1 flex items-center justify-center">
+                          <span className="text-xl">🍽️</span>
                         </div>
-                        <p className="text-xs text-center">{extra.name}</p>
+                        <p className="text-xs text-center text-gray-700">{extra.name}</p>
                       </button>
                     ))}
                   </div>
@@ -264,12 +265,12 @@ export default function ProductPage() {
               )}
 
               {/* Quantity */}
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold mb-2">Quantity</h4>
+              <div className="mb-6">
+                <h4 className="text-xs font-medium text-gray-700 mb-3 uppercase tracking-wide">Quantité</h4>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                    className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
                     aria-label="Decrement quantity"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,14 +279,14 @@ export default function ProductPage() {
                   </button>
                   <input
                     type="number"
-                    className="w-16 text-center text-sm font-medium border border-gray-300 rounded-lg py-1"
+                    className="w-16 text-center text-sm font-medium border border-gray-300 rounded-lg py-1.5"
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     readOnly
                   />
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                    className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
                     aria-label="Increment quantity"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -298,9 +299,9 @@ export default function ProductPage() {
               {/* Bouton ajouter au panier */}
               <button
                 onClick={handleAddToOrder}
-                className="w-full bg-faata-red hover:bg-red-700 text-white py-3 px-6 rounded-full font-semibold transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-faata-red hover:bg-red-700 text-white py-3 px-6 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Ajouter au panier
