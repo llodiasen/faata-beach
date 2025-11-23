@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../store/useAuthStore'
 import { useModalStore } from '../store/useModalStore'
 import { useCartStore } from '../store/useCartStore'
 import { useFavoritesStore } from '../store/useFavoritesStore'
@@ -27,7 +26,6 @@ interface Product {
 
 export default function MenuPage() {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
   const { openModal } = useModalStore()
   const { addItem } = useCartStore()
   const { toggleFavorite, isFavorite } = useFavoritesStore()
