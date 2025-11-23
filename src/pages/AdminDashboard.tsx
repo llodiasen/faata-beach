@@ -47,13 +47,10 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [selectedNav, setSelectedNav] = useState<'dashboard' | 'products' | 'orders' | 'customers' | 'analytics' | 'settings'>('dashboard')
   const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | 'pending' | 'in_progress' | 'cancelled'>('in_progress')
-  const [searchQuery, setSearchQuery] = useState('')
   const [selectedOrders, setSelectedOrders] = useState<string[]>([])
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([])
-  const [customerSearchQuery, setCustomerSearchQuery] = useState('')
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [productStatusFilter, setProductStatusFilter] = useState<'all' | 'active' | 'draft' | 'archived'>('all')
-  const [productSearchQuery, setProductSearchQuery] = useState('')
   const [showGroupedActions, setShowGroupedActions] = useState(false)
   const [showDateFilter, setShowDateFilter] = useState(false)
   const [selectedDateFilter, setSelectedDateFilter] = useState<string>('all')
@@ -232,36 +229,11 @@ export default function AdminDashboard() {
       }
     }
     
-    // Filtre par recherche
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      const orderNumber = order._id.slice(-4).toLowerCase()
-      const customerName = (order.customerInfo.name || '').toLowerCase()
-      const customerPhone = (order.customerInfo.phone || '').toLowerCase()
-      
-      if (!orderNumber.includes(query) && !customerName.includes(query) && !customerPhone.includes(query)) {
-        return false
-      }
-    }
-    
     return true
   })
 
   // Filtrer les clients selon les critères
-  const filteredCustomers = customers.filter((customer) => {
-    // Filtre par recherche
-    if (customerSearchQuery) {
-      const query = customerSearchQuery.toLowerCase()
-      const name = (customer.name || '').toLowerCase()
-      const email = (customer.email || '').toLowerCase()
-      
-      if (!name.includes(query) && !email.includes(query)) {
-        return false
-      }
-    }
-    
-    return true
-  })
+  const filteredCustomers = customers
 
   // Filtrer les produits selon les critères
   const filteredProducts = products.filter((product) => {
@@ -281,24 +253,6 @@ export default function AdminDashboard() {
       return false
     }
     // Si 'all', on ne filtre pas par statut
-    
-    // Filtre par recherche
-    if (productSearchQuery) {
-      const query = productSearchQuery.toLowerCase()
-      const name = (product.name || '').toLowerCase()
-      const productCategoryId = typeof product.categoryId === 'string' 
-        ? product.categoryId 
-        : product.categoryId?._id?.toString() || product.categoryId?.toString() || product.categoryId
-      const category = categories.find(c => {
-        const catId = c._id?.toString() || c._id
-        return catId === productCategoryId || catId?.toString() === productCategoryId?.toString()
-      })
-      const categoryName = category?.name?.toLowerCase() || ''
-      
-      if (!name.includes(query) && !categoryName.includes(query)) {
-        return false
-      }
-    }
     
     return true
   })
@@ -862,18 +816,9 @@ export default function AdminDashboard() {
 
           {selectedNav === 'orders' && (
             <div>
-              {/* Header avec recherche */}
+              {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-gray-900">Commandes</h1>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    placeholder="Rechercher..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-faata-red focus:border-transparent"
-                  />
-                </div>
               </div>
 
               {/* Onglets de statut */}
@@ -1301,23 +1246,6 @@ export default function AdminDashboard() {
                   </button>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 relative">
-                    <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input
-                      type="text"
-                      placeholder="Rechercher un produit..."
-                      value={productSearchQuery}
-                      onChange={(e) => setProductSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                    />
-                  </div>
-                  <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
-                  </button>
                   <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
@@ -1486,25 +1414,8 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Barre de recherche */}
+              {/* Actions */}
               <div className="flex items-center gap-3 mb-6">
-                <div className="flex-1 relative">
-                  <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder="Rechercher des clients"
-                    value={customerSearchQuery}
-                    onChange={(e) => setCustomerSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                  />
-                </div>
-                <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                  </svg>
-                </button>
                 <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />

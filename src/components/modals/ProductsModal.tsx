@@ -23,7 +23,6 @@ export function ProductsModal() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [addedProducts, setAddedProducts] = useState<Set<string>>(new Set())
-  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -74,11 +73,6 @@ export function ProductsModal() {
     }, 1500)
   }
 
-  // Filtrer les produits selon la recherche
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
 
   return (
     <>
@@ -106,44 +100,17 @@ export function ProductsModal() {
         </button>
       )}
       <Modal isOpen={currentModal === 'products'} onClose={closeModal} size="xl">
-      {/* Barre de recherche et bouton retour */}
+      {/* Bouton retour */}
       <div className="mb-6">
-        {/* Bouton retour */}
         <button
           onClick={() => openModal('categories')}
-          className="mb-3 text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
+          className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           <span className="text-sm font-medium">Retour aux catégories</span>
         </button>
-
-        {/* Barre de recherche */}
-        <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">
-            <svg className="w-5 h-5 text-faata-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <input
-            type="text"
-            placeholder="Search for products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-12 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-faata-red focus:border-transparent text-gray-900 placeholder-gray-400"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-        </div>
       </div>
 
       {loading && (
@@ -160,13 +127,13 @@ export function ProductsModal() {
 
       {!loading && !error && (
         <>
-          {filteredProducts.length === 0 ? (
+          {products.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500">Aucun produit trouvé</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredProducts.map((product) => (
+              {products.map((product) => (
                 <button
                   key={product._id}
                   onClick={() => handleProductClick(product._id)}
