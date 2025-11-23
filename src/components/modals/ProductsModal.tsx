@@ -198,9 +198,21 @@ export function ProductsModal() {
                     </h3>
                     
                     {product.description && (
-                      <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-gray-500 mb-2 line-clamp-2 leading-relaxed">
                         {product.description}
                       </p>
+                    )}
+
+                    {/* Temps de livraison */}
+                    {(product.preparationTime || product.deliveryTime) && (
+                      <div className="flex items-center gap-1 text-xs text-gray-500 mb-3">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>
+                          {(product.preparationTime || 0) + (product.deliveryTime || 0)} min
+                        </span>
+                      </div>
                     )}
 
                     {/* Prix et bouton + */}
