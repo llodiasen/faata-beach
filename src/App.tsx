@@ -13,6 +13,7 @@ import DeliveryDashboard from './pages/DeliveryDashboard'
 import ProductPage from './pages/ProductPage'
 import FavouritesPage from './pages/FavouritesPage'
 import MenuPage from './pages/MenuPage'
+import CheckoutPage from './pages/CheckoutPage'
 
 // Protected Route Component
 function ProtectedRoute({ 
@@ -47,6 +48,7 @@ function App() {
         <Route path="/menu" element={<MenuPage />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/favourites" element={<FavouritesPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         

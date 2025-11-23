@@ -1,15 +1,50 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LocationModal } from '../modals/LocationModal'
+import { useModalStore } from '../../store/useModalStore'
+import { categoriesAPI } from '../../lib/api'
+
+interface Category {
+  _id: string
+  name: string
+  description?: string
+  imageUrl?: string
+}
 
 export default function Hero() {
   const navigate = useNavigate()
+  const { openModal, setSelectedCategory } = useModalStore()
   const [orderType, setOrderType] = useState<'sur_place' | 'emporter' | 'livraison'>('sur_place')
-  const [tableNumber, setTableNumber] = useState('')
   const [showLocationModal, setShowLocationModal] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loadingCategories, setLoadingCategories] = useState(true)
 
   // Image du Hero
   const heroImage = '/images/Hero/HERO.png'
+
+  // Charger les catégories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true)
+        const data = await categoriesAPI.getAll()
+        // Limiter à 6 catégories pour l'affichage
+        setCategories(data.slice(0, 6))
+      } catch (err) {
+        console.error('Error fetching categories:', err)
+      } finally {
+        setLoadingCategories(false)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(categoryId)
+    // Naviguer vers la page menu avec la catégorie sélectionnée
+    navigate('/menu', { state: { categoryId } })
+  }
 
   const handleCommander = () => {
     // Si livraison, demander la géolocalisation d'abord
@@ -20,9 +55,6 @@ export default function Hero() {
     
     // Pour sur_place et emporter, naviguer vers la page Menu
     localStorage.setItem('faata_orderType', orderType)
-    if (tableNumber) {
-      localStorage.setItem('faata_tableNumber', tableNumber)
-    }
     navigate('/menu')
   }
 
@@ -92,22 +124,6 @@ export default function Hero() {
                 Livraison
               </button>
             </div>
-            
-            {/* Input Numéro de table */}
-            {orderType === 'sur_place' && (
-              <div className="animate-fadeInUp">
-                <label className="block text-gray-800 font-medium mb-2.5 text-left text-sm tracking-wide">
-                  Numéro de table
-                </label>
-                <input
-                  type="text"
-                  value={tableNumber}
-                  onChange={(e) => setTableNumber(e.target.value)}
-                  placeholder="Ex: Table 5"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-faata-red/30 focus:border-faata-red text-sm transition-all bg-white text-gray-800 placeholder:text-gray-400"
-                />
-              </div>
-            )}
           </div>
 
           {/* Bouton Commander - Design épuré */}
@@ -119,6 +135,53 @@ export default function Hero() {
           </button>
         </div>
       </div>
+
+      {/* Section Catégories - Desktop uniquement, sur toute la largeur */}
+      {!loadingCategories && categories.length > 0 && (
+        <div className="hidden md:block relative z-10 w-full py-6 px-6 -mt-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-center gap-6 flex-wrap">
+              {categories.map((category) => (
+                <button
+                  key={category._id}
+                  onClick={() => handleCategoryClick(category._id)}
+                  className="flex flex-col items-center gap-2 group hover:scale-105 transition-transform duration-200"
+                >
+                  <div className="w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center p-2 group-hover:shadow-xl transition-all border-2 border-white/20">
+                    {category.imageUrl ? (
+                      <div className="w-full h-full rounded-full overflow-hidden">
+                        <img
+                          src={category.imageUrl}
+                          alt={category.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.style.display = 'none'
+                            const parent = target.parentElement
+                            if (parent && !parent.querySelector('.category-fallback')) {
+                              const fallback = document.createElement('div')
+                              fallback.className = 'category-fallback w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center rounded-full'
+                              fallback.innerHTML = '<span class="text-4xl">🍽️</span>'
+                              parent.appendChild(fallback)
+                            }
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full rounded-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
+                        <span className="text-4xl">🍽️</span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-white text-base font-semibold whitespace-nowrap drop-shadow-lg">
+                    {category.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de géolocalisation */}
       <LocationModal 

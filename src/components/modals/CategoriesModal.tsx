@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useModalStore } from '../../store/useModalStore'
 import { categoriesAPI } from '../../lib/api'
 import Modal from '../ui/Modal'
@@ -11,6 +12,7 @@ interface Category {
 }
 
 export function CategoriesModal() {
+  const navigate = useNavigate()
   const { currentModal, closeModal, openModal, setSelectedCategory } = useModalStore()
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -39,11 +41,18 @@ export function CategoriesModal() {
 
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId)
-    openModal('products')
+    closeModal()
+    // Naviguer vers la page menu avec la catégorie sélectionnée
+    navigate('/menu', { state: { categoryId } })
   }
 
   return (
-    <Modal isOpen={currentModal === 'categories'} onClose={closeModal} size="lg">
+    <Modal isOpen={currentModal === 'categories'} onClose={closeModal} size="xl">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Nos Catégories</h2>
+        <p className="text-gray-600 text-sm mt-1">Choisissez une catégorie pour voir nos produits</p>
+      </div>
+
       {loading && (
         <div className="flex items-center justify-center py-12">
           <div className="text-gray-500">Chargement...</div>
@@ -58,52 +67,51 @@ export function CategoriesModal() {
 
       {!loading && !error && (
         <div className="space-y-3">
-          {categories.map((category, index) => {
-            // Alterner entre gris foncé et vert clair
-            const isDark = index % 2 === 0
-            const bgColor = isDark ? 'bg-gray-800' : 'bg-green-100'
-            const textColor = isDark ? 'text-white' : 'text-gray-900'
-            
-            return (
-              <button
-                key={category._id}
-                onClick={() => handleCategoryClick(category._id)}
-                className={`w-full ${bgColor} rounded-2xl p-6 flex items-center justify-between transition-all duration-200 hover:scale-[1.02] hover:shadow-xl relative overflow-hidden group`}
-              >
-                {/* Contenu texte à gauche */}
-                <div className="flex-1 text-left z-10">
-                  <h3 className={`text-2xl font-bold mb-2 ${textColor}`}>
-                    {category.name}
-                  </h3>
-                  {category.description && (
-                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} mb-1`}>
-                      {category.description}
-                    </p>
-                  )}
-                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    FAATA Beach - Dakar
-                  </p>
-                </div>
+          {categories.map((category) => (
+            <button
+              key={category._id}
+              onClick={() => handleCategoryClick(category._id)}
+              className="w-full flex items-center gap-4 p-4 bg-white rounded-lg hover:bg-gray-50 transition-all duration-200 group border border-gray-100 hover:border-gray-200 hover:shadow-sm"
+            >
+              {/* Icône circulaire */}
+              <div className="w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-100 border-2 border-gray-200 group-hover:border-faata-red/30 transition-colors">
+                {category.imageUrl ? (
+                  <img
+                    src={category.imageUrl}
+                    alt={category.name}
+                    className="w-full h-full object-cover rounded-full"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const parent = target.parentElement
+                      if (parent && !parent.querySelector('.category-fallback')) {
+                        const fallback = document.createElement('div')
+                        fallback.className = 'category-fallback w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center'
+                        fallback.innerHTML = '<span class="text-4xl">🍽️</span>'
+                        parent.appendChild(fallback)
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
+                    <span className="text-4xl">🍽️</span>
+                  </div>
+                )}
+              </div>
 
-                {/* Image à droite */}
-                <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/20 group-hover:ring-white/40 transition-all ml-4 flex-shrink-0 relative z-10">
-                  {category.imageUrl ? (
-                    <img
-                      src={category.imageUrl}
-                      alt={category.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 brightness-105 contrast-110"
-                    />
-                  ) : (
-                    <div className={`w-full h-full flex items-center justify-center ${isDark ? 'bg-gray-700' : 'bg-green-200'}`}>
-                      <span className="text-5xl md:text-6xl">🍽️</span>
-                    </div>
-                  )}
-                  {/* Overlay gradient subtil */}
-                  <div className="absolute inset-0 bg-gradient-to-l from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-              </button>
-            )
-          })}
+              {/* Nom de la catégorie */}
+              <div className="flex-1 text-left">
+                <h3 className="text-base font-semibold text-gray-900 group-hover:text-faata-red transition-colors">
+                  {category.name}
+                </h3>
+              </div>
+
+              {/* Flèche */}
+              <svg className="w-5 h-5 text-gray-400 group-hover:text-faata-red transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          ))}
         </div>
       )}
     </Modal>
