@@ -446,9 +446,14 @@ export default function MenuPage() {
       {/* Contenu principal */}
       <div className="w-full px-4 md:px-8 lg:px-12 py-8">
         <div className="w-full max-w-[1400px] mx-auto">
-          {/* Catégories - toutes visibles sans scrollbar */}
+          {/* Catégories - Slider horizontal */}
           <section className="mb-10">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <style>{`
+                .scrollbar-hide::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
               {getDisplayCategories().map((cat) => (
                 <button
                   key={cat.id}
@@ -456,7 +461,7 @@ export default function MenuPage() {
                     setSelectedCategory(cat.categoryId)
                     setStoreSelectedCategory(cat.categoryId)
                   }}
-                  className={`rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all ${cat.bgColor} border border-gray-100 ${
+                  className={`flex-shrink-0 w-[180px] rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all ${cat.bgColor} border border-gray-100 ${
                     selectedCategory === cat.categoryId ? 'ring-2 ring-[#ff416c]' : ''
                   }`}
                 >
@@ -506,7 +511,7 @@ export default function MenuPage() {
                       return categoryMapping[category.name] || category.name.replace('Plats — ', '')
                     })()}
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {filteredProducts.map((product) => renderProductCard(product, 'default'))}
                   </div>
                 </section>
@@ -515,7 +520,7 @@ export default function MenuPage() {
               {/* Tous les produits si aucune catégorie sélectionnée */}
               {!selectedCategory && filteredProducts.length > 0 && (
                 <section>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {filteredProducts.map((product) => renderProductCard(product, 'default'))}
                   </div>
                 </section>
