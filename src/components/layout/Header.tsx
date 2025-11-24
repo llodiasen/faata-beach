@@ -31,9 +31,9 @@ export default function Header() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <button 
           onClick={() => navigate('/')}
-          className="text-white font-bold text-2xl hover:opacity-80 transition-opacity"
+          className="hover:opacity-80 transition-opacity"
         >
-          FAATA BEACH
+          <img src="/images/logo.png" alt="FAATA BEACH" className="h-12 md:h-16" />
         </button>
         <div className="flex items-center gap-4">
           {user ? (
@@ -64,7 +64,7 @@ export default function Header() {
               </button>
               <button
                 onClick={() => navigate('/register')}
-                className="bg-faata-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-colors text-xs font-bold"
+                className="bg-faata-red hover:opacity-90 text-white px-3 py-1.5 rounded-lg transition-colors text-xs font-bold"
               >
                 S'inscrire
               </button>

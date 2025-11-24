@@ -167,7 +167,7 @@ export function CheckoutModal() {
               onChange={(e) => setTableNumber(e.target.value)}
               required
               placeholder="Ex: Table 5"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red/30 focus:border-faata-red text-sm transition-all bg-white text-gray-800 placeholder:text-gray-400"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a]/30 focus:border-[#39512a] text-sm transition-all bg-white text-gray-800 placeholder:text-gray-400"
             />
           </div>
         )}

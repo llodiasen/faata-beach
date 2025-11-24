@@ -7,7 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        'faata-red': '#DC2626',
+        'faata-red': '#39512a',
+        'faata-primary': '#39512a',
+        'faata-secondary': '#2f2e2e',
       },
     },
   },

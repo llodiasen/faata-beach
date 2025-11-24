@@ -261,7 +261,7 @@ export default function ProductPage() {
                         }))}
                         className={`p-2 border rounded-lg transition-all ${
                           selectedExtras[extra.name]
-                            ? 'border-faata-red bg-red-50'
+                            ? 'border-faata-red bg-[#39512a]/10'
                             : 'border-gray-300 hover:border-gray-400'
                         }`}
                       >

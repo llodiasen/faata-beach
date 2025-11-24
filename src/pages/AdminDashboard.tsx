@@ -494,7 +494,7 @@ export default function AdminDashboard() {
         {/* User Profile */}
         <div className="p-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-faata-red flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+            <div className="w-14 h-14 rounded-full bg-[#39512a] flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
               {getInitial(user.name || 'A')}
             </div>
             <div className="flex-1 min-w-0">
@@ -532,7 +532,7 @@ export default function AdminDashboard() {
               logout()
               navigate('/')
             }}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-red-600 hover:bg-red-50 text-base"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-[#39512a] hover:bg-[#39512a]/10 text-base"
           >
             <span className="text-lg">←</span>
             <span>Déconnexion</span>
@@ -605,7 +605,7 @@ export default function AdminDashboard() {
                         <div key={index} className="flex-1 flex flex-col items-center">
                           <div className="w-full flex flex-col items-center gap-2">
                             <div
-                              className="w-full bg-faata-red rounded-t transition-all hover:opacity-80 cursor-pointer"
+                              className="w-full bg-[#39512a] rounded-t transition-all hover:opacity-80 cursor-pointer"
                               style={{
                                 height: `${Math.max((month.value / maxMonthlyValue) * 240, 20)}px`,
                                 minHeight: '20px'
@@ -715,7 +715,7 @@ export default function AdminDashboard() {
                     <h3 className="text-xl font-bold text-gray-900">Dernières commandes</h3>
                     <button
                       onClick={() => setSelectedNav('orders')}
-                      className="px-3 py-1.5 border-2 border-faata-red text-faata-red bg-white rounded-lg hover:bg-red-50 transition-colors font-medium text-xs"
+                      className="px-3 py-1.5 border-2 border-[#39512a] text-[#39512a] bg-white rounded-lg hover:bg-[#39512a]/10 transition-colors font-medium text-xs"
                     >
                       Voir toutes les commandes
                     </button>
@@ -758,7 +758,7 @@ export default function AdminDashboard() {
                                 <div className="text-sm text-gray-600">
                                   {order.items.length} article{order.items.length > 1 ? 's' : ''}
                                 </div>
-                                <p className="text-lg font-bold text-faata-red">
+                                <p className="text-lg font-bold text-[#39512a]">
                                   {order.totalAmount.toLocaleString('fr-FR')} CFA
                                 </p>
                               </div>
@@ -804,7 +804,7 @@ export default function AdminDashboard() {
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-gray-900 truncate">{product.name}</p>
                             <p className="text-sm text-gray-500">Quantité: {product.quantity}</p>
-                            <p className="text-sm font-semibold text-faata-red mt-1">
+                            <p className="text-sm font-semibold text-[#39512a] mt-1">
                               {product.revenue.toLocaleString('fr-FR')} CFA
                             </p>
                           </div>
@@ -922,7 +922,7 @@ export default function AdminDashboard() {
                             handleBulkDelete()
                             setShowGroupedActions(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          className="w-full text-left px-4 py-2 text-sm text-[#39512a] hover:bg-[#39512a]/10 transition-colors"
                         >
                           Mettre à la corbeille
                         </button>

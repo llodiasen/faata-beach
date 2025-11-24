@@ -157,7 +157,7 @@ export function DeliveryTrackingModal() {
               <p className="text-sm text-gray-600 mt-1">{order.customerInfo.name}</p>
               <p className="text-xs text-gray-500 mt-1">{order.customerInfo.phone}</p>
             </div>
-            <p className="text-lg font-bold text-faata-red">{order.totalAmount.toLocaleString('fr-FR')} CFA</p>
+            <p className="text-lg font-bold text-[#39512a]">{order.totalAmount.toLocaleString('fr-FR')} CFA</p>
           </div>
 
           {order.deliveryAddress && (

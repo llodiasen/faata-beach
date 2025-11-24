@@ -74,7 +74,7 @@ export function CategoriesModal() {
               className="w-full flex items-center gap-4 p-4 bg-white rounded-lg hover:bg-gray-50 transition-all duration-200 group border border-gray-100 hover:border-gray-200 hover:shadow-sm"
             >
               {/* Icône circulaire */}
-              <div className="w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-100 border-2 border-gray-200 group-hover:border-faata-red/30 transition-colors">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-100 border-2 border-gray-200 group-hover:border-[#39512a]/30 transition-colors">
                 {category.imageUrl ? (
                   <img
                     src={category.imageUrl}
@@ -86,14 +86,14 @@ export function CategoriesModal() {
                       const parent = target.parentElement
                       if (parent && !parent.querySelector('.category-fallback')) {
                         const fallback = document.createElement('div')
-                        fallback.className = 'category-fallback w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center'
+                        fallback.className = 'category-fallback w-full h-full bg-gradient-to-br from-[#39512a]/10 to-[#2f2e2e]/10 flex items-center justify-center'
                         fallback.innerHTML = '<span class="text-4xl">🍽️</span>'
                         parent.appendChild(fallback)
                       }
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-[#39512a]/10 to-[#2f2e2e]/10 flex items-center justify-center">
                     <span className="text-4xl">🍽️</span>
                   </div>
                 )}
@@ -101,13 +101,13 @@ export function CategoriesModal() {
 
               {/* Nom de la catégorie */}
               <div className="flex-1 text-left">
-                <h3 className="text-base font-semibold text-gray-900 group-hover:text-faata-red transition-colors">
+                <h3 className="text-base font-semibold text-gray-900 group-hover:text-[#39512a] transition-colors">
                   {category.name}
                 </h3>
               </div>
 
               {/* Flèche */}
-              <svg className="w-5 h-5 text-gray-400 group-hover:text-faata-red transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-gray-400 group-hover:text-[#39512a] transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
               </svg>
             </button>

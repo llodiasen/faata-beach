@@ -49,7 +49,7 @@ export function CartModal() {
                 closeModal()
                 navigate('/menu')
               }}
-              className="px-6 py-3 bg-faata-red text-white font-normal rounded-lg hover:bg-red-700 transition-colors"
+              className="px-6 py-3 bg-[#39512a] text-white font-normal rounded-lg hover:opacity-90 transition-colors"
             >
               Ajouter des produits
             </button>
@@ -70,14 +70,14 @@ export function CartModal() {
                       const parent = target.parentElement
                       if (parent && !parent.querySelector('.image-fallback')) {
                         const fallback = document.createElement('div')
-                        fallback.className = 'image-fallback w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center'
+                        fallback.className = 'image-fallback w-full h-full bg-gradient-to-br from-[#39512a]/10 to-[#2f2e2e]/10 flex items-center justify-center'
                         fallback.innerHTML = '<span class="text-3xl">🍽️</span>'
                         parent.appendChild(fallback)
                       }
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-[#39512a]/10 to-[#2f2e2e]/10 flex items-center justify-center">
                     <span className="text-3xl">🍽️</span>
                   </div>
                 )}
@@ -145,7 +145,7 @@ export function CartModal() {
             </button>
             <button
               onClick={handleCheckout}
-              className="w-full bg-faata-red hover:bg-red-700 text-white font-normal py-3 rounded-lg transition-colors"
+              className="w-full bg-[#39512a] hover:opacity-90 text-white font-normal py-3 rounded-lg transition-colors"
             >
               Finaliser la commande
             </button>

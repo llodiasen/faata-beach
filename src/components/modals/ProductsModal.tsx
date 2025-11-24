@@ -85,7 +85,7 @@ export function ProductsModal() {
             closeModal()
             setTimeout(() => openModal('cart'), 100)
           }}
-          className="fixed bottom-24 md:bottom-6 right-6 bg-faata-red text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 z-50 hover:bg-red-700 transition-colors text-xs"
+          className="fixed bottom-24 md:bottom-6 right-6 bg-[#39512a] text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 z-50 hover:opacity-90 transition-colors text-xs"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -96,7 +96,7 @@ export function ProductsModal() {
             />
           </svg>
           <span>Panier</span>
-          <span className="bg-white text-faata-red rounded-full px-1.5 py-0.5 text-xs font-bold">
+          <span className="bg-white text-[#39512a] rounded-full px-1.5 py-0.5 text-xs font-bold">
             {getItemCount()}
           </span>
         </button>

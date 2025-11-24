@@ -62,7 +62,7 @@ export default function Hero() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* Fond de fallback (visible si l'image ne charge pas) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-faata-red via-red-800 to-black" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#39512a] via-[#2f2e2e] to-black" />
       
       {/* Image de fond Hero */}
       <div 
@@ -77,9 +77,7 @@ export default function Hero() {
       {/* Contenu central */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-16 text-center">
         <div className="mb-10 md:mb-12">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-light text-white mb-3 tracking-tight drop-shadow-md">
-            FAATA BEACH
-          </h1>
+          <img src="/images/logo.png" alt="FAATA BEACH" className="h-24 md:h-32 lg:h-40 mx-auto mb-3 drop-shadow-md" />
           <p className="text-base md:text-lg text-white/85 font-light tracking-wide drop-shadow-sm">
             Découvrez nos saveurs authentiques
           </p>
@@ -97,8 +95,8 @@ export default function Hero() {
                 onClick={() => setOrderType('sur_place')}
                 className={`py-1.5 px-2 rounded-lg font-medium transition-all duration-200 text-xs ${
                   orderType === 'sur_place'
-                    ? 'bg-faata-red text-white shadow-sm'
-                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    ? 'bg-[#39512a] text-white shadow-sm'
+                    : 'bg-gray-50 text-[#2f2e2e] hover:bg-gray-100 border border-gray-200'
                 }`}
               >
                 Sur place
@@ -107,8 +105,8 @@ export default function Hero() {
                 onClick={() => setOrderType('emporter')}
                 className={`py-1.5 px-2 rounded-lg font-medium transition-all duration-200 text-xs ${
                   orderType === 'emporter'
-                    ? 'bg-faata-red text-white shadow-sm'
-                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    ? 'bg-[#39512a] text-white shadow-sm'
+                    : 'bg-gray-50 text-[#2f2e2e] hover:bg-gray-100 border border-gray-200'
                 }`}
               >
                 Emporter
@@ -117,8 +115,8 @@ export default function Hero() {
                 onClick={() => setOrderType('livraison')}
                 className={`py-1.5 px-2 rounded-lg font-medium transition-all duration-200 text-xs ${
                   orderType === 'livraison'
-                    ? 'bg-faata-red text-white shadow-sm'
-                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    ? 'bg-[#39512a] text-white shadow-sm'
+                    : 'bg-gray-50 text-[#2f2e2e] hover:bg-gray-100 border border-gray-200'
                 }`}
               >
                 Livraison
@@ -129,7 +127,7 @@ export default function Hero() {
           {/* Bouton Commander - Design épuré */}
           <button
             onClick={handleCommander}
-            className="w-full bg-faata-red hover:bg-red-600 active:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-xs tracking-wide shadow-md hover:shadow-lg"
+            className="w-full bg-[#39512a] hover:opacity-90 active:opacity-80 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-xs tracking-wide shadow-md hover:shadow-lg"
           >
             Commander
           </button>
@@ -168,7 +166,7 @@ export default function Hero() {
                         />
                       </div>
                     ) : (
-                      <div className="w-full h-full rounded-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
+                      <div className="w-full h-full rounded-full bg-gradient-to-br from-[#39512a]/10 to-[#2f2e2e]/10 flex items-center justify-center">
                         <span className="text-4xl">🍽️</span>
                       </div>
                     )}

@@ -4,7 +4,7 @@ export default function Footer() {
   const { openModal } = useModalStore()
 
   return (
-    <footer className="bg-gray-900 text-gray-300 border-t border-gray-800">
+    <footer className="bg-[#2f2e2e] text-gray-300 border-t border-[#2f2e2e]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Logo et description */}

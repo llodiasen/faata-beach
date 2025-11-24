@@ -248,7 +248,7 @@ export default function ProfilePage() {
         {/* User Profile */}
         <div className="p-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-faata-red flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+            <div className="w-14 h-14 rounded-full bg-[#39512a] flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
               {getInitial(user.name || 'U')}
             </div>
             <div className="flex-1 min-w-0">
@@ -336,7 +336,7 @@ export default function ProfilePage() {
           </button>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-red-600 hover:bg-red-50 text-base"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-[#39512a] hover:bg-[#39512a]/10 text-base"
           >
             <span className="text-lg">←</span>
             <span>Déconnexion</span>
@@ -391,7 +391,7 @@ export default function ProfilePage() {
                   <h2 className="text-xl font-bold text-gray-900">Dernières commandes</h2>
                   <button
                     onClick={() => setSelectedNav('orders')}
-                    className="px-3 py-1.5 border-2 border-faata-red text-faata-red bg-white rounded-lg hover:bg-red-50 transition-colors font-medium text-xs"
+                    className="px-3 py-1.5 border-2 border-[#39512a] text-[#39512a] bg-white rounded-lg hover:bg-red-50 transition-colors font-medium text-xs"
                   >
                     Voir toutes les commandes
                   </button>
@@ -435,7 +435,7 @@ export default function ProfilePage() {
                               <div className="text-sm text-gray-600">
                                 {order.items.length} article{order.items.length > 1 ? 's' : ''}
                               </div>
-                              <p className="text-lg font-bold text-faata-red">
+                              <p className="text-lg font-bold text-[#39512a]">
                                 {order.totalAmount.toLocaleString('fr-FR')} CFA
                               </p>
                             </div>
@@ -460,7 +460,7 @@ export default function ProfilePage() {
                   <p className="text-gray-600 text-base mb-2">Vous n'avez pas encore de commande.</p>
                   <button
                     onClick={() => navigate('/')}
-                    className="mt-4 px-4 py-2 bg-faata-red text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                    className="mt-4 px-4 py-2 bg-[#39512a] text-white rounded-lg hover:opacity-90 transition-colors font-medium text-sm"
                   >
                     Passer une commande
                   </button>
@@ -516,7 +516,7 @@ export default function ProfilePage() {
                         
                         <div className="flex justify-between items-center pt-4">
                           <span className="text-sm text-gray-600">Total</span>
-                          <span className="text-xl font-bold text-faata-red">
+                          <span className="text-xl font-bold text-[#39512a]">
                             {order.totalAmount.toLocaleString('fr-FR')} CFA
                           </span>
                         </div>
@@ -586,7 +586,7 @@ export default function ProfilePage() {
                         <p className="text-gray-600 mb-4">Vous n'avez pas encore de commande.</p>
                         <button
                           onClick={() => navigate('/')}
-                          className="mt-4 px-4 py-2 bg-faata-red text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                          className="mt-4 px-4 py-2 bg-[#39512a] text-white rounded-lg hover:opacity-90 transition-colors font-medium text-sm"
                         >
                           Passer une commande
                         </button>
@@ -597,7 +597,7 @@ export default function ProfilePage() {
                           <button
                             key={order._id}
                             onClick={() => loadTrackingOrder(order._id)}
-                            className="p-4 border border-gray-200 rounded-lg hover:border-faata-red hover:shadow-md transition-all text-left"
+                            className="p-4 border border-gray-200 rounded-lg hover:border-[#39512a] hover:shadow-md transition-all text-left"
                           >
                             <div className="flex justify-between items-start mb-2">
                               <div>
@@ -612,7 +612,7 @@ export default function ProfilePage() {
                                 {getStatusLabel(order.status)}
                               </span>
                             </div>
-                            <p className="text-sm font-semibold text-faata-red mt-2">
+                            <p className="text-sm font-semibold text-[#39512a] mt-2">
                               {order.totalAmount.toLocaleString('fr-FR')} CFA
                             </p>
                           </button>
@@ -657,7 +657,7 @@ export default function ProfilePage() {
                               <div key={step.key} className="flex items-start gap-4 mb-6">
                                 <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-lg transition-all ${
                                   isActive
-                                    ? 'bg-faata-red text-white shadow-lg'
+                                    ? 'bg-[#39512a] text-white shadow-lg'
                                     : 'bg-gray-200 text-gray-400'
                                 }`}>
                                   {index < currentStepIndex ? '✓' : step.icon}
@@ -670,7 +670,7 @@ export default function ProfilePage() {
                                   </p>
                                   {index < getStatusSteps().length - 1 && (
                                     <div className={`h-10 w-0.5 ml-6 mt-2 transition-colors ${
-                                      index < currentStepIndex ? 'bg-faata-red' : 'bg-gray-200'
+                                      index < currentStepIndex ? 'bg-[#39512a]' : 'bg-gray-200'
                                     }`} />
                                   )}
                                 </div>
@@ -688,7 +688,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex justify-between items-center pt-3 border-t border-gray-200">
                           <span className="text-gray-700 font-semibold">Total:</span>
-                          <span className="text-xl font-bold text-faata-red">
+                          <span className="text-xl font-bold text-[#39512a]">
                             {trackingOrder.totalAmount.toLocaleString('fr-FR')} CFA
                           </span>
                         </div>
@@ -736,7 +736,7 @@ export default function ProfilePage() {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-faata-red focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#39512a] focus:border-transparent"
                       placeholder="Votre nom complet"
                     />
                   </div>
@@ -746,7 +746,7 @@ export default function ProfilePage() {
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-faata-red focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#39512a] focus:border-transparent"
                       placeholder="votre@email.com"
                     />
                   </div>
@@ -756,14 +756,14 @@ export default function ProfilePage() {
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-faata-red focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#39512a] focus:border-transparent"
                       placeholder="+221 XX XXX XX XX"
                     />
                   </div>
                   <div className="pt-2">
                     <button
                       onClick={handleUpdateProfile}
-                      className="px-4 py-2 bg-faata-red text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                      className="px-4 py-2 bg-[#39512a] text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
                     >
                       Mettre à jour le profil
                     </button>
@@ -781,7 +781,7 @@ export default function ProfilePage() {
                       type="password"
                       value={passwordData.currentPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-faata-red focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#39512a] focus:border-transparent"
                       placeholder="Entrez votre mot de passe actuel"
                     />
                   </div>
@@ -791,7 +791,7 @@ export default function ProfilePage() {
                       type="password"
                       value={passwordData.newPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-faata-red focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#39512a] focus:border-transparent"
                       placeholder="Entrez votre nouveau mot de passe"
                     />
                   </div>
@@ -801,14 +801,14 @@ export default function ProfilePage() {
                       type="password"
                       value={passwordData.confirmPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-faata-red focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#39512a] focus:border-transparent"
                       placeholder="Confirmez votre nouveau mot de passe"
                     />
                   </div>
                   <div className="pt-2">
                     <button
                       onClick={handleChangePassword}
-                      className="px-4 py-2 bg-faata-red text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                      className="px-4 py-2 bg-[#39512a] text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
                     >
                       Changer le mot de passe
                     </button>
@@ -839,7 +839,7 @@ export default function ProfilePage() {
                         onChange={(e) => setNotificationPreferences({ ...notificationPreferences, orderStatus: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-faata-red rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-faata-red"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#39512a] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#39512a]"></div>
                     </label>
                   </div>
 
@@ -855,7 +855,7 @@ export default function ProfilePage() {
                         onChange={(e) => setNotificationPreferences({ ...notificationPreferences, promotions: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-faata-red rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-faata-red"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#39512a] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#39512a]"></div>
                     </label>
                   </div>
 
@@ -871,7 +871,7 @@ export default function ProfilePage() {
                         onChange={(e) => setNotificationPreferences({ ...notificationPreferences, newsletter: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-faata-red rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-faata-red"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#39512a] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#39512a]"></div>
                     </label>
                   </div>
                 </div>

@@ -54,7 +54,7 @@ export function LoginModal() {
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
             placeholder="votre@email.com"
-            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red text-base md:text-sm"
+            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a] text-base md:text-sm"
             autoComplete="email"
           />
         </div>
@@ -67,7 +67,7 @@ export function LoginModal() {
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             required
             placeholder="••••••••"
-            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red text-base md:text-sm"
+            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a] text-base md:text-sm"
             autoComplete="current-password"
           />
         </div>
@@ -104,7 +104,7 @@ export function LoginModal() {
               closeModal()
               navigate('/register')
             }}
-            className="text-faata-red hover:underline text-sm md:text-xs font-medium"
+            className="text-[#39512a] hover:underline text-sm md:text-xs font-medium"
           >
             Pas encore de compte ? <span className="font-semibold">S'inscrire</span>
           </button>

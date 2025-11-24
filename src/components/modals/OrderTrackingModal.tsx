@@ -319,7 +319,7 @@ export function OrderTrackingModal() {
                 <p className="text-sm text-gray-600 mb-2">Commande #{order._id.slice(-6)}</p>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700 font-semibold">Total:</span>
-                  <span className="text-lg font-bold text-faata-red">
+                  <span className="text-lg font-bold text-[#39512a]">
                     {order.totalAmount.toLocaleString('fr-FR')} CFA
                   </span>
                 </div>

@@ -148,7 +148,7 @@ export default function MenuPage() {
             const parent = target.parentElement
             if (parent && !parent.querySelector('.image-fallback')) {
               const fallback = document.createElement('div')
-              fallback.className = 'image-fallback w-full h-full bg-gradient-to-br from-pink-100 via-purple-50 to-pink-200 flex items-center justify-center'
+              fallback.className = 'image-fallback w-full h-full bg-gradient-to-br from-[#39512a]/10 via-[#2f2e2e]/5 to-[#39512a]/10 flex items-center justify-center'
               fallback.innerHTML = `<div class="text-center p-4"><div class="text-5xl mb-2">🍽️</div><div class="text-xs text-gray-600 font-medium">${product.name}</div></div>`
               parent.appendChild(fallback)
             }
@@ -158,7 +158,7 @@ export default function MenuPage() {
     }
 
     return (
-      <div className="w-full h-full bg-gradient-to-br from-pink-100 via-purple-50 to-pink-200 flex items-center justify-center image-fallback">
+      <div className="w-full h-full bg-gradient-to-br from-[#39512a]/10 via-[#2f2e2e]/5 to-[#39512a]/10 flex items-center justify-center image-fallback">
         <div className="text-center p-4">
           <div className="text-5xl mb-2">🍽️</div>
           <div className="text-xs text-gray-600 font-medium">{product.name}</div>
@@ -278,21 +278,21 @@ export default function MenuPage() {
           {/* Nom + Catégorie à gauche, Note à droite */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1">{product.name}</h3>
+              <h3 className="text-lg font-bold text-[#2f2e2e] leading-tight mb-1">{product.name}</h3>
               <p className="text-sm text-gray-500">{getCategoryLabel(product)}</p>
             </div>
             <div className="flex items-center gap-1 text-sm text-gray-600 flex-shrink-0">
               <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118L10 13.347l-2.987 2.134c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L3.38 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.293z" />
               </svg>
-              <span className="font-semibold text-gray-900">{rating.toFixed(1)}</span>
+              <span className="font-semibold text-[#2f2e2e]">{rating.toFixed(1)}</span>
               <span className="text-gray-400">({reviews.toLocaleString('fr-FR')})</span>
             </div>
           </div>
 
           {/* Prix à gauche, Temps de livraison à droite */}
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-gray-900">{formatPrice(product.price)} FCFA</span>
+            <span className="text-lg font-bold text-[#2f2e2e]">{formatPrice(product.price)} FCFA</span>
             <span className="flex items-center gap-1 text-sm text-gray-500">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -304,7 +304,7 @@ export default function MenuPage() {
           {/* Bouton Ajouter panier */}
           <button
             onClick={(e) => handleQuickAdd(e, product)}
-            className="w-full bg-gradient-to-r from-[#ff416c] to-[#ff4b2b] hover:from-[#ff5f7f] hover:to-[#ff6a3a] text-white py-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2"
+            className="w-full bg-[#39512a] hover:opacity-90 text-white py-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -321,15 +321,15 @@ export default function MenuPage() {
       {/* Section fixe en haut - Adresse */}
       <div className="mb-6 flex-shrink-0">
         <h3 className="text-sm font-normal text-gray-500 mb-2">Your Address</h3>
-        <p className="text-base font-semibold text-gray-900 mb-4">{getDeliveryAddress()}</p>
+        <p className="text-base font-semibold text-[#2f2e2e] mb-4">{getDeliveryAddress()}</p>
         <div className="flex gap-2">
           <button
             onClick={() => setShowLocationModal(true)}
-            className="flex-1 bg-gradient-to-r from-[#ff416c] to-[#ff4b2b] hover:from-[#ff5f7f] hover:to-[#ff6a3a] text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-all"
+            className="flex-1 bg-[#39512a] hover:opacity-90 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-all"
           >
             Add Details
           </button>
-          <button className="flex-1 bg-gradient-to-r from-pink-100 to-pink-50 hover:from-pink-200 hover:to-pink-100 text-pink-700 py-2.5 px-4 rounded-lg text-sm font-medium transition-all">
+          <button className="flex-1 bg-[#2f2e2e]/10 hover:bg-[#2f2e2e]/20 text-[#2f2e2e] py-2.5 px-4 rounded-lg text-sm font-medium transition-all">
             Add Note
           </button>
         </div>
@@ -337,7 +337,7 @@ export default function MenuPage() {
 
       {/* Section scrollable - Liste des items */}
       <div className="mb-6 flex-1 min-h-0 flex flex-col">
-        <h3 className="text-lg font-medium text-gray-900 mb-4 flex-shrink-0">My Order</h3>
+        <h3 className="text-lg font-medium text-[#2f2e2e] mb-4 flex-shrink-0">My Order</h3>
         <div className="flex-1 overflow-y-auto pr-2 space-y-2" style={{ maxHeight: '400px' }}>
           {items.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-8">Votre panier est vide</p>
@@ -365,10 +365,10 @@ export default function MenuPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                  <p className="text-sm font-medium text-[#2f2e2e]">{item.name}</p>
                   <p className="text-xs text-gray-500 mt-0.5">x{item.quantity}</p>
                 </div>
-                <div className="text-sm font-semibold text-gray-900 text-right min-w-[80px]">
+                <div className="text-sm font-semibold text-[#2f2e2e] text-right min-w-[80px]">
                   {formatPrice(item.price * item.quantity)} FCFA
                 </div>
               </div>
@@ -383,15 +383,15 @@ export default function MenuPage() {
           <div className="space-y-2 text-sm text-gray-600">
             <div className="flex justify-between">
               <span>Service</span>
-              <span className="text-gray-900 font-medium">{formatPrice(serviceFee)} FCFA</span>
+              <span className="text-[#2f2e2e] font-medium">{formatPrice(serviceFee)} FCFA</span>
             </div>
-            <div className="flex justify-between text-base font-semibold text-gray-900 pt-2">
+            <div className="flex justify-between text-base font-semibold text-[#2f2e2e] pt-2">
               <span>Total</span>
               <span>{formatPrice(total)} FCFA</span>
             </div>
           </div>
 
-          <button className="w-full bg-pink-100 hover:bg-pink-200 text-pink-700 py-3 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-between">
+          <button className="w-full bg-[#2f2e2e]/10 hover:bg-[#2f2e2e]/20 text-[#2f2e2e] py-3 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-between">
             <span>Have a Promo Code?</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -400,7 +400,7 @@ export default function MenuPage() {
 
           <button
             onClick={handleCheckout}
-            className="w-full bg-gradient-to-r from-[#ff416c] to-[#ff4b2b] hover:from-[#ff5f7f] hover:to-[#ff6a3a] text-white py-4 px-6 rounded-lg text-base font-medium transition-all"
+            className="w-full bg-[#39512a] hover:opacity-90 text-white py-4 px-6 rounded-lg text-base font-medium transition-all"
           >
             Checkout
           </button>
@@ -416,7 +416,7 @@ export default function MenuPage() {
         <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 py-4">
           <div className="flex items-center justify-between">
             <button onClick={() => navigate('/')} className="flex items-center">
-              <span className="text-2xl font-normal text-[#ff416c] tracking-tight">FAATA BEACH</span>
+              <img src="/images/logo.png" alt="FAATA BEACH" className="h-8" />
             </button>
             <div className="flex items-center gap-4">
               <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-normal transition-all">
@@ -433,7 +433,7 @@ export default function MenuPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                 {getItemCount() > 0 && (
-                  <span className="absolute top-0 right-0 bg-[#ff416c] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute top-0 right-0 bg-[#39512a] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                     {getItemCount()}
                         </span>
                 )}
@@ -462,7 +462,7 @@ export default function MenuPage() {
                     setStoreSelectedCategory(cat.categoryId)
                   }}
                   className={`flex-shrink-0 w-[180px] rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all ${cat.bgColor} border border-gray-100 ${
-                    selectedCategory === cat.categoryId ? 'ring-2 ring-[#ff416c]' : ''
+                    selectedCategory === cat.categoryId ? 'ring-2 ring-[#39512a]' : ''
                   }`}
                 >
                   <div className="relative h-32 bg-white/30 rounded-t-3xl overflow-hidden">
@@ -496,7 +496,7 @@ export default function MenuPage() {
               {/* Produits filtrés par catégorie */}
               {selectedCategory && filteredProducts.length > 0 && (
                 <section>
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+                  <h2 className="text-2xl font-semibold text-[#2f2e2e] mb-6">
                     {(() => {
                       const category = categories.find(c => c._id === selectedCategory)
                       if (!category) return ''
@@ -538,7 +538,7 @@ export default function MenuPage() {
                         setSelectedCategory(null)
                         setStoreSelectedCategory(null)
                       }}
-                      className="mt-4 px-6 py-2 bg-gradient-to-r from-[#ff416c] to-[#ff4b2b] text-white rounded-full font-medium hover:opacity-90 transition-colors"
+                      className="mt-4 px-6 py-2 bg-[#39512a] text-white rounded-full font-medium hover:opacity-90 transition-colors"
                     >
                       Réinitialiser les filtres
         </button>

@@ -64,7 +64,7 @@ export function SignupModal() {
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
             placeholder="Votre nom"
-            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red text-base md:text-sm"
+            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a] text-base md:text-sm"
             autoComplete="name"
           />
         </div>
@@ -77,7 +77,7 @@ export function SignupModal() {
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
             placeholder="votre@email.com"
-            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red text-base md:text-sm"
+            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a] text-base md:text-sm"
             autoComplete="email"
           />
         </div>
@@ -91,7 +91,7 @@ export function SignupModal() {
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             placeholder="+689 XX XX XX XX"
-            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red text-base md:text-sm"
+            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a] text-base md:text-sm"
             autoComplete="tel"
           />
         </div>
@@ -105,7 +105,7 @@ export function SignupModal() {
             required
             minLength={6}
             placeholder="••••••••"
-            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red text-base md:text-sm"
+            className="w-full px-4 py-2.5 md:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a] text-base md:text-sm"
             autoComplete="new-password"
           />
           <p className="text-gray-500 text-xs mt-1">Au moins 6 caractères requis</p>
@@ -143,7 +143,7 @@ export function SignupModal() {
               closeModal()
               navigate('/login')
             }}
-            className="text-faata-red hover:underline text-sm md:text-xs font-medium"
+            className="text-[#39512a] hover:underline text-sm md:text-xs font-medium"
           >
             Déjà un compte ? <span className="font-semibold">Se connecter</span>
           </button>

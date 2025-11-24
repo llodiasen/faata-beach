@@ -175,14 +175,14 @@ export function ProductDetailModal() {
                   const parent = target.parentElement
                   if (parent && !parent.querySelector('.image-fallback')) {
                     const fallback = document.createElement('div')
-                    fallback.className = 'image-fallback w-full max-w-[280px] h-[200px] bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center'
+                    fallback.className = 'image-fallback w-full max-w-[280px] h-[200px] bg-gradient-to-br from-[#39512a]/10 to-[#2f2e2e]/10 flex items-center justify-center'
                     fallback.innerHTML = '<span class="text-5xl">🍽️</span>'
                     parent.appendChild(fallback)
                   }
                 }}
               />
             ) : (
-              <div className="w-full max-w-[280px] h-[200px] bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center">
+              <div className="w-full max-w-[280px] h-[200px] bg-gradient-to-br from-[#39512a]/10 to-[#2f2e2e]/10 flex items-center justify-center">
                 <span className="text-5xl">🍽️</span>
               </div>
             )}
@@ -200,7 +200,7 @@ export function ProductDetailModal() {
           {/* Prix */}
           <div className="flex items-baseline gap-2">
             <span className="text-sm text-gray-900">Prix: </span>
-            <span className="text-base font-normal text-red-600">
+            <span className="text-base font-normal text-[#39512a]">
               {currentPrice.toLocaleString('fr-FR')} FCFA
             </span>
           </div>
@@ -224,7 +224,7 @@ export function ProductDetailModal() {
                           ...prev,
                           [extra.name]: e.target.checked
                         }))}
-                        className="w-4 h-4 text-faata-red border-gray-300 rounded focus:ring-faata-red"
+                        className="w-4 h-4 text-[#39512a] border-gray-300 rounded focus:ring-[#39512a]"
                       />
                       <span className="text-sm text-gray-700">{extra.name}</span>
                       {extra.price > 0 && (
@@ -275,7 +275,7 @@ export function ProductDetailModal() {
                     onClick={() => setSelectedWeight(extra.name)}
                     className={`px-3 py-1.5 rounded-lg border-2 transition-colors text-xs ${
                       selectedWeight === extra.name
-                        ? 'border-faata-red bg-faata-red/10 text-faata-red font-normal'
+                        ? 'border-[#39512a] bg-[#39512a]/10 text-[#39512a] font-normal'
                         : 'border-gray-300 text-gray-700 hover:border-gray-400 font-normal'
                     }`}
                   >
@@ -289,7 +289,7 @@ export function ProductDetailModal() {
           {/* Bouton Ajouter au panier */}
           <button
             onClick={handleConfirmAndChange}
-                className="w-full bg-faata-red hover:bg-red-700 text-white py-4 px-6 rounded-lg font-normal text-sm transition-colors"
+                className="w-full bg-[#39512a] hover:opacity-90 text-white py-4 px-6 rounded-lg font-normal text-sm transition-colors"
           >
             Ajouter au panier
           </button>

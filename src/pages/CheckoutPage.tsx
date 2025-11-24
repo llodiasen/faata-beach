@@ -196,7 +196,7 @@ export default function CheckoutPage() {
           <p className="text-gray-600 mb-4">Votre panier est vide</p>
           <button
             onClick={() => navigate('/menu')}
-            className="px-6 py-3 bg-faata-red text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="px-6 py-3 bg-[#39512a] text-white rounded-lg hover:opacity-90 transition-colors"
           >
             Retour au menu
           </button>
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-white pb-20 md:pb-0">
       {/* Barre supérieure sombre */}
-      <div className="bg-gray-900 text-white py-2 px-4">
+      <div className="bg-[#2f2e2e] text-white py-2 px-4">
         <div className="container mx-auto flex flex-wrap items-center justify-between text-xs md:text-sm">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -243,7 +243,7 @@ export default function CheckoutPage() {
                 </svg>
               </button>
               <button onClick={() => navigate('/')} className="flex items-center">
-                <span className="text-xl font-normal text-faata-red">FAATA BEACH</span>
+                <img src="/images/logo.png" alt="FAATA BEACH" className="h-8" />
               </button>
             </div>
 
@@ -263,7 +263,7 @@ export default function CheckoutPage() {
               <input
                 type="search"
                 placeholder="Rechercher un produit"
-                className="w-full px-4 py-2 pl-10 pr-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-faata-red"
+                className="w-full px-4 py-2 pl-10 pr-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#39512a]"
               />
               <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -273,7 +273,7 @@ export default function CheckoutPage() {
             {/* Zone de livraison */}
             <div className="hidden xl:flex flex-col items-start">
               <span className="text-xs text-gray-500">Zone de livraison</span>
-              <button className="text-sm font-medium text-gray-900 flex items-center gap-1">
+              <button className="text-sm font-medium text-[#2f2e2e] flex items-center gap-1">
                 {deliveryZone}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -296,7 +296,7 @@ export default function CheckoutPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 {getItemCount() > 0 && (
-                  <span className="absolute top-0 right-0 bg-faata-red text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute top-0 right-0 bg-[#39512a] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                     {getItemCount()}
                   </span>
                 )}
@@ -311,7 +311,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Colonne gauche - Formulaire */}
           <div className="lg:col-span-2">
-            <h1 className="text-xl font-normal text-gray-900 mb-6">Finaliser la commande</h1>
+            <h1 className="text-xl font-normal text-[#2f2e2e] mb-6">Finaliser la commande</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6" id="checkout-form">
               {/* Informations client */}
@@ -325,7 +325,7 @@ export default function CheckoutPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a]"
                   />
                 </div>
 
@@ -338,7 +338,7 @@ export default function CheckoutPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a]"
                   />
                 </div>
 
@@ -350,7 +350,7 @@ export default function CheckoutPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a]"
                   />
                 </div>
               </div>
@@ -359,17 +359,17 @@ export default function CheckoutPage() {
               {orderType === 'livraison' && (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-base font-normal text-gray-900 mb-3">Adresse de livraison</h3>
+                    <h3 className="text-base font-normal text-[#2f2e2e] mb-3">Adresse de livraison</h3>
                     <div className="flex items-center gap-2 mb-3">
-                      <svg className="w-5 h-5 text-faata-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-[#39512a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      <span className="font-medium text-gray-900">{deliveryZone}</span>
+                      <span className="font-medium text-[#2f2e2e]">{deliveryZone}</span>
                       <button
                         type="button"
                         onClick={() => setShowLocationModal(true)}
-                        className="text-sm text-faata-red hover:underline"
+                        className="text-sm text-[#39512a] hover:underline"
                       >
                         Changer de zone
                       </button>
@@ -384,7 +384,7 @@ export default function CheckoutPage() {
                         onChange={(e) => setAddress(e.target.value)}
                         required
                         placeholder="Votre adresse complète"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a]"
                       />
                     </div>
                   </div>
@@ -403,14 +403,14 @@ export default function CheckoutPage() {
                     onChange={(e) => setTableNumber(e.target.value)}
                     required
                     placeholder="Ex: Table 5"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a]"
                   />
                 </div>
               )}
 
               {/* Mode de paiement */}
               <div>
-                <h3 className="text-base font-normal text-gray-900 mb-3">Mode de paiement</h3>
+                <h3 className="text-base font-normal text-[#2f2e2e] mb-3">Mode de paiement</h3>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('cash')}
@@ -429,7 +429,7 @@ export default function CheckoutPage() {
                       </svg>
                     </div>
                     <div>
-                      <div className="font-normal text-gray-900">Espèces à la livraison</div>
+                      <div className="font-normal text-[#2f2e2e]">Espèces à la livraison</div>
                       <div className="text-sm text-gray-600">Paiement en espèces lors de la réception de votre commande</div>
                     </div>
                   </div>
@@ -448,10 +448,10 @@ export default function CheckoutPage() {
           <div className="lg:col-span-1">
             <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-24">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-base font-normal text-gray-900">Résumé de la commande</h2>
+                <h2 className="text-base font-normal text-[#2f2e2e]">Résumé de la commande</h2>
                 <button
                   onClick={() => openModal('cart')}
-                  className="text-sm text-faata-red hover:underline"
+                  className="text-sm text-[#39512a] hover:underline"
                 >
                   Modifier
                 </button>
@@ -469,10 +469,10 @@ export default function CheckoutPage() {
                       </div>
                     )}
                     <div className="flex-1">
-                      <h4 className="text-sm font-medium text-gray-900">{item.name}</h4>
+                      <h4 className="text-sm font-medium text-[#2f2e2e]">{item.name}</h4>
                       <p className="text-xs text-gray-500">Quantité: {item.quantity}</p>
                     </div>
-                    <div className="text-sm font-normal text-gray-900">
+                    <div className="text-sm font-normal text-[#2f2e2e]">
                       {(item.price * item.quantity).toLocaleString('fr-FR')} FCFA
                     </div>
                   </div>
@@ -483,12 +483,12 @@ export default function CheckoutPage() {
               <div className="space-y-2 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Sous-total ({items.length} article{items.length > 1 ? 's' : ''}):</span>
-                  <span className="font-normal text-gray-900">{subtotal.toLocaleString('fr-FR')} F CFA</span>
+                  <span className="font-normal text-[#2f2e2e]">{subtotal.toLocaleString('fr-FR')} F CFA</span>
                 </div>
                 {orderType === 'livraison' && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Livraison ({deliveryZone}):</span>
-                    <span className="font-normal text-gray-900">{deliveryFee.toLocaleString('fr-FR')} F CFA</span>
+                    <span className="font-normal text-[#2f2e2e]">{deliveryFee.toLocaleString('fr-FR')} F CFA</span>
                   </div>
                 )}
                 <div className="flex justify-between text-base font-normal pt-2 border-t border-gray-200">
@@ -507,7 +507,7 @@ export default function CheckoutPage() {
                   onChange={(e) => setOrderNote(e.target.value)}
                   rows={3}
                   placeholder="Instructions spéciales, allergies, etc."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-faata-red resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#39512a] resize-none"
                 />
               </div>
 
