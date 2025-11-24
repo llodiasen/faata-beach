@@ -27,13 +27,13 @@ export default function Header() {
   }
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-30 px-4 py-4">
+    <header className="absolute top-0 left-0 right-0 z-30 px-4 py-3 md:py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <button 
           onClick={() => navigate('/')}
-          className="hover:opacity-80 transition-opacity"
+          className="hover:opacity-80 transition-opacity flex-shrink-0"
         >
-          <img src="/images/logo.png" alt="FAATA BEACH" className="h-12 md:h-16" />
+          <img src="/images/logo.png" alt="FAATA BEACH" className="h-16 md:h-20 lg:h-24" />
         </button>
         <div className="flex items-center gap-4">
           {user ? (

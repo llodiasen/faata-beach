@@ -77,7 +77,7 @@ export default function Hero() {
       {/* Contenu central */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-16 text-center">
         <div className="mb-10 md:mb-12">
-          <img src="/images/logo.png" alt="FAATA BEACH" className="h-24 md:h-32 lg:h-40 mx-auto mb-3 drop-shadow-md" />
+          <img src="/images/logo.png" alt="FAATA BEACH" className="h-28 md:h-36 lg:h-44 mx-auto mb-3 drop-shadow-md" />
           <p className="text-base md:text-lg text-white/85 font-light tracking-wide drop-shadow-sm">
             Découvrez nos saveurs authentiques
           </p>

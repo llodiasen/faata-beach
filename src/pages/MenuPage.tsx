@@ -413,10 +413,10 @@ export default function MenuPage() {
     <div className="min-h-screen bg-white overflow-x-hidden pb-20 md:pb-0">
       {/* Header simplifié */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-        <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 py-4">
+        <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 py-3 md:py-4">
           <div className="flex items-center justify-between">
-            <button onClick={() => navigate('/')} className="flex items-center">
-              <img src="/images/logo.png" alt="FAATA BEACH" className="h-8" />
+            <button onClick={() => navigate('/')} className="flex items-center flex-shrink-0">
+              <img src="/images/logo.png" alt="FAATA BEACH" className="h-12 md:h-16 lg:h-20" />
             </button>
             <div className="flex items-center gap-4">
               <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-normal transition-all">

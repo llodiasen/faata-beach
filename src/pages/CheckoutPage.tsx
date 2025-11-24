@@ -242,8 +242,8 @@ export default function CheckoutPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <button onClick={() => navigate('/')} className="flex items-center">
-                <img src="/images/logo.png" alt="FAATA BEACH" className="h-8" />
+              <button onClick={() => navigate('/')} className="flex items-center flex-shrink-0">
+                <img src="/images/logo.png" alt="FAATA BEACH" className="h-12 md:h-16 lg:h-20" />
               </button>
             </div>
 
