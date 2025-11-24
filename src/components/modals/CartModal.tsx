@@ -38,7 +38,9 @@ export function CartModal() {
       </div>
 
       {/* Items du panier */}
-      <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto">
+      <div
+        className={`space-y-4 mb-6 ${items.length > 3 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}
+      >
         {items.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 mb-6">Votre panier est vide</p>

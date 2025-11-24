@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useModalStore } from '../store/useModalStore'
@@ -32,7 +32,7 @@ export default function MenuPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { openModal, selectedCategory: storeSelectedCategory, setSelectedCategory: setStoreSelectedCategory, setSelectedProduct } = useModalStore()
-  const { addItem, items, updateQuantity, removeItem, getTotal, getItemCount } = useCartStore()
+  const { addItem, items, removeItem, getTotal, getItemCount } = useCartStore()
   const { address: geoAddress } = useGeolocation()
   const [showLocationModal, setShowLocationModal] = useState(false)
 
@@ -41,18 +41,7 @@ export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
 
-  const categoryIcons: Record<string, string> = {
-    'Entrées': '🥗',
-    'Plats — À base de poisson': '🐟',
-    'Plats — À base de fruits de mer': '🍤',
-    'Plats — À base de poulet': '🍗',
-    'Plats — À base de viande': '🥩',
-    'Accompagnements': '🍟',
-    'Boissons': '🥤',
-    'Desserts': '🍰'
-  }
 
-  const popularProducts = useMemo(() => filteredProducts.slice(0, 6), [filteredProducts])
   const subtotal = getTotal()
   const serviceFee = items.length > 0 ? 2000 : 0
   const total = subtotal + serviceFee
@@ -90,6 +79,7 @@ export default function MenuPage() {
   // Filtrer les produits selon la catégorie sélectionnée
   useEffect(() => {
     if (selectedCategory) {
+      // Filtrer par categoryId
       const filtered = allProducts.filter(product => {
         const productCategoryId = typeof product.categoryId === 'object' 
           ? product.categoryId?._id?.toString() 
@@ -102,15 +92,6 @@ export default function MenuPage() {
     }
   }, [selectedCategory, allProducts])
 
-  const handleCategoryClick = (categoryId: string) => {
-    if (selectedCategory === categoryId) {
-      setSelectedCategory(null)
-      setStoreSelectedCategory(null)
-    } else {
-      setSelectedCategory(categoryId)
-      setStoreSelectedCategory(categoryId)
-    }
-  }
 
   const handleProductClick = (productId: string) => {
     if (productId) {
@@ -133,13 +114,6 @@ export default function MenuPage() {
     // Feedback visuel : le badge du panier sera mis à jour automatiquement
   }
 
-  const handleIncrease = (id: string, quantity: number) => {
-    updateQuantity(id, quantity + 1)
-  }
-
-  const handleDecrease = (id: string, quantity: number) => {
-    updateQuantity(id, Math.max(1, quantity - 1))
-  }
 
   const handleCheckout = () => {
     if (items.length === 0) return
@@ -201,15 +175,82 @@ export default function MenuPage() {
     return category?.name || 'Menu'
   }
 
+  // Catégories avec produits représentatifs
+  const getDisplayCategories = () => {
+    // Mapper les noms de catégories pour trouver les produits représentatifs
+    const categoryMapping: Record<string, { name: string; bgColor: string; productKeywords: string[] }> = {
+      'Entrées': {
+        name: 'Entrées',
+        bgColor: 'bg-green-50',
+        productKeywords: ['salade', 'niçoise', 'chef', 'italienne', 'exotique', 'chinoise', 'cocktail', 'avocat']
+      },
+      'Plats — À base de poisson': {
+        name: 'Poissons',
+        bgColor: 'bg-blue-50',
+        productKeywords: ['lotte', 'poisson', 'braisé', 'sole', 'meunière', 'colbert', 'filet']
+      },
+      'Plats — À base de fruits de mer': {
+        name: 'Fruits de mer',
+        bgColor: 'bg-cyan-50',
+        productKeywords: ['crevettes', 'gambas', 'fruits de mer']
+      },
+      'Plats — À base de poulet': {
+        name: 'Poulet',
+        bgColor: 'bg-orange-50',
+        productKeywords: ['poulet', 'cordon', 'bleu']
+      },
+      'Plats — À base de viande': {
+        name: 'Viandes',
+        bgColor: 'bg-red-50',
+        productKeywords: ['steak', 'bœuf', 'émincé', 'ragout', 'ragôt']
+      },
+      'Accompagnements': {
+        name: 'Accompagnements',
+        bgColor: 'bg-yellow-50',
+        productKeywords: ['riz', 'frites', 'légumes', 'pommes', 'spaghetti', 'gratin', 'dauphinois']
+      }
+    }
+
+    return categories
+      .filter(cat => categoryMapping[cat.name])
+      .map(cat => {
+        const mapping = categoryMapping[cat.name]
+        // Trouver un produit représentatif pour cette catégorie
+        const representativeProduct = allProducts.find(product => {
+          const productCategoryId = typeof product.categoryId === 'object' 
+            ? product.categoryId?._id?.toString() 
+            : product.categoryId?.toString()
+          if (productCategoryId === cat._id) {
+            // Si le produit appartient à la catégorie, vérifier aussi les mots-clés pour un meilleur match
+            const productName = product.name.toLowerCase()
+            return mapping.productKeywords.some(keyword => productName.includes(keyword))
+          }
+          return false
+        }) || allProducts.find(product => {
+          const productCategoryId = typeof product.categoryId === 'object' 
+            ? product.categoryId?._id?.toString() 
+            : product.categoryId?.toString()
+          return productCategoryId === cat._id
+        })
+
+        return {
+          id: cat._id,
+          name: mapping.name,
+          bgColor: mapping.bgColor,
+          categoryId: cat._id,
+          representativeProduct,
+          imageUrl: representativeProduct ? getProductImage(representativeProduct) : ''
+        }
+      })
+  }
+
   const renderProductCard = (product: Product, variant: 'popular' | 'default') => {
-    const priceLevel = product.price > 8000 ? '$$$' : product.price > 5000 ? '$$' : '$'
     const deliveryTime = product.preparationTime || 25
-    const serviceFee = Math.max(500, Math.round(product.price * 0.03 / 50) * 50)
     const discountLabel = product.price > 7000 ? '15% off: NEW15' : '10% off: SAVE10'
     const rating = 4.7 + (product.price % 3) * 0.05
     const reviews = 1200 + (product.price % 50) * 20
 
-    return (
+  return (
       <div
         key={`${variant}-${product._id}`}
         className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all cursor-pointer group"
@@ -218,28 +259,29 @@ export default function MenuPage() {
         <div className="relative h-48 bg-gray-100">
           {renderProductImage(product)}
 
-          <div className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-md">
+          <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md">
             {discountLabel}
           </div>
 
           <button
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center text-gray-500 hover:text-[#ff416c] transition-colors shadow"
+            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-gray-200/80 flex items-center justify-center text-white hover:bg-gray-300/80 transition-colors shadow-sm"
             aria-label="Ajouter aux favoris"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M4.318 6.318a4.5 4.5 0 010-6.364 4.5 4.5 0 016.364 0L12 1.586l1.318-1.318a4.5 4.5 0 016.364 6.364L12 15l-7.682-8.682z" />
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           </button>
         </div>
 
         <div className="p-4 space-y-3">
+          {/* Nom + Catégorie à gauche, Note à droite */}
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-base font-semibold text-gray-900 leading-tight">{product.name}</h3>
-              <p className="text-xs text-gray-500">{getCategoryLabel(product)}</p>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1">{product.name}</h3>
+              <p className="text-sm text-gray-500">{getCategoryLabel(product)}</p>
             </div>
-            <div className="flex items-center gap-1 text-xs text-gray-600">
+            <div className="flex items-center gap-1 text-sm text-gray-600 flex-shrink-0">
               <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118L10 13.347l-2.987 2.134c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L3.38 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.293z" />
               </svg>
@@ -248,37 +290,26 @@ export default function MenuPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-gray-500">
-            <span className="font-semibold text-gray-900 text-sm">{formatPrice(product.price)} FCFA</span>
-            <span>·</span>
-            <span>{priceLevel}</span>
-            <span>·</span>
-            <span>{getCategoryLabel(product).split('—')[0].trim()}</span>
-          </div>
-
-          <div className="flex items-center gap-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1">
+          {/* Prix à gauche, Temps de livraison à droite */}
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-gray-900">{formatPrice(product.price)} FCFA</span>
+            <span className="flex items-center gap-1 text-sm text-gray-500">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {deliveryTime}-{deliveryTime + 10} min
             </span>
-            <span className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5m1.6 8L5 21m2-8l2 8m8-8l2 8m-2-8h4" />
-              </svg>
-              Service {formatPrice(serviceFee)} FCFA
-            </span>
           </div>
 
+          {/* Bouton Ajouter panier */}
           <button
             onClick={(e) => handleQuickAdd(e, product)}
-            className="w-full bg-gradient-to-r from-[#ff416c] to-[#ff4b2b] hover:from-[#ff5f7f] hover:to-[#ff6a3a] text-white py-2.5 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-[#ff416c] to-[#ff4b2b] hover:from-[#ff5f7f] hover:to-[#ff6a3a] text-white py-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
             </svg>
-            Order
+            Ajouter panier
           </button>
         </div>
       </div>
@@ -286,44 +317,43 @@ export default function MenuPage() {
   }
 
   const orderSummaryContent = (
-    <>
-      <div className="mb-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-3">Your Address</h3>
-        <p className="text-sm text-gray-600 mb-2">{getDeliveryAddress()}</p>
-        <p className="text-xs text-gray-500 mb-4">
-          Lorem Ipsum is simply dummy text of the printing typesetting industry lorem Ipsum.
-        </p>
+    <div className="flex flex-col h-full">
+      {/* Section fixe en haut - Adresse */}
+      <div className="mb-6 flex-shrink-0">
+        <h3 className="text-sm font-normal text-gray-500 mb-2">Your Address</h3>
+        <p className="text-base font-semibold text-gray-900 mb-4">{getDeliveryAddress()}</p>
         <div className="flex gap-2">
           <button
             onClick={() => setShowLocationModal(true)}
-            className="flex-1 bg-gradient-to-r from-[#ff416c] to-[#ff4b2b] hover:from-[#ff5f7f] hover:to-[#ff6a3a] text-white py-2 px-4 rounded-lg text-sm font-medium transition-all"
+            className="flex-1 bg-gradient-to-r from-[#ff416c] to-[#ff4b2b] hover:from-[#ff5f7f] hover:to-[#ff6a3a] text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-all"
           >
             Add Details
           </button>
-          <button className="flex-1 bg-pink-100 hover:bg-pink-200 text-pink-700 py-2 px-4 rounded-lg text-sm font-medium transition-all">
+          <button className="flex-1 bg-gradient-to-r from-pink-100 to-pink-50 hover:from-pink-200 hover:to-pink-100 text-pink-700 py-2.5 px-4 rounded-lg text-sm font-medium transition-all">
             Add Note
           </button>
         </div>
       </div>
 
-      <div className="mb-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">My Order</h3>
-        <div className="space-y-3">
+      {/* Section scrollable - Liste des items */}
+      <div className="mb-6 flex-1 min-h-0 flex flex-col">
+        <h3 className="text-lg font-medium text-gray-900 mb-4 flex-shrink-0">My Order</h3>
+        <div className="flex-1 overflow-y-auto pr-2 space-y-2" style={{ maxHeight: '400px' }}>
           {items.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-8">Votre panier est vide</p>
           ) : (
             items.map((item) => (
-              <div key={item.id} className="relative flex items-center gap-3 border border-gray-100 rounded-xl p-3">
+              <div key={item.id} className="relative flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
                 <button
                   onClick={() => removeItem(item.id)}
-                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                  className="absolute top-1 right-1 text-gray-400 hover:text-red-500 transition-colors z-10"
                   aria-label="Retirer l'article"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-                <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                   {item.imageUrl ? (
                     <img
                       src={item.imageUrl}
@@ -334,32 +364,11 @@ export default function MenuPage() {
                     <div className="w-full h-full flex items-center justify-center text-xl">🍽️</div>
                   )}
                 </div>
-                <div className="flex-1 min-w-0 pr-6">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-                  <div className="text-xs text-gray-500 flex flex-wrap items-center gap-2">
-                    <span>Unité : {formatPrice(item.price)} FCFA</span>
-                    <span className="hidden sm:inline">•</span>
-                    <span>Quantité : {item.quantity}</span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      onClick={() => handleDecrease(item.id, item.quantity)}
-                      className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600"
-                      aria-label="Diminuer la quantité"
-                    >
-                      −
-                    </button>
-                    <span className="text-sm font-semibold text-gray-900 min-w-[24px] text-center">{item.quantity}</span>
-                    <button
-                      onClick={() => handleIncrease(item.id, item.quantity)}
-                      className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600"
-                      aria-label="Augmenter la quantité"
-                    >
-                      +
-                    </button>
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">x{item.quantity}</p>
                 </div>
-                <div className="text-sm font-semibold text-gray-900 text-right min-w-[90px]">
+                <div className="text-sm font-semibold text-gray-900 text-right min-w-[80px]">
                   {formatPrice(item.price * item.quantity)} FCFA
                 </div>
               </div>
@@ -368,9 +377,10 @@ export default function MenuPage() {
         </div>
       </div>
 
+      {/* Section fixe en bas - Total et boutons */}
       {items.length > 0 && (
-        <>
-          <div className="border-t border-gray-200 pt-4 mb-4 space-y-2 text-sm text-gray-600">
+        <div className="flex-shrink-0 border-t border-gray-200 pt-4 space-y-4">
+          <div className="space-y-2 text-sm text-gray-600">
             <div className="flex justify-between">
               <span>Service</span>
               <span className="text-gray-900 font-medium">{formatPrice(serviceFee)} FCFA</span>
@@ -381,7 +391,7 @@ export default function MenuPage() {
             </div>
           </div>
 
-          <button className="w-full bg-pink-100 hover:bg-pink-200 text-pink-700 py-3 px-4 rounded-lg text-sm font-medium transition-all mb-4 flex items-center justify-between">
+          <button className="w-full bg-pink-100 hover:bg-pink-200 text-pink-700 py-3 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-between">
             <span>Have a Promo Code?</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -394,9 +404,9 @@ export default function MenuPage() {
           >
             Checkout
           </button>
-        </>
+        </div>
       )}
-    </>
+    </div>
   )
 
   return (
@@ -421,97 +431,90 @@ export default function MenuPage() {
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+                        </svg>
                 {getItemCount() > 0 && (
                   <span className="absolute top-0 right-0 bg-[#ff416c] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                     {getItemCount()}
-                  </span>
+                        </span>
                 )}
-              </button>
-            </div>
-          </div>
-        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
       </header>
 
       {/* Contenu principal */}
       <div className="w-full px-4 md:px-8 lg:px-12 py-8">
         <div className="w-full max-w-[1400px] mx-auto">
-          {/* Catégories horizontales */}
-          <section className="mb-10 bg-white border border-gray-100 rounded-3xl p-5 shadow-[0_12px_35px_rgba(196,196,196,0.2)]">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-[13px] uppercase tracking-[0.2em] text-pink-500 font-semibold">Category</p>
-                <h2 className="text-xl font-semibold text-gray-900 mt-1">Find your taste</h2>
-              </div>
-              <button
-                onClick={() => {
-                  setSelectedCategory(null)
-                  setStoreSelectedCategory(null)
-                }}
-                className="text-[#ff416c] hover:text-[#ff185f] text-sm font-medium flex items-center gap-1"
-              >
-                See All
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-            <div className="flex min-w-0 gap-4 pb-2 overflow-x-auto lg:overflow-visible">
-              {categories.map((category, index) => {
-                const isActive = selectedCategory
-                  ? selectedCategory === category._id
-                  : index === 0
-                return (
-                  <button
-                    key={category._id}
-                    onClick={() => handleCategoryClick(category._id)}
-                    className={`flex flex-col items-center justify-center min-w-[110px] px-4 py-4 rounded-2xl transition-all duration-200 shadow-sm ${
-                      isActive
-                        ? 'bg-gradient-to-b from-[#ff416c] to-[#ff4b2b] text-white shadow-lg scale-105'
-                        : 'bg-white border border-gray-200 text-gray-800 hover:border-[#ff9aad]'
-                    }`}
-                  >
-                    <div
-                      className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 text-3xl ${
-                        isActive ? 'bg-white/90 text-[#ff416c] shadow-inner' : 'bg-[#ffe9ef] text-[#ff416c]'
-                      }`}
-                    >
-                      {categoryIcons[category.name] || '🍽️'}
-                    </div>
-                    <span className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-gray-800'}`}>
-                      {category.name.split('—')[0].trim()}
-                    </span>
-                  </button>
-                )
-              })}
+          {/* Catégories - toutes visibles sans scrollbar */}
+          <section className="mb-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {getDisplayCategories().map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setSelectedCategory(cat.categoryId)
+                    setStoreSelectedCategory(cat.categoryId)
+                  }}
+                  className={`rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all ${cat.bgColor} border border-gray-100 ${
+                    selectedCategory === cat.categoryId ? 'ring-2 ring-[#ff416c]' : ''
+                  }`}
+                >
+                  <div className="relative h-32 bg-white/30 rounded-t-3xl overflow-hidden">
+                    {cat.imageUrl ? (
+                      <img
+                        src={cat.imageUrl}
+                        alt={cat.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-4xl">
+                        🍽️
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3 text-center">
+                    <span className="text-sm font-semibold text-gray-900 block">{cat.name}</span>
+                  </div>
+                </button>
+              ))}
             </div>
           </section>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             {/* Colonne gauche - Produits */}
             <div className="flex-1 space-y-10">
-              {/* Section Popular Food */}
-              <section>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-semibold text-gray-900">Popular Food</h2>
-                  <button className="text-[#ff416c] hover:text-[#ff185f] text-sm font-medium flex items-center gap-1">
-                    See All
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {popularProducts.map((product) => renderProductCard(product, 'popular'))}
-                </div>
-              </section>
-
               {/* Produits filtrés par catégorie */}
               {selectedCategory && filteredProducts.length > 0 && (
                 <section>
                   <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-                    {categories.find(c => c._id === selectedCategory)?.name}
+                    {(() => {
+                      const category = categories.find(c => c._id === selectedCategory)
+                      if (!category) return ''
+                      const categoryMapping: Record<string, string> = {
+                        'Entrées': 'Entrées',
+                        'Plats — À base de poisson': 'Poissons',
+                        'Plats — À base de fruits de mer': 'Fruits de mer',
+                        'Plats — À base de poulet': 'Poulet',
+                        'Plats — À base de viande': 'Viandes',
+                        'Accompagnements': 'Accompagnements'
+                      }
+                      return categoryMapping[category.name] || category.name.replace('Plats — ', '')
+                    })()}
                   </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredProducts.map((product) => renderProductCard(product, 'default'))}
+                  </div>
+                </section>
+              )}
+
+              {/* Tous les produits si aucune catégorie sélectionnée */}
+              {!selectedCategory && filteredProducts.length > 0 && (
+                <section>
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     {filteredProducts.map((product) => renderProductCard(product, 'default'))}
                   </div>
@@ -525,7 +528,7 @@ export default function MenuPage() {
                   <p className="text-gray-700 text-base font-normal mb-2">Aucun produit trouvé</p>
                   <p className="text-gray-500 text-base">Essayez de modifier vos filtres ou votre recherche</p>
                   {selectedCategory && (
-                    <button
+        <button
                       onClick={() => {
                         setSelectedCategory(null)
                         setStoreSelectedCategory(null)
@@ -533,14 +536,14 @@ export default function MenuPage() {
                       className="mt-4 px-6 py-2 bg-gradient-to-r from-[#ff416c] to-[#ff4b2b] text-white rounded-full font-medium hover:opacity-90 transition-colors"
                     >
                       Réinitialiser les filtres
-                    </button>
-                  )}
+        </button>
+      )}
                 </div>
               )}
             </div>
 
             {/* Sidebar droite - My Order */}
-            <aside className="hidden lg:block w-full lg:max-w-[360px] bg-white/95 border border-gray-200 rounded-2xl p-6 shadow-xl sticky top-28 h-fit max-h-[calc(100vh-140px)] overflow-y-auto">
+            <aside className="hidden lg:block w-full lg:max-w-[360px] bg-white/95 border border-gray-200 rounded-2xl p-6 shadow-xl sticky top-28 h-[calc(100vh-140px)] flex flex-col">
               {orderSummaryContent}
             </aside>
           </div>
