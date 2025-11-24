@@ -29,7 +29,6 @@ export function ProductDetailModal() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
-  const [selectedWeight, setSelectedWeight] = useState<string | null>(null)
   const [selectedExtras, setSelectedExtras] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
@@ -41,14 +40,6 @@ export function ProductDetailModal() {
         const data = await productsAPI.getById(selectedProduct)
         setProduct(data)
         
-        // Définir les extras par défaut
-        if (data.extras && data.extras.length > 0) {
-          // Chercher un extra qui ressemble à un poids (contient "g" ou "kg")
-          const weightExtra = data.extras.find((e: Extra) => /g|kg/i.test(e.name))
-          if (weightExtra) {
-            setSelectedWeight(weightExtra.name)
-          }
-        }
         setSelectedExtras({})
         
         setError(null)
@@ -71,17 +62,10 @@ export function ProductDetailModal() {
     // Calculer le prix total avec les extras sélectionnés
     let totalPrice = product.price
     
-    if (selectedWeight && product.extras) {
-      const weightExtra = product.extras.find(e => e.name === selectedWeight)
-      if (weightExtra) {
-        totalPrice = weightExtra.price
-      }
-    }
-    
     // Ajouter le prix de tous les extras sélectionnés
     if (product.extras) {
       Object.entries(selectedExtras).forEach(([name, selected]) => {
-        if (selected && name !== selectedWeight) {
+        if (selected) {
           const extra = product.extras!.find(e => e.name === name)
           if (extra) {
             totalPrice += extra.price
@@ -94,9 +78,8 @@ export function ProductDetailModal() {
     const extrasNames = Object.entries(selectedExtras)
       .filter(([_, selected]) => selected)
       .map(([name]) => name)
-      .filter(name => name !== selectedWeight)
     
-    const itemName = `${product.name}${selectedWeight ? ` (${selectedWeight})` : ''}${extrasNames.length > 0 ? ` - ${extrasNames.join(', ')}` : ''}`
+    const itemName = `${product.name}${extrasNames.length > 0 ? ` - ${extrasNames.join(', ')}` : ''}`
 
     const itemToAdd = {
       productId: product._id,
@@ -110,32 +93,16 @@ export function ProductDetailModal() {
 
     // Réinitialiser toutes les sélections et fermer
     setQuantity(1)
-    setSelectedWeight(null)
     setSelectedExtras({})
     closeModal()
   }
 
-  // Séparer les extras en poids et compléments
-  const weightOptions = product?.extras && product.extras.length > 0
-    ? product.extras.filter(e => /g|kg/i.test(e.name))
-    : []
-  
-  const complementOptions = product?.extras && product.extras.length > 0
-    ? product.extras.filter(e => !/g|kg/i.test(e.name))
-    : []
-
   // Calculer le prix actuel
   let currentPrice = product?.price || 0
-  if (selectedWeight && product?.extras) {
-    const weightExtra = product.extras.find(e => e.name === selectedWeight)
-    if (weightExtra) {
-      currentPrice = weightExtra.price
-    }
-  }
   // Ajouter le prix de tous les extras sélectionnés
   if (product?.extras) {
     Object.entries(selectedExtras).forEach(([name, selected]) => {
-      if (selected && name !== selectedWeight) {
+      if (selected) {
         const extra = product.extras!.find(e => e.name === name)
         if (extra) {
           currentPrice += extra.price
@@ -208,11 +175,11 @@ export function ProductDetailModal() {
           {/* Section Compléments et Quantité */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
             {/* Compléments à gauche */}
-            {complementOptions.length > 0 && (
+            {product.extras && product.extras.filter(e => !/g|kg/i.test(e.name)).length > 0 && (
               <div>
                 <h3 className="text-xs font-normal text-gray-700 mb-3">Choisissez vos compléments</h3>
                 <div className="space-y-2">
-                  {complementOptions.map((extra) => (
+                  {product.extras.filter(e => !/g|kg/i.test(e.name)).map((extra) => (
                     <label
                       key={extra.name}
                       className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors"
@@ -263,28 +230,6 @@ export function ProductDetailModal() {
               </div>
             </div>
           </div>
-
-          {/* Options de poids si disponibles */}
-          {weightOptions.length > 0 && (
-            <div className="pt-4 border-t border-gray-200">
-              <h3 className="text-xs font-normal text-gray-700 mb-3 uppercase tracking-wide">Taille</h3>
-              <div className="flex flex-wrap gap-2">
-                {weightOptions.map((extra) => (
-                  <button
-                    key={extra.name}
-                    onClick={() => setSelectedWeight(extra.name)}
-                    className={`px-3 py-1.5 rounded-lg border-2 transition-colors text-xs ${
-                      selectedWeight === extra.name
-                        ? 'border-[#39512a] bg-[#39512a]/10 text-[#39512a] font-normal'
-                        : 'border-gray-300 text-gray-700 hover:border-gray-400 font-normal'
-                    }`}
-                  >
-                    {extra.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Bouton Ajouter au panier */}
           <button

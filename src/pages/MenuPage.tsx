@@ -10,6 +10,7 @@ import { CartModal } from '../components/modals/CartModal'
 import { ProductDetailModal } from '../components/modals/ProductDetailModal'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { LocationModal } from '../components/modals/LocationModal'
+import { useFavoritesStore } from '../store/useFavoritesStore'
 
 interface Category {
   _id: string
@@ -168,11 +169,15 @@ export default function MenuPage() {
   }
 
   const getCategoryLabel = (product: Product): string => {
+    let categoryName = 'Menu'
     if (typeof product.categoryId === 'object' && product.categoryId?.name) {
-      return product.categoryId.name
+      categoryName = product.categoryId.name
+    } else {
+      const category = categories.find((c) => c._id === product.categoryId)
+      categoryName = category?.name || 'Menu'
     }
-    const category = categories.find((c) => c._id === product.categoryId)
-    return category?.name || 'Menu'
+    // Enlever "Plats —" du nom de catégorie
+    return categoryName.replace(/^Plats —\s*/, '')
   }
 
   // Catégories avec produits représentatifs
@@ -244,9 +249,42 @@ export default function MenuPage() {
       })
   }
 
+  // Composant bouton favoris
+  const FavoriteButton = ({ product }: { product: Product }) => {
+    const isFavorite = useFavoritesStore((state) => state.isFavorite(product._id))
+    
+    return (
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          const { toggleFavorite } = useFavoritesStore.getState()
+          const favoriteItem = {
+            productId: product._id,
+            name: product.name,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            description: product.description
+          }
+          toggleFavorite(favoriteItem)
+        }}
+        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:bg-white transition-colors z-10"
+        aria-label="Ajouter aux favoris"
+      >
+        {isFavorite ? (
+          <svg className="w-4 h-4 text-[#39512a]" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+        ) : (
+          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        )}
+      </button>
+    )
+  }
+
   const renderProductCard = (product: Product, variant: 'popular' | 'default') => {
     const deliveryTime = product.preparationTime || 25
-    const discountLabel = product.price > 7000 ? '15% off: NEW15' : '10% off: SAVE10'
     const rating = 4.7 + (product.price % 3) * 0.05
 
   return (
@@ -258,28 +296,14 @@ export default function MenuPage() {
         <div className="relative h-40 bg-gray-50">
           {renderProductImage(product)}
 
-          {discountLabel && (
-            <div className="absolute top-2 left-2 bg-[#39512a] text-white text-xs font-normal px-2 py-1 rounded-md">
-              {discountLabel}
-            </div>
-          )}
-
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center text-gray-600 hover:bg-white transition-colors"
-            aria-label="Ajouter aux favoris"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
+          <FavoriteButton product={product} />
         </div>
 
         <div className="p-3 flex flex-col flex-1">
           {/* Nom et catégorie sur la même ligne */}
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-medium text-[#2f2e2e] truncate">{product.name}</h3>
+              <h3 className="text-sm font-medium text-[#2f2e2e] break-words">{product.name}</h3>
               <p className="text-xs text-gray-400 mt-0.5">{getCategoryLabel(product)}</p>
             </div>
             <div className="flex items-center gap-0.5 flex-shrink-0">
@@ -290,9 +314,13 @@ export default function MenuPage() {
             </div>
           </div>
 
-          {/* Prix et temps de livraison sur la même ligne */}
-          <div className="flex items-center justify-between mb-2">
+          {/* Prix sur une ligne */}
+          <div className="mb-1">
             <span className="text-base font-medium text-[#2f2e2e]">{formatPrice(product.price)} FCFA</span>
+          </div>
+
+          {/* Temps de livraison en bas du prix */}
+          <div className="mb-2">
             <span className="flex items-center gap-1 text-xs text-gray-500">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
