@@ -84,19 +84,27 @@ export default function ProductPage() {
       })
     }
 
+    // Construire le nom avec les extras sélectionnés
+    const extrasNames = Object.entries(selectedExtras)
+      .filter(([_, selected]) => selected)
+      .map(([name]) => name)
+      .filter(name => name !== selectedSize)
+    
+    const itemName = `${product.name}${selectedSize ? ` (${selectedSize})` : ''}${extrasNames.length > 0 ? ` - ${extrasNames.join(', ')}` : ''}`
+    
     const itemToAdd = {
       productId: product._id,
-      name: `${product.name}${selectedSize ? ` (${selectedSize})` : ''}`,
+      name: itemName,
       price: totalPrice,
       imageUrl: product.imageUrl,
     }
 
-    for (let i = 0; i < quantity; i++) {
-      addItem(itemToAdd)
-    }
+    // Ajouter directement avec la quantité au lieu d'une boucle
+    addItem(itemToAdd, quantity)
 
-    // Réinitialiser
+    // Réinitialiser toutes les sélections
     setQuantity(1)
+    setSelectedSize(null)
     setSelectedExtras({})
   }
 
@@ -206,8 +214,8 @@ export default function ProductPage() {
 
             {/* Informations produit */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight">{product.name}</h3>
-              <div className="text-base font-medium text-gray-700 mb-3">
+              <h3 className="text-base font-normal text-gray-900 mb-2 leading-tight">{product.name}</h3>
+              <div className="text-sm font-normal text-gray-700 mb-3">
                 {((selectedSize && product.extras ? product.extras.find(e => e.name === selectedSize)?.price || product.price : product.price) * quantity).toLocaleString('fr-FR')} FCFA
               </div>
               {product.description && (
@@ -217,13 +225,13 @@ export default function ProductPage() {
               {/* Options SIZE */}
               {sizeOptions.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-xs font-medium text-gray-700 mb-3 uppercase tracking-wide">Taille</h4>
+                  <h4 className="text-xs font-normal text-gray-600 mb-3 uppercase tracking-wide">Taille</h4>
                   <div className="flex flex-wrap gap-2">
                     {sizeOptions.map((size, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedSize(size)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-normal transition-all ${
                           selectedSize === size
                             ? 'bg-gray-900 text-white'
                             : 'bg-white border border-gray-300 text-gray-700 hover:border-gray-400'
@@ -239,7 +247,7 @@ export default function ProductPage() {
               {/* Build Your Meal */}
               {mealOptions.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-xs font-medium text-gray-700 mb-3 uppercase tracking-wide">Compléments</h4>
+                  <h4 className="text-xs font-normal text-gray-600 mb-3 uppercase tracking-wide">Compléments</h4>
                   <div className="grid grid-cols-3 gap-2">
                     {mealOptions.map((extra, index) => (
                       <button
@@ -266,7 +274,7 @@ export default function ProductPage() {
 
               {/* Quantity */}
               <div className="mb-6">
-                <h4 className="text-xs font-medium text-gray-700 mb-3 uppercase tracking-wide">Quantité</h4>
+                  <h4 className="text-xs font-normal text-gray-600 mb-3 uppercase tracking-wide">Quantité</h4>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -299,7 +307,7 @@ export default function ProductPage() {
               {/* Bouton ajouter au panier */}
               <button
                 onClick={handleAddToOrder}
-                className="w-full bg-faata-red hover:bg-red-700 text-white py-3 px-6 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-faata-red hover:bg-red-700 text-white py-3 px-6 rounded-lg font-normal text-sm transition-colors flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />

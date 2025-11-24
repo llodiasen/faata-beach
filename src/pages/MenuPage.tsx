@@ -188,12 +188,12 @@ export default function MenuPage() {
                 </svg>
               </button>
                   <button onClick={() => navigate('/')} className="flex items-center">
-                    <span className="text-2xl font-bold text-faata-red tracking-tight">FAATA BEACH</span>
+                    <span className="text-xl font-normal text-faata-red tracking-tight">FAATA BEACH</span>
                   </button>
             </div>
 
             {/* Bouton Nos restaurants */}
-            <button className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-sm">
+            <button className="hidden lg:flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-normal transition-all duration-200 hover:shadow-sm">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
@@ -218,7 +218,7 @@ export default function MenuPage() {
             {/* Zone de livraison */}
             <div className="hidden xl:flex flex-col items-start">
               <span className="text-xs text-gray-500 font-medium mb-1">Zone de livraison</span>
-              <button className="text-sm font-semibold text-gray-900 flex items-center gap-1 hover:text-faata-red transition-colors">
+              <button className="text-sm font-normal text-gray-900 flex items-center gap-1 hover:text-faata-red transition-colors">
                 BARGNY
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
@@ -263,7 +263,7 @@ export default function MenuPage() {
               onClick={() => handleCategoryClick(category._id)}
                   className={`w-full flex items-center gap-4 p-4 rounded-lg transition-all duration-200 ${
                     selectedCategory === category._id
-                      ? 'bg-faata-red bg-opacity-10 text-faata-red font-semibold border border-faata-red/20'
+                      ? 'bg-faata-red bg-opacity-10 text-faata-red font-normal border border-faata-red/20'
                       : 'text-gray-700 hover:bg-gray-50 border border-transparent hover:border-gray-200'
                   }`}
                 >
@@ -295,7 +295,7 @@ export default function MenuPage() {
                       </div>
                     )}
                   </div>
-                  <span className="text-base font-semibold flex-1 text-left leading-relaxed">{category.name}</span>
+                  <span className="text-sm font-normal flex-1 text-left leading-relaxed">{category.name}</span>
                   <svg className={`w-5 h-5 transition-transform flex-shrink-0 ${selectedCategory === category._id ? 'rotate-90 text-faata-red' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                   </svg>
@@ -309,11 +309,11 @@ export default function MenuPage() {
             {/* Barre de filtres */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <div className="text-base text-gray-800 font-medium">
-                Trouvé <span className="font-bold text-gray-900">{filteredProducts.length}</span> produit{filteredProducts.length > 1 ? 's' : ''}
+                Trouvé <span className="font-normal text-gray-900">{filteredProducts.length}</span> produit{filteredProducts.length > 1 ? 's' : ''}
               </div>
               <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Trier par:</label>
+                  <label className="text-sm font-normal text-gray-700 whitespace-nowrap">Trier par:</label>
                   <select className="px-4 py-2 border border-gray-300 rounded-full text-sm font-medium bg-white focus:outline-none focus:ring-2 focus:ring-faata-red focus:border-faata-red transition-all">
                     <option>Pertinence</option>
                     <option>Prix croissant</option>
@@ -335,7 +335,7 @@ export default function MenuPage() {
             {/* Tags de filtres actifs */}
             {selectedCategory && (
               <div className="flex flex-wrap items-center gap-3 mb-6">
-                <div className="px-4 py-2 bg-faata-red/10 text-faata-red rounded-full text-sm font-semibold flex items-center gap-2 border border-faata-red/20">
+                <div className="px-4 py-2 bg-faata-red/10 text-faata-red rounded-full text-sm font-normal flex items-center gap-2 border border-faata-red/20">
                   <span>{categories.find(c => c._id === selectedCategory)?.name || 'Catégorie'}</span>
                   <button
                     onClick={(e) => {
@@ -366,7 +366,7 @@ export default function MenuPage() {
             {/* Section NOS MEILLEURES VENTES */}
             {bestSellers.length > 0 && !selectedCategory && (
               <div className="mb-10">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-gray-200">NOS MEILLEURES VENTES</h3>
+                <h3 className="text-lg font-normal text-gray-900 mb-6 pb-3 border-b border-gray-200">NOS MEILLEURES VENTES</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
                   {bestSellers.map((product) => (
                     <div
@@ -413,8 +413,8 @@ export default function MenuPage() {
                     </button>
                   </div>
                       <div className="p-4">
-                        <div className="text-xl font-bold text-faata-red mb-2 tracking-tight">{product.price.toLocaleString('fr-FR')} FCFA</div>
-                        <h4 className="text-base font-semibold text-gray-900 mb-1.5 leading-tight">{product.name}</h4>
+                        <div className="text-base font-normal text-faata-red mb-2 tracking-tight">{product.price.toLocaleString('fr-FR')} FCFA</div>
+                        <h4 className="text-sm font-normal text-gray-900 mb-1.5 leading-tight">{product.name}</h4>
                     {product.description && (
                           <p className="text-xs text-gray-600 mt-1 line-clamp-2 leading-relaxed">{product.description}</p>
                         )}
@@ -430,7 +430,7 @@ export default function MenuPage() {
               if (selectedCategory && selectedCategory !== categoryId) return null
               return (
                 <div key={categoryId} className="mb-10" id={`categorie-${categoryId}`}>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-gray-200">{category.name}</h3>
+                  <h3 className="text-lg font-normal text-gray-900 mb-6 pb-3 border-b border-gray-200">{category.name}</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
                     {products.map((product) => (
                       <div
@@ -476,8 +476,8 @@ export default function MenuPage() {
                       </button>
                     </div>
                         <div className="p-4">
-                          <div className="text-xl font-bold text-faata-red mb-2 tracking-tight">{product.price.toLocaleString('fr-FR')} FCFA</div>
-                          <h4 className="text-base font-semibold text-gray-900 mb-1.5 leading-tight">{product.name}</h4>
+                          <div className="text-base font-normal text-faata-red mb-2 tracking-tight">{product.price.toLocaleString('fr-FR')} FCFA</div>
+                          <h4 className="text-sm font-normal text-gray-900 mb-1.5 leading-tight">{product.name}</h4>
                           {product.description && (
                             <p className="text-xs text-gray-600 mt-1 line-clamp-2 leading-relaxed">{product.description}</p>
                           )}
@@ -493,7 +493,7 @@ export default function MenuPage() {
             {filteredProducts.length === 0 && (
               <div className="text-center py-20">
                 <div className="text-6xl mb-4">🔍</div>
-                <p className="text-gray-700 text-xl font-semibold mb-2">Aucun produit trouvé</p>
+                <p className="text-gray-700 text-base font-normal mb-2">Aucun produit trouvé</p>
                 <p className="text-gray-500 text-base">Essayez de modifier vos filtres ou votre recherche</p>
                 {selectedCategory && (
                   <button

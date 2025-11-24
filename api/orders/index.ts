@@ -36,14 +36,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           })
         }
 
-        const itemTotal = product.price * item.quantity
+        // Utiliser le prix envoyé depuis le frontend (qui inclut les extras)
+        // mais valider qu'il est raisonnable (au moins le prix de base, max 3x le prix de base)
+        const basePrice = product.price
+        const sentPrice = item.price || basePrice
+        
+        // Validation de sécurité : le prix doit être au moins égal au prix de base
+        // et ne pas dépasser 3x le prix de base (pour éviter les manipulations)
+        if (sentPrice < basePrice) {
+          return res.status(400).json({
+            message: `Prix invalide pour le produit ${product.name}. Prix minimum: ${basePrice} FCFA`,
+          })
+        }
+        
+        // Limite de sécurité : prix max = 3x le prix de base (pour gérer les extras)
+        const maxPrice = basePrice * 3
+        if (sentPrice > maxPrice) {
+          return res.status(400).json({
+            message: `Prix invalide pour le produit ${product.name}. Prix maximum autorisé: ${maxPrice} FCFA`,
+          })
+        }
+
+        const itemTotal = sentPrice * item.quantity
         totalAmount += itemTotal
 
         orderItems.push({
           productId: product._id,
           quantity: item.quantity,
-          price: product.price,
-          name: product.name,
+          price: sentPrice, // Utiliser le prix avec extras
+          name: item.name || product.name, // Utiliser le nom avec extras si fourni
         })
       }
 

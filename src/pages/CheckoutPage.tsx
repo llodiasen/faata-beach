@@ -98,6 +98,8 @@ export default function CheckoutPage() {
       const orderItems = items.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
+        price: item.price, // Inclure le prix avec extras
+        name: item.name, // Inclure le nom avec extras
       }))
 
       const orderData: any = {
@@ -188,7 +190,19 @@ export default function CheckoutPage() {
   }, [items.length, navigate])
 
   if (items.length === 0) {
-    return null
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Votre panier est vide</p>
+          <button
+            onClick={() => navigate('/menu')}
+            className="px-6 py-3 bg-faata-red text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retour au menu
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -229,7 +243,7 @@ export default function CheckoutPage() {
                 </svg>
               </button>
               <button onClick={() => navigate('/')} className="flex items-center">
-                <span className="text-2xl font-bold text-faata-red">FAATA BEACH</span>
+                <span className="text-xl font-normal text-faata-red">FAATA BEACH</span>
               </button>
             </div>
 
@@ -297,7 +311,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Colonne gauche - Formulaire */}
           <div className="lg:col-span-2">
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Finaliser la commande</h1>
+            <h1 className="text-xl font-normal text-gray-900 mb-6">Finaliser la commande</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6" id="checkout-form">
               {/* Informations client */}
@@ -345,7 +359,7 @@ export default function CheckoutPage() {
               {orderType === 'livraison' && (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Adresse de livraison</h3>
+                    <h3 className="text-base font-normal text-gray-900 mb-3">Adresse de livraison</h3>
                     <div className="flex items-center gap-2 mb-3">
                       <svg className="w-5 h-5 text-faata-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -396,7 +410,7 @@ export default function CheckoutPage() {
 
               {/* Mode de paiement */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Mode de paiement</h3>
+                <h3 className="text-base font-normal text-gray-900 mb-3">Mode de paiement</h3>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('cash')}
@@ -415,7 +429,7 @@ export default function CheckoutPage() {
                       </svg>
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">Espèces à la livraison</div>
+                      <div className="font-normal text-gray-900">Espèces à la livraison</div>
                       <div className="text-sm text-gray-600">Paiement en espèces lors de la réception de votre commande</div>
                     </div>
                   </div>
@@ -434,7 +448,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-1">
             <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-24">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Résumé de la commande</h2>
+                <h2 className="text-base font-normal text-gray-900">Résumé de la commande</h2>
                 <button
                   onClick={() => openModal('cart')}
                   className="text-sm text-faata-red hover:underline"
@@ -458,7 +472,7 @@ export default function CheckoutPage() {
                       <h4 className="text-sm font-medium text-gray-900">{item.name}</h4>
                       <p className="text-xs text-gray-500">Quantité: {item.quantity}</p>
                     </div>
-                    <div className="text-sm font-semibold text-gray-900">
+                    <div className="text-sm font-normal text-gray-900">
                       {(item.price * item.quantity).toLocaleString('fr-FR')} FCFA
                     </div>
                   </div>
@@ -469,15 +483,15 @@ export default function CheckoutPage() {
               <div className="space-y-2 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Sous-total ({items.length} article{items.length > 1 ? 's' : ''}):</span>
-                  <span className="font-semibold text-gray-900">{subtotal.toLocaleString('fr-FR')} F CFA</span>
+                  <span className="font-normal text-gray-900">{subtotal.toLocaleString('fr-FR')} F CFA</span>
                 </div>
                 {orderType === 'livraison' && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Livraison ({deliveryZone}):</span>
-                    <span className="font-semibold text-gray-900">{deliveryFee.toLocaleString('fr-FR')} F CFA</span>
+                    <span className="font-normal text-gray-900">{deliveryFee.toLocaleString('fr-FR')} F CFA</span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
+                <div className="flex justify-between text-base font-normal pt-2 border-t border-gray-200">
                   <span>Total estimé:</span>
                   <span>{total.toLocaleString('fr-FR')} F CFA</span>
                 </div>
@@ -502,7 +516,7 @@ export default function CheckoutPage() {
                 type="submit"
                 form="checkout-form"
                 disabled={loading || items.length === 0}
-                className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-normal py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 {loading ? 'Traitement...' : (
                   <>

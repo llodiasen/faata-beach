@@ -25,7 +25,7 @@ export function CartModal() {
     <Modal isOpen={currentModal === 'cart'} onClose={closeModal} size="md">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold text-gray-900">Panier d'achat</h2>
+        <h2 className="text-base font-normal text-gray-900">Panier d'achat</h2>
         <button
           onClick={closeModal}
           className="p-1 hover:bg-gray-100 rounded-full transition-colors"
@@ -47,7 +47,7 @@ export function CartModal() {
                 closeModal()
                 navigate('/menu')
               }}
-              className="px-6 py-3 bg-faata-red text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+              className="px-6 py-3 bg-faata-red text-white font-normal rounded-lg hover:bg-red-700 transition-colors"
             >
               Ajouter des produits
             </button>
@@ -83,23 +83,26 @@ export function CartModal() {
 
               {/* Informations produit */}
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-gray-900 mb-1 text-sm">{item.name}</h3>
-                <p className="text-sm text-gray-900 mb-3">
-                  {item.price.toLocaleString('fr-FR')} F CFA
+                <h3 className="font-normal text-gray-900 mb-1 text-sm">{item.name}</h3>
+                <p className="text-sm text-gray-900 mb-1">
+                  {item.price.toLocaleString('fr-FR')} F CFA <span className="text-gray-500">/ unité</span>
+                </p>
+                <p className="text-xs text-gray-600 mb-3">
+                  Total: {(item.price * item.quantity).toLocaleString('fr-FR')} F CFA
                 </p>
                 
                 {/* Contrôles de quantité */}
                 <div className="flex items-center gap-2 border border-gray-300 rounded-full px-2 py-1 w-fit">
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 font-semibold transition-colors"
+                    className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 font-normal transition-colors"
                   >
                     -
                   </button>
-                  <span className="w-8 text-center font-semibold text-gray-900 text-sm">{item.quantity}</span>
+                  <span className="w-8 text-center font-normal text-gray-900 text-sm">{item.quantity}</span>
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 font-semibold transition-colors"
+                    className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 font-normal transition-colors"
                   >
                     +
                   </button>
@@ -127,20 +130,20 @@ export function CartModal() {
           {/* Sous-total */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-900">Sous Total:</span>
-            <span className="text-sm font-bold text-gray-900">{subtotal.toLocaleString('fr-FR')} F CFA</span>
+            <span className="text-sm font-normal text-gray-900">{subtotal.toLocaleString('fr-FR')} F CFA</span>
           </div>
 
           {/* Boutons */}
           <div className="flex flex-col gap-3">
             <button
               onClick={handleViewCart}
-              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold py-3 rounded-lg transition-colors"
+              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 font-normal py-3 rounded-lg transition-colors"
             >
               Voir panier
             </button>
             <button
               onClick={handleCheckout}
-              className="w-full bg-faata-red hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition-colors"
+              className="w-full bg-faata-red hover:bg-red-700 text-white font-normal py-3 rounded-lg transition-colors"
             >
               Finaliser la commande
             </button>

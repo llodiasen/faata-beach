@@ -29,7 +29,7 @@ export function ProductDetailModal() {
   const [error, setError] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
   const [selectedWeight, setSelectedWeight] = useState<string | null>(null)
-  const [selectedExtra, setSelectedExtra] = useState<string | null>(null)
+  const [selectedExtras, setSelectedExtras] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -47,12 +47,8 @@ export function ProductDetailModal() {
           if (weightExtra) {
             setSelectedWeight(weightExtra.name)
           }
-          // Sélectionner le premier extra non-poids comme complément par défaut
-          const complementExtra = data.extras.find((e: Extra) => !/g|kg/i.test(e.name))
-          if (complementExtra) {
-            setSelectedExtra(complementExtra.name)
-          }
         }
+        setSelectedExtras({})
         
         setError(null)
         setQuantity(1)
@@ -81,26 +77,40 @@ export function ProductDetailModal() {
       }
     }
     
-    if (selectedExtra && product.extras) {
-      const extra = product.extras.find(e => e.name === selectedExtra)
-      if (extra) {
-        totalPrice += extra.price
-      }
+    // Ajouter le prix de tous les extras sélectionnés
+    if (product.extras) {
+      Object.entries(selectedExtras).forEach(([name, selected]) => {
+        if (selected && name !== selectedWeight) {
+          const extra = product.extras!.find(e => e.name === name)
+          if (extra) {
+            totalPrice += extra.price
+          }
+        }
+      })
     }
+
+    // Construire le nom avec les extras sélectionnés
+    const extrasNames = Object.entries(selectedExtras)
+      .filter(([_, selected]) => selected)
+      .map(([name]) => name)
+      .filter(name => name !== selectedWeight)
+    
+    const itemName = `${product.name}${selectedWeight ? ` (${selectedWeight})` : ''}${extrasNames.length > 0 ? ` - ${extrasNames.join(', ')}` : ''}`
 
     const itemToAdd = {
       productId: product._id,
-      name: `${product.name}${selectedWeight ? ` (${selectedWeight})` : ''}${selectedExtra ? ` - ${selectedExtra}` : ''}`,
+      name: itemName,
       price: totalPrice,
       imageUrl: product.imageUrl,
     }
 
-    for (let i = 0; i < quantity; i++) {
-      addItem(itemToAdd)
-    }
+    // Ajouter directement avec la quantité au lieu d'une boucle
+    addItem(itemToAdd, quantity)
 
-    // Réinitialiser et fermer
+    // Réinitialiser toutes les sélections et fermer
     setQuantity(1)
+    setSelectedWeight(null)
+    setSelectedExtras({})
     closeModal()
   }
 
@@ -121,11 +131,16 @@ export function ProductDetailModal() {
       currentPrice = weightExtra.price
     }
   }
-  if (selectedExtra && product?.extras) {
-    const extra = product.extras.find(e => e.name === selectedExtra)
-    if (extra) {
-      currentPrice += extra.price
-    }
+  // Ajouter le prix de tous les extras sélectionnés
+  if (product?.extras) {
+    Object.entries(selectedExtras).forEach(([name, selected]) => {
+      if (selected && name !== selectedWeight) {
+        const extra = product.extras!.find(e => e.name === name)
+        if (extra) {
+          currentPrice += extra.price
+        }
+      }
+    })
   }
 
   return (
@@ -172,7 +187,7 @@ export function ProductDetailModal() {
 
           {/* Nom du produit */}
           <div>
-            <h2 className="text-lg font-bold text-gray-900 mb-1">{product.name}</h2>
+            <h2 className="text-base font-normal text-gray-900 mb-1">{product.name}</h2>
             {/* Description/Quantité en texte gris */}
             {product.description && (
               <p className="text-sm text-gray-500 leading-relaxed">{product.description}</p>
@@ -182,7 +197,7 @@ export function ProductDetailModal() {
           {/* Prix */}
           <div className="flex items-baseline gap-2">
             <span className="text-sm text-gray-900">Prix: </span>
-            <span className="text-xl font-bold text-red-600">
+            <span className="text-base font-normal text-red-600">
               {currentPrice.toLocaleString('fr-FR')} FCFA
             </span>
           </div>
@@ -192,7 +207,7 @@ export function ProductDetailModal() {
             {/* Compléments à gauche */}
             {complementOptions.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Choisissez votre complément</h3>
+                <h3 className="text-xs font-normal text-gray-700 mb-3">Choisissez vos compléments</h3>
                 <div className="space-y-2">
                   {complementOptions.map((extra) => (
                     <label
@@ -200,12 +215,13 @@ export function ProductDetailModal() {
                       className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors"
                     >
                       <input
-                        type="radio"
-                        name="complement"
-                        value={extra.name}
-                        checked={selectedExtra === extra.name}
-                        onChange={() => setSelectedExtra(extra.name)}
-                        className="w-4 h-4 text-faata-red border-gray-300 focus:ring-faata-red"
+                        type="checkbox"
+                        checked={selectedExtras[extra.name] || false}
+                        onChange={(e) => setSelectedExtras(prev => ({
+                          ...prev,
+                          [extra.name]: e.target.checked
+                        }))}
+                        className="w-4 h-4 text-faata-red border-gray-300 rounded focus:ring-faata-red"
                       />
                       <span className="text-sm text-gray-700">{extra.name}</span>
                       {extra.price > 0 && (
@@ -221,7 +237,7 @@ export function ProductDetailModal() {
 
             {/* Quantité à droite */}
             <div className="flex flex-col justify-start">
-              <label className="text-sm font-semibold text-gray-900 mb-3">Quantité:</label>
+              <label className="text-xs font-normal text-gray-700 mb-3">Quantité:</label>
               <div className="flex items-center border border-gray-300 rounded-full w-fit">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -248,16 +264,16 @@ export function ProductDetailModal() {
           {/* Options de poids si disponibles */}
           {weightOptions.length > 0 && (
             <div className="pt-4 border-t border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Taille</h3>
+              <h3 className="text-xs font-normal text-gray-700 mb-3 uppercase tracking-wide">Taille</h3>
               <div className="flex flex-wrap gap-2">
                 {weightOptions.map((extra) => (
                   <button
                     key={extra.name}
                     onClick={() => setSelectedWeight(extra.name)}
-                    className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg border-2 transition-colors text-xs ${
                       selectedWeight === extra.name
-                        ? 'border-faata-red bg-faata-red/10 text-faata-red font-semibold'
-                        : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                        ? 'border-faata-red bg-faata-red/10 text-faata-red font-normal'
+                        : 'border-gray-300 text-gray-700 hover:border-gray-400 font-normal'
                     }`}
                   >
                     {extra.name}
@@ -270,7 +286,7 @@ export function ProductDetailModal() {
           {/* Bouton Ajouter au panier */}
           <button
             onClick={handleConfirmAndChange}
-            className="w-full bg-faata-red hover:bg-red-700 text-white py-4 px-6 rounded-lg font-semibold text-base transition-colors"
+                className="w-full bg-faata-red hover:bg-red-700 text-white py-4 px-6 rounded-lg font-normal text-sm transition-colors"
           >
             Ajouter au panier
           </button>
