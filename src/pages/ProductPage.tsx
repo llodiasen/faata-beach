@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useCartStore } from '../store/useCartStore'
 import { useModalStore } from '../store/useModalStore'
 import { productsAPI } from '../lib/api'
+import { getProductImage } from '../lib/productImages'
 import Header from '../components/layout/Header'
 import { CartModal } from '../components/modals/CartModal'
 
@@ -96,7 +97,7 @@ export default function ProductPage() {
       productId: product._id,
       name: itemName,
       price: totalPrice,
-      imageUrl: product.imageUrl,
+      imageUrl: productImage,
     }
 
     // Ajouter directement avec la quantité au lieu d'une boucle
@@ -166,6 +167,8 @@ export default function ProductPage() {
     )
   }
 
+  const productImage = getProductImage(product)
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -197,9 +200,9 @@ export default function ProductPage() {
             {/* Image produit */}
             <div>
               <div className="relative max-w-md mx-auto">
-                {product.imageUrl ? (
+                {productImage ? (
                   <img
-                    src={product.imageUrl}
+                    src={productImage}
                     alt={product.name}
                     className="w-full h-auto object-cover rounded-xl"
                     style={{ maxHeight: '400px' }}

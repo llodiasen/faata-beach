@@ -4,6 +4,7 @@ import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
 import { productsAPI } from '../../lib/api'
 import Modal from '../ui/Modal'
+import { getProductImage } from '../../lib/productImages'
 
 interface Product {
   _id: string
@@ -53,11 +54,12 @@ export function ProductsModal() {
   const handleQuickAddToCart = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation()
 
+    const imageUrl = getProductImage(product)
     const itemToAdd = {
       productId: product._id,
       name: product.name,
       price: product.price,
-      imageUrl: product.imageUrl,
+      imageUrl,
     }
 
     addItem(itemToAdd)
@@ -140,20 +142,26 @@ export function ProductsModal() {
                   className="bg-white rounded-xl p-0 text-left transition-all duration-200 hover:shadow-lg overflow-hidden group border border-gray-100"
                 >
                   {/* Image produit */}
-                  <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden relative shadow-xl ring-2 ring-gray-200/50 group-hover:ring-orange-300/70 group-hover:shadow-2xl transition-all duration-300">
-                    {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 brightness-105 contrast-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
+              <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden relative shadow-xl ring-2 ring-gray-200/50 group-hover:ring-orange-300/70 group-hover:shadow-2xl transition-all duration-300">
+                    {(() => {
+                      const imageSrc = getProductImage(product)
+                      if (imageSrc) {
+                        return (
+                          <img
+                            src={imageSrc}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 brightness-105 contrast-105"
+                          />
+                        )
+                      }
+                      return (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )
+                    })()}
                     {/* Overlay gradient pour plus de profondeur */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>

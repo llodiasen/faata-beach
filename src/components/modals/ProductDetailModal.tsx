@@ -3,6 +3,7 @@ import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
 import { productsAPI } from '../../lib/api'
 import Modal from '../ui/Modal'
+import { getProductImage } from '../../lib/productImages'
 
 interface Extra {
   name: string
@@ -101,7 +102,7 @@ export function ProductDetailModal() {
       productId: product._id,
       name: itemName,
       price: totalPrice,
-      imageUrl: product.imageUrl,
+      imageUrl: imageSrc || product.imageUrl,
     }
 
     // Ajouter directement avec la quantité au lieu d'une boucle
@@ -143,6 +144,8 @@ export function ProductDetailModal() {
     })
   }
 
+  const imageSrc = getProductImage(product || undefined)
+
   return (
     <Modal isOpen={currentModal === 'productDetail'} onClose={closeModal} size="md">
       {loading && (
@@ -161,9 +164,9 @@ export function ProductDetailModal() {
         <div className="space-y-4 px-1">
           {/* Image produit - dimensions fixes comme sur la capture */}
           <div className="w-full bg-white rounded-lg overflow-hidden flex justify-center">
-            {product.imageUrl ? (
+            {imageSrc ? (
               <img
-                src={product.imageUrl}
+                src={imageSrc}
                 alt={product.name}
                 className="w-full max-w-[280px] h-auto object-contain bg-white"
                 onError={(e) => {

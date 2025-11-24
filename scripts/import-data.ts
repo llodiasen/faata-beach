@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { readFileSync } from 'fs'
 import mongoose from 'mongoose'
+import { getImagePathByName } from '../src/lib/productImages.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -242,11 +243,13 @@ async function importData() {
         const productData = categoryData.products[productIndex]
         
         // Les prix sont déjà en CFA (pas de conversion nécessaire)
+        const localImage = getImagePathByName(productData.name)
+
         const product = new Product({
           categoryId: category._id,
           name: productData.name,
           price: productData.price, // Prix déjà en CFA
-          imageUrl: productData.image,
+          imageUrl: localImage || productData.image,
           extras: categoryExtras, // Ajouter les extras de la catégorie
           preparationTime: deliveryTimes.preparationTime, // Temps de préparation en minutes
           deliveryTime: deliveryTimes.deliveryTime, // Temps de livraison en minutes
