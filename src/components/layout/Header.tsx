@@ -33,7 +33,7 @@ export default function Header() {
           onClick={() => navigate('/')}
           className="hover:opacity-80 transition-opacity flex-shrink-0"
         >
-          <img src="/images/logo.png" alt="FAATA BEACH" className="h-16 md:h-20 lg:h-24" />
+          <img src="/images/logo.png" alt="FAATA BEACH" className="h-20 md:h-24 lg:h-28" />
         </button>
         <div className="flex items-center gap-4">
           {user ? (

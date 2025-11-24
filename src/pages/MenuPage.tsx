@@ -248,54 +248,54 @@ export default function MenuPage() {
     const deliveryTime = product.preparationTime || 25
     const discountLabel = product.price > 7000 ? '15% off: NEW15' : '10% off: SAVE10'
     const rating = 4.7 + (product.price % 3) * 0.05
-    const reviews = 1200 + (product.price % 50) * 20
 
   return (
       <div
         key={`${variant}-${product._id}`}
-        className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all cursor-pointer group"
+        className="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-all cursor-pointer group flex flex-col h-full"
         onClick={() => handleProductClick(product._id)}
       >
-        <div className="relative h-48 bg-gray-100">
+        <div className="relative h-40 bg-gray-50">
           {renderProductImage(product)}
 
-          <div className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md">
-            {discountLabel}
-          </div>
+          {discountLabel && (
+            <div className="absolute top-2 left-2 bg-[#39512a] text-white text-xs font-normal px-2 py-1 rounded-md">
+              {discountLabel}
+            </div>
+          )}
 
           <button
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-gray-200/80 flex items-center justify-center text-white hover:bg-gray-300/80 transition-colors shadow-sm"
+            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center text-gray-600 hover:bg-white transition-colors"
             aria-label="Ajouter aux favoris"
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
           </button>
         </div>
 
-        <div className="p-4 space-y-3">
-          {/* Nom + Catégorie à gauche, Note à droite */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <h3 className="text-lg font-bold text-[#2f2e2e] leading-tight mb-1">{product.name}</h3>
-              <p className="text-sm text-gray-500">{getCategoryLabel(product)}</p>
+        <div className="p-3 flex flex-col flex-1">
+          {/* Nom et catégorie sur la même ligne */}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-medium text-[#2f2e2e] truncate">{product.name}</h3>
+              <p className="text-xs text-gray-400 mt-0.5">{getCategoryLabel(product)}</p>
             </div>
-            <div className="flex items-center gap-1 text-sm text-gray-600 flex-shrink-0">
-              <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-center gap-0.5 flex-shrink-0">
+              <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118L10 13.347l-2.987 2.134c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L3.38 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.293z" />
               </svg>
-              <span className="font-semibold text-[#2f2e2e]">{rating.toFixed(1)}</span>
-              <span className="text-gray-400">({reviews.toLocaleString('fr-FR')})</span>
+              <span className="text-xs font-normal text-[#2f2e2e]">{rating.toFixed(1)}</span>
             </div>
           </div>
 
-          {/* Prix à gauche, Temps de livraison à droite */}
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-[#2f2e2e]">{formatPrice(product.price)} FCFA</span>
-            <span className="flex items-center gap-1 text-sm text-gray-500">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          {/* Prix et temps de livraison sur la même ligne */}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-base font-medium text-[#2f2e2e]">{formatPrice(product.price)} FCFA</span>
+            <span className="flex items-center gap-1 text-xs text-gray-500">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {deliveryTime}-{deliveryTime + 10} min
             </span>
@@ -304,10 +304,10 @@ export default function MenuPage() {
           {/* Bouton Ajouter panier */}
           <button
             onClick={(e) => handleQuickAdd(e, product)}
-            className="w-full bg-[#39512a] hover:opacity-90 text-white py-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2"
+            className="w-full bg-[#39512a] hover:opacity-90 text-white py-2 rounded-lg font-normal text-xs transition-all flex items-center justify-center gap-1.5 mt-auto"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Ajouter panier
           </button>
@@ -448,7 +448,12 @@ export default function MenuPage() {
         <div className="w-full max-w-[1400px] mx-auto">
           {/* Catégories - Slider horizontal */}
           <section className="mb-10">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <style>{`
+                .scrollbar-hide::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
               {getDisplayCategories().map((cat) => (
                 <button
                   key={cat.id}
@@ -456,7 +461,7 @@ export default function MenuPage() {
                     setSelectedCategory(cat.categoryId)
                     setStoreSelectedCategory(cat.categoryId)
                   }}
-                  className={`rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all ${cat.bgColor} border border-gray-100 ${
+                  className={`flex-shrink-0 w-[calc(33.333%-0.5rem)] snap-start rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all ${cat.bgColor} border border-gray-100 ${
                     selectedCategory === cat.categoryId ? 'ring-2 ring-[#39512a]' : ''
                   }`}
                 >
@@ -506,7 +511,7 @@ export default function MenuPage() {
                       return categoryMapping[category.name] || category.name.replace('Plats — ', '')
                     })()}
                   </h2>
-                  <div className="grid grid-cols-2 gap-4 md:gap-6">
+                  <div className="grid grid-cols-2 gap-4 md:gap-6 auto-rows-fr">
                     {filteredProducts.map((product) => renderProductCard(product, 'default'))}
                   </div>
                 </section>
@@ -515,7 +520,7 @@ export default function MenuPage() {
               {/* Tous les produits si aucune catégorie sélectionnée */}
               {!selectedCategory && filteredProducts.length > 0 && (
                 <section>
-                  <div className="grid grid-cols-2 gap-4 md:gap-6">
+                  <div className="grid grid-cols-2 gap-4 md:gap-6 auto-rows-fr">
                     {filteredProducts.map((product) => renderProductCard(product, 'default'))}
                   </div>
                 </section>
