@@ -448,12 +448,7 @@ export default function MenuPage() {
         <div className="w-full max-w-[1400px] mx-auto">
           {/* Catégories - Slider horizontal */}
           <section className="mb-10">
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              <style>{`
-                .scrollbar-hide::-webkit-scrollbar {
-                  display: none;
-                }
-              `}</style>
+            <div className="grid grid-cols-3 gap-4">
               {getDisplayCategories().map((cat) => (
                 <button
                   key={cat.id}
@@ -461,7 +456,7 @@ export default function MenuPage() {
                     setSelectedCategory(cat.categoryId)
                     setStoreSelectedCategory(cat.categoryId)
                   }}
-                  className={`flex-shrink-0 w-[180px] rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all ${cat.bgColor} border border-gray-100 ${
+                  className={`rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-all ${cat.bgColor} border border-gray-100 ${
                     selectedCategory === cat.categoryId ? 'ring-2 ring-[#39512a]' : ''
                   }`}
                 >
@@ -483,7 +478,7 @@ export default function MenuPage() {
                     )}
                   </div>
                   <div className="p-3 text-center">
-                    <span className="text-sm font-semibold text-gray-900 block">{cat.name}</span>
+                    <span className="text-sm font-semibold text-[#2f2e2e] block">{cat.name}</span>
                   </div>
                 </button>
               ))}
@@ -511,7 +506,7 @@ export default function MenuPage() {
                       return categoryMapping[category.name] || category.name.replace('Plats — ', '')
                     })()}
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 gap-4 md:gap-6">
                     {filteredProducts.map((product) => renderProductCard(product, 'default'))}
                   </div>
                 </section>
@@ -520,7 +515,7 @@ export default function MenuPage() {
               {/* Tous les produits si aucune catégorie sélectionnée */}
               {!selectedCategory && filteredProducts.length > 0 && (
                 <section>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 gap-4 md:gap-6">
                     {filteredProducts.map((product) => renderProductCard(product, 'default'))}
                   </div>
                 </section>
