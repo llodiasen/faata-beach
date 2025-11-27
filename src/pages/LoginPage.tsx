@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import { LoginModal } from '../components/auth/LoginModal'
 import { useModalStore } from '../store/useModalStore'
+import { getUserRole } from '../lib/permissions'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -11,7 +12,14 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user) {
-      navigate('/')
+      const userRole = getUserRole(user)
+      if (userRole === 'admin') {
+        navigate('/dashboard-admin')
+      } else if (userRole === 'delivery') {
+        navigate('/dashboard-livreur')
+      } else {
+        navigate('/profile')
+      }
     } else {
       openModal('login')
     }

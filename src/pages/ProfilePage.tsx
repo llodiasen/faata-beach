@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
+import { getUserRole } from '../lib/permissions'
 import { useModalStore } from '../store/useModalStore'
 import { ordersAPI, authAPI } from '../lib/api'
 import { ReservationModal } from '../components/modals/ReservationModal'
 import { OrderTrackingModal } from '../components/modals/OrderTrackingModal'
 import BottomNavigation from '../components/layout/BottomNavigation'
+import { usePushNotifications } from '../hooks/usePushNotifications'
 
 interface Order {
   _id: string
@@ -21,6 +23,7 @@ export default function ProfilePage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { user, logout } = useAuthStore()
+  const userRole = getUserRole(user)
   const { openModal, currentModal } = useModalStore()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -28,6 +31,7 @@ export default function ProfilePage() {
   const [selectedOrderForTracking, setSelectedOrderForTracking] = useState<string | null>(null)
   const [trackingOrder, setTrackingOrder] = useState<Order | null>(null)
   const [trackingLoading, setTrackingLoading] = useState(false)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [notificationPreferences, setNotificationPreferences] = useState({
     orderStatus: true,
     promotions: false,
@@ -43,6 +47,24 @@ export default function ProfilePage() {
     email: user?.email || '',
     phone: user?.phone || '',
   })
+
+  const {
+    isSupported: isPushSupported,
+    permission: pushPermission,
+    isSubscribed,
+    isProcessing: isPushProcessing,
+    error: pushError,
+    subscribeToPush,
+    unsubscribeFromPush,
+  } = usePushNotifications()
+
+  const notificationTags = useMemo(() => {
+    const tags: string[] = []
+    if (notificationPreferences.orderStatus) tags.push('orders')
+    if (notificationPreferences.promotions) tags.push('promotions')
+    if (notificationPreferences.newsletter) tags.push('newsletter')
+    return tags
+  }, [notificationPreferences])
 
   // Lire le tab depuis l'URL query params
   useEffect(() => {
@@ -127,6 +149,22 @@ export default function ProfilePage() {
   const handleLogout = () => {
     logout()
     navigate('/')
+  }
+
+  const handleEnablePushNotifications = async () => {
+    await subscribeToPush(notificationTags)
+  }
+
+  const handleUpdatePushPreferences = async () => {
+    if (!isSubscribed) {
+      await subscribeToPush(notificationTags)
+      return
+    }
+    await subscribeToPush(notificationTags)
+  }
+
+  const handleDisablePushNotifications = async () => {
+    await unsubscribeFromPush()
   }
 
   const handleOrderClick = (orderId: string) => {
@@ -242,9 +280,42 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex pb-20 md:pb-0">
+    <div className="min-h-screen bg-white flex flex-col pb-16 md:pb-0">
+      {/* Header - Mobile et Desktop */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div className="w-full px-4 py-3 flex items-center justify-between">
+          <button onClick={() => navigate('/')} className="flex items-center flex-shrink-0">
+            <img src="/images/logo.png" alt="FAATA BEACH" className="h-10 md:h-12" />
+          </button>
+          <div className="flex items-center gap-2">
+            {!user && (
+              <button
+                onClick={() => navigate('/login')}
+                className="p-2 hover:bg-gray-100 rounded-full transition-all md:hidden"
+                aria-label="Se connecter"
+              >
+                <svg className="w-6 h-6 text-[#39512a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2" />
+                  <circle cx="12" cy="7" r="4" strokeWidth={2} stroke="currentColor" fill="none" />
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={() => setShowMobileMenu(true)}
+              className="p-2 hover:bg-gray-100 rounded-full transition-all"
+              aria-label="Ouvrir le menu"
+            >
+              <svg className="w-6 h-6 text-[#39512a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-1">
       {/* Sidebar Navigation */}
-      <aside className="w-72 bg-white fixed left-0 top-0 h-full z-10 md:block hidden">
+      <aside className="w-72 bg-white fixed left-0 top-[73px] h-[calc(100vh-73px)] z-10 md:block hidden border-r border-gray-200">
         {/* User Profile */}
         <div className="p-6">
           <div className="flex items-center gap-4">
@@ -345,8 +416,8 @@ export default function ProfilePage() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-72 bg-white">
-        <div className="p-8 max-w-6xl">
+      <main className="flex-1 ml-0 md:ml-72 bg-white pt-4 md:pt-8">
+        <div className="p-4 md:p-8 max-w-6xl mx-auto">
           {selectedNav === 'dashboard' && (
             <>
               <h1 className="text-3xl font-bold text-gray-900 mb-8">Tableau de bord</h1>
@@ -821,6 +892,64 @@ export default function ProfilePage() {
           {selectedNav === 'notifications' && (
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-8">Notifications</h1>
+
+              <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-3">Notifications push web</h2>
+                <p className="text-sm text-gray-600">
+                  Recevez des alertes en temps réel sur vos commandes et nos offres même lorsque l’application est fermée.
+                </p>
+
+                <div className="mt-4 grid gap-2 text-sm text-gray-600">
+                  <p>
+                    <span className="font-semibold text-gray-900">Support navigateur :</span>{' '}
+                    {isPushSupported ? 'Compatible' : 'Non disponible'}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-gray-900">Permission :</span> {pushPermission}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-gray-900">Statut abonnement :</span>{' '}
+                    {isSubscribed ? 'Activé' : 'Inactif'}
+                  </p>
+                </div>
+
+                {pushError && <p className="mt-4 text-sm text-red-600">{pushError}</p>}
+
+                <div className="flex flex-wrap gap-3 mt-6">
+                  <button
+                    onClick={handleEnablePushNotifications}
+                    disabled={!isPushSupported || isSubscribed || pushPermission === 'denied' || isPushProcessing}
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#39512a] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isPushProcessing ? 'Activation...' : 'Activer les notifications'}
+                  </button>
+                  <button
+                    onClick={handleUpdatePushPreferences}
+                    disabled={!isSubscribed || isPushProcessing}
+                    className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isPushProcessing ? 'Mise à jour...' : 'Mettre à jour mes préférences'}
+                  </button>
+                  <button
+                    onClick={handleDisablePushNotifications}
+                    disabled={!isSubscribed || isPushProcessing}
+                    className="px-4 py-2 rounded-lg text-sm font-medium border border-red-200 text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isPushProcessing ? 'Désactivation...' : 'Désactiver'}
+                  </button>
+                </div>
+
+                {pushPermission === 'denied' && (
+                  <p className="mt-4 text-sm text-red-600">
+                    Vous avez bloqué les notifications dans votre navigateur. Activez-les dans les paramètres du site pour continuer.
+                  </p>
+                )}
+                {!isPushSupported && (
+                  <p className="mt-4 text-sm text-red-600">
+                    Les notifications push nécessitent un navigateur moderne (Chrome, Edge, Firefox, Safari 16+).
+                  </p>
+                )}
+              </div>
               
               {/* Préférences de notifications */}
               <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
@@ -922,6 +1051,74 @@ export default function ProfilePage() {
 
       {/* Bottom Navigation - Mobile uniquement */}
       <BottomNavigation />
+
+      {/* Menu mobile modal */}
+      {showMobileMenu && (
+        <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setShowMobileMenu(false)}>
+          <div className="absolute right-0 top-0 h-full w-80 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-[#39512a]">Menu</h2>
+                <button onClick={() => setShowMobileMenu(false)} className="p-2 hover:bg-gray-100 rounded-full transition-all"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
+              </div>
+              <div className="flex-1 overflow-y-auto py-4">
+                <nav className="space-y-1">
+                  <button onClick={() => { setShowMobileMenu(false); navigate('/') }} className="w-full px-4 py-3 text-left text-[#39512a] hover:bg-gray-50 transition-colors flex items-center gap-3"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg><span>Accueil</span></button>
+                  <button onClick={() => { setShowMobileMenu(false); navigate('/menu') }} className="w-full px-4 py-3 text-left text-[#39512a] hover:bg-gray-50 transition-colors flex items-center gap-3"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg><span>Menu</span></button>
+                  <button onClick={() => { setShowMobileMenu(false); navigate('/gallery') }} className="w-full px-4 py-3 text-left text-[#39512a] hover:bg-gray-50 transition-colors flex items-center gap-3"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span>Galerie</span></button>
+                  <button onClick={() => { setShowMobileMenu(false); navigate('/about') }} className="w-full px-4 py-3 text-left text-[#39512a] hover:bg-gray-50 transition-colors flex items-center gap-3"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><span>À propos</span></button>
+                  <button onClick={() => { setShowMobileMenu(false); navigate('/location') }} className="w-full px-4 py-3 text-left text-[#39512a] hover:bg-gray-50 transition-colors flex items-center gap-3"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 12.414m0 0a5 5 0 10-7.07 7.07 5 5 0 007.07-7.07z" /></svg><span>Nous trouver</span></button>
+                </nav>
+                <div className="border-t border-gray-200 mt-4 pt-4 px-4">
+                  {user ? (
+                    <>
+                      {userRole === 'admin' || userRole === 'delivery' || userRole === 'customer' ? (
+                        <button
+                          onClick={() => {
+                            setShowMobileMenu(false)
+                            if (userRole === 'admin') {
+                              navigate('/dashboard-admin')
+                            } else if (userRole === 'delivery') {
+                              navigate('/dashboard-livreur')
+                            } else {
+                              navigate('/profile')
+                            }
+                          }}
+                          className="w-full px-4 py-3 bg-[#39512a] hover:opacity-90 text-white rounded-full text-sm font-medium transition-all mb-2 flex items-center justify-center gap-2"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          {userRole === 'admin' ? 'Dashboard Admin' : userRole === 'delivery' ? 'Dashboard Livreur' : 'Mon Profil'}
+                        </button>
+                      ) : null}
+                      <button
+                        onClick={() => {
+                          setShowMobileMenu(false)
+                          logout()
+                          navigate('/')
+                        }}
+                        className="w-full px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-full text-sm font-medium transition-all flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Déconnexion
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => { setShowMobileMenu(false); navigate('/login') }} className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium transition-all mb-2 flex items-center justify-center gap-2"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" strokeWidth={2} stroke="currentColor" fill="none" /></svg>Se connecter</button>
+                      <button onClick={() => { setShowMobileMenu(false); navigate('/register') }} className="w-full px-4 py-3 bg-[#39512a] hover:opacity-90 text-white rounded-full text-sm font-medium transition-all flex items-center justify-center gap-2"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>S'inscrire</button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
     </div>
   )
 }

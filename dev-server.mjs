@@ -145,12 +145,32 @@ async function startServer() {
   app.all('/api/reservations', createApiRoute('/api/reservations', './api/reservations.ts'))
   
   // Routes API - Auth (consolidées dans [action].ts)
+  // Route avec segment d'URL : /api/auth/:action
   app.all('/api/auth/:action', async (req, res) => {
     try {
       const handler = await import('./api/auth/[action].ts')
       const vercelReq = createVercelRequest(req)
       // Extraire l'action depuis l'URL si elle n'est pas déjà dans query
       vercelReq.query.action = req.params.action || vercelReq.query.action
+      const vercelRes = createVercelResponse(res)
+      await handler.default(vercelReq, vercelRes)
+    } catch (error) {
+      console.error('Auth API Error:', error)
+      if (!res.headersSent) {
+        res.status(500).json({ message: error.message || 'Erreur serveur' })
+      }
+    }
+  })
+  
+  // Route avec query param : /api/auth?action=...
+  app.all('/api/auth', async (req, res) => {
+    try {
+      const handler = await import('./api/auth/[action].ts')
+      const vercelReq = createVercelRequest(req)
+      // L'action doit être dans req.query.action
+      if (!vercelReq.query.action) {
+        return res.status(400).json({ message: 'Paramètre action requis' })
+      }
       const vercelRes = createVercelResponse(res)
       await handler.default(vercelReq, vercelRes)
     } catch (error) {

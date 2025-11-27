@@ -1,0 +1,157 @@
+diff --git a/node_modules/string.prototype.matchall/implementation.js b/node_modules/string.prototype.matchall/implementation.js
+index 818d8c5..3f207c4 100644
+--- a/node_modules/string.prototype.matchall/implementation.js
++++ b/node_modules/string.prototype.matchall/implementation.js
+@@ -1,59 +1,24 @@
+ 'use strict';
+ 
+-var Call = require('es-abstract/2024/Call');
+-var Get = require('es-abstract/2024/Get');
+-var GetMethod = require('es-abstract/2024/GetMethod');
+-var IsRegExp = require('es-abstract/2024/IsRegExp');
+-var ToString = require('es-abstract/2024/ToString');
+-var RequireObjectCoercible = require('es-object-atoms/RequireObjectCoercible');
+-var callBound = require('call-bound');
+-var hasSymbols = require('has-symbols')();
+-var flagsGetter = require('regexp.prototype.flags');
+-var GetIntrinsic = require('get-intrinsic');
+-var $TypeError = require('es-errors/type');
+-
+-var $RegExp = GetIntrinsic('%RegExp%');
+-var $indexOf = callBound('String.prototype.indexOf');
+-
+-var regexpMatchAllPolyfill = require('./polyfill-regexp-matchall');
++module.exports = function matchAll(regexp) {
++	var target = this == null ? '' : this;
++	var matcher = regexp && typeof regexp[Symbol.matchAll] === 'function' ? regexp[Symbol.matchAll].bind(regexp) : null;
+ 
+-var getMatcher = function getMatcher(regexp) { // eslint-disable-line consistent-return
+-	var matcherPolyfill = regexpMatchAllPolyfill();
+-	if (hasSymbols && typeof Symbol.matchAll === 'symbol') {
+-		var matcher = GetMethod(regexp, Symbol.matchAll);
+-		if (matcher === $RegExp.prototype[Symbol.matchAll] && matcher !== matcherPolyfill) {
+-			return matcherPolyfill;
+-		}
+-		return matcher;
+-	}
+-	// fallback for pre-Symbol.matchAll environments
+-	if (IsRegExp(regexp)) {
+-		return matcherPolyfill;
++	if (matcher) {
++		return matcher(target);
+ 	}
+-};
+-
+-module.exports = function matchAll(regexp) {
+-	var O = RequireObjectCoercible(this);
+ 
+-	if (typeof regexp !== 'undefined' && regexp !== null) {
+-		var isRegExp = IsRegExp(regexp);
+-		if (isRegExp) {
+-			// workaround for older engines that lack RegExp.prototype.flags
+-			var flags = 'flags' in regexp ? Get(regexp, 'flags') : flagsGetter(regexp);
+-			RequireObjectCoercible(flags);
+-			if ($indexOf(ToString(flags), 'g') < 0) {
+-				throw new $TypeError('matchAll requires a global regular expression');
+-			}
+-		}
++	var source = String(target);
++	var rx;
+ 
+-		var matcher = getMatcher(regexp);
+-		if (typeof matcher !== 'undefined') {
+-			return Call(matcher, regexp, [O]);
+-		}
++	if (regexp instanceof RegExp) {
++		var flags = regexp.flags || '';
++		rx = new RegExp(regexp, flags.includes('g') ? flags : flags + 'g');
++	} else if (typeof regexp === 'string') {
++		rx = new RegExp(regexp, 'g');
++	} else {
++		rx = /(?:)/g;
+ 	}
+ 
+-	var S = ToString(O);
+-	// var rx = RegExpCreate(regexp, 'g');
+-	var rx = new $RegExp(regexp, 'g');
+-	return Call(getMatcher(rx), rx, [S]);
++	return source.matchAll(rx);
+ };
+diff --git a/node_modules/string.prototype.matchall/regexp-matchall.js b/node_modules/string.prototype.matchall/regexp-matchall.js
+index 37c1ba0..1d9deb8 100644
+--- a/node_modules/string.prototype.matchall/regexp-matchall.js
++++ b/node_modules/string.prototype.matchall/regexp-matchall.js
+@@ -1,59 +1,32 @@
+ 'use strict';
+ 
+-// var Construct = require('es-abstract/2024/Construct');
+-var CreateRegExpStringIterator = require('es-abstract/2024/CreateRegExpStringIterator');
+-var Get = require('es-abstract/2024/Get');
+-var Set = require('es-abstract/2024/Set');
+-var SpeciesConstructor = require('es-abstract/2024/SpeciesConstructor');
+-var ToLength = require('es-abstract/2024/ToLength');
+-var ToString = require('es-abstract/2024/ToString');
+-var Type = require('es-abstract/2024/Type');
+-var flagsGetter = require('regexp.prototype.flags');
+ var setFunctionName = require('set-function-name');
+ var callBound = require('call-bound');
+ var GetIntrinsic = require('get-intrinsic');
+ var $TypeError = require('es-errors/type');
+ 
+-var $indexOf = callBound('String.prototype.indexOf');
++var $String = GetIntrinsic('%String%');
++var $RegExp = GetIntrinsic('%RegExp%');
++var $matchAll = callBound('String.prototype.matchAll');
+ 
+-var OrigRegExp = GetIntrinsic('%RegExp%');
+-
+-var supportsConstructingWithFlags = 'flags' in OrigRegExp.prototype;
+-
+-var constructRegexWithFlags = function constructRegex(C, R) {
+-	var matcher;
+-	// workaround for older engines that lack RegExp.prototype.flags
+-	var flags = 'flags' in R ? Get(R, 'flags') : ToString(flagsGetter(R));
+-	if (supportsConstructingWithFlags && typeof flags === 'string') {
+-		matcher = new C(R, flags);
+-	} else if (C === OrigRegExp) {
+-		// workaround for older engines that can not construct a RegExp with flags
+-		matcher = new C(R.source, flags);
+-	} else {
+-		matcher = new C(R, flags);
++var ensureGlobal = function ensureGlobal(regexp) {
++	var flags = typeof regexp.flags === 'string' ? regexp.flags : '';
++	if (flags.indexOf('g') === -1) {
++		flags += 'g';
+ 	}
+-	return { flags: flags, matcher: matcher };
++	return new $RegExp(regexp.source, flags);
+ };
+ 
+ var regexMatchAll = setFunctionName(function SymbolMatchAll(string) {
+ 	var R = this;
+-	if (Type(R) !== 'Object') {
+-		throw new $TypeError('"this" value must be an Object');
++	if (!(R instanceof $RegExp)) {
++		throw new $TypeError('"this" value must être une RegExp');
+ 	}
+-	var S = ToString(string);
+-	var C = SpeciesConstructor(R, OrigRegExp);
+-
+-	var tmp = constructRegexWithFlags(C, R);
+-	// var flags = ToString(Get(R, 'flags'));
+-	var flags = tmp.flags;
+-	// var matcher = Construct(C, [R, flags]);
+-	var matcher = tmp.matcher;
+ 
+-	var lastIndex = ToLength(Get(R, 'lastIndex'));
+-	Set(matcher, 'lastIndex', lastIndex, true);
+-	var global = $indexOf(flags, 'g') > -1;
+-	var fullUnicode = $indexOf(flags, 'u') > -1;
+-	return CreateRegExpStringIterator(matcher, S, global, fullUnicode);
++	var S = $String(string);
++	var matcher = ensureGlobal(R);
++	matcher.lastIndex = R.lastIndex || 0;
++	return $matchAll(S, matcher);
+ }, '[Symbol.matchAll]', true);
+ 
+ module.exports = regexMatchAll;

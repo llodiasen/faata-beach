@@ -8,9 +8,11 @@ interface ModalProps {
   children: ReactNode
   size?: 'sm' | 'md' | 'lg' | 'xl'
   noScroll?: boolean // Option pour désactiver le scroll
+  transparentOverlay?: boolean // Option pour rendre l'overlay transparent
+  heroBackground?: string // URL de l'image de fond du hero
 }
 
-export default function Modal({ isOpen, onClose, title, children, size = 'md', noScroll = false }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, size = 'md', noScroll = false, transparentOverlay = false, heroBackground }: ModalProps) {
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-2xl',
@@ -22,19 +24,43 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', n
     ? 'overflow-y-visible max-h-none' 
     : 'max-h-[90vh] overflow-y-auto'
 
+  const overlayClasses = heroBackground
+    ? 'fixed inset-0 z-40 flex items-center justify-center relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-white before:via-white/85 before:to-white/40 before:z-0'
+    : transparentOverlay
+        ? 'fixed inset-0 bg-transparent z-40'
+        : 'fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-fadeIn'
+
+  const overlayStyle = heroBackground
+    ? {
+        backgroundImage: `url(${heroBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }
+    : undefined
+
+  const contentBgClasses = heroBackground ? 'bg-white/95 backdrop-blur-md' : 'bg-white'
+
   return (
     <Dialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-fadeIn" />
+        <Dialog.Overlay className={overlayClasses} style={overlayStyle} />
         <Dialog.Content
-          className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full ${sizeClasses[size]} ${scrollClasses} animate-slideUp flex flex-col max-h-[90vh]`}
+          className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${contentBgClasses} rounded-lg shadow-2xl z-50 w-full ${sizeClasses[size]} ${scrollClasses} animate-slideUp flex flex-col max-h-[90vh]`}
         >
           {title && (
-            <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0 bg-white z-10">
+            <div className={`px-6 py-4 border-b border-gray-200 flex-shrink-0 ${heroBackground ? 'bg-white/80 backdrop-blur-sm' : 'bg-white'} z-10`}>
               <Dialog.Title className="text-xl font-bold text-gray-900">{title}</Dialog.Title>
+              <Dialog.Description className="sr-only">
+                {title}
+              </Dialog.Description>
             </div>
           )}
-          <div className={`p-6 flex-1 ${noScroll ? '' : 'overflow-y-auto'}`}>{children}</div>
+          {!title && (
+            <Dialog.Description className="sr-only">
+              Modal dialog
+            </Dialog.Description>
+          )}
+          <div className={`p-6 flex-1 ${noScroll ? '' : 'overflow-y-auto'} ${heroBackground ? 'bg-white/80 backdrop-blur-sm rounded-lg' : ''}`}>{children}</div>
           <Dialog.Close asChild>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1 z-20"

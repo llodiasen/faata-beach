@@ -14,6 +14,9 @@ export type ModalType =
   | 'orderDetails'
   | 'assignDelivery'
   | 'deliveryTracking'
+  | 'menu'
+  | 'scheduleTime'
+  | 'orderType'
   | null
 
 interface ModalStore {

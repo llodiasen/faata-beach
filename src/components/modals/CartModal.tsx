@@ -14,9 +14,9 @@ export function CartModal() {
     navigate('/checkout')
   }
 
-  const handleViewCart = () => {
-    // Optionnel : peut ouvrir une vue détaillée du panier
+  const handleContinueShopping = () => {
     closeModal()
+    navigate('/menu')
   }
 
   const subtotal = getTotal()
@@ -138,10 +138,10 @@ export function CartModal() {
           {/* Boutons */}
           <div className="flex flex-col gap-3">
             <button
-              onClick={handleViewCart}
+              onClick={handleContinueShopping}
               className="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 font-normal py-3 rounded-lg transition-colors"
             >
-              Voir panier
+              Continuer commande
             </button>
             <button
               onClick={handleCheckout}

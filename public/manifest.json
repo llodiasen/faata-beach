@@ -1,21 +1,64 @@
 {
   "name": "FAATA Beach",
   "short_name": "FAATA",
+  "id": "/",
+  "lang": "fr",
+  "dir": "ltr",
   "description": "Application de commande pour FAATA Beach",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#000000",
   "theme_color": "#DC2626",
+  "orientation": "portrait-primary",
+  "categories": ["food", "restaurant", "shopping"],
   "icons": [
     {
-      "src": "icons/icon-192x192.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-512x512.png",
+      "src": "/icons/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Commander",
+      "short_name": "Menu",
+      "description": "Accéder rapidement au menu",
+      "url": "/menu"
+    },
+    {
+      "name": "Suivre ma commande",
+      "short_name": "Suivi",
+      "description": "Voir le statut des commandes en cours",
+      "url": "/profile?tab=tracking"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/Menu/Sunset Beach (Cocktail sans alcool).png",
+      "type": "image/png",
+      "sizes": "800x600",
+      "label": "Menu FAATA Beach"
     }
   ]
 }

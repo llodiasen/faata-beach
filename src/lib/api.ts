@@ -50,27 +50,27 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}) {
 // API Auth - routes consolidées dans api/auth/[action].ts
 export const authAPI = {
   register: (data: { name: string; email: string; password: string; phone?: string }) =>
-    fetchAPI('/auth/register', {
+    fetchAPI('/auth?action=register', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   login: (data: { email: string; password: string }) =>
-    fetchAPI('/auth/login', {
+    fetchAPI('/auth?action=login', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  getProfile: () => fetchAPI('/auth/profile'),
+  getProfile: () => fetchAPI('/auth?action=profile'),
 
   updateProfile: (data: { name?: string; email?: string; phone?: string; address?: any }) =>
-    fetchAPI('/auth/profile', {
+    fetchAPI('/auth?action=profile', {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
 
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
-    fetchAPI('/auth/password', {
+    fetchAPI('/auth?action=password', {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
@@ -121,9 +121,9 @@ export const ordersAPI = {
     }),
 
   getAll: () => fetchAPI('/orders'),
-  getById: (id: string) => fetchAPI(`/orders/${id}`),
+  getById: (id: string) => fetchAPI(`/orders?id=${id}`),
   updateStatus: (id: string, status: string, assignedDeliveryId?: string) =>
-    fetchAPI(`/orders/${id}`, {
+    fetchAPI(`/orders?id=${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ status, assignedDeliveryId }),
     }),
@@ -160,9 +160,28 @@ export const reservationsAPI = {
 export const deliveryAPI = {
   getAssignedOrders: () => fetchAPI('/orders/delivery/assigned'),
   updateOrderStatus: (orderId: string, status: string) =>
-    fetchAPI(`/orders/${orderId}`, {
+    fetchAPI(`/orders?id=${orderId}`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
+    }),
+}
+
+// API Push Notifications
+export const pushAPI = {
+  subscribe: (data: { subscription: PushSubscriptionJSON; tags?: string[]; deviceInfo?: Record<string, string> }) =>
+    fetchAPI('/push?action=subscribe', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  unsubscribe: (data: { endpoint: string }) =>
+    fetchAPI('/push?action=subscribe', {
+      method: 'DELETE',
+      body: JSON.stringify(data),
+    }),
+  send: (data: { title: string; body: string; url?: string; userId?: string; tag?: string }) =>
+    fetchAPI('/push?action=send', {
+      method: 'POST',
+      body: JSON.stringify(data),
     }),
 }
 

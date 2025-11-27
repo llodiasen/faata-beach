@@ -78,10 +78,10 @@ export function ConfirmationModal() {
     const isToday = date.toDateString() === today.toDateString()
     
     if (isToday) {
-      return 'Today'
-    } else {
-      return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+      return "Aujourd'hui"
     }
+
+    return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
   }
 
   // Heure estimée de livraison
@@ -90,9 +90,10 @@ export function ConfirmationModal() {
     const deliveryTime = new Date(now.getTime() + 60 * 60 * 1000) // +1h
     const nextHour = new Date(now.getTime() + 2 * 60 * 60 * 1000) // +2h
     
+    const options: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' }
     return {
-      start: deliveryTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase(),
-      end: nextHour.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase(),
+      start: deliveryTime.toLocaleTimeString('fr-FR', options),
+      end: nextHour.toLocaleTimeString('fr-FR', options),
     }
   }
 
@@ -123,18 +124,18 @@ export function ConfirmationModal() {
               </div>
 
               {/* Titre */}
-              <h1 className="text-2xl font-bold text-gray-900 mb-3">Order placed</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-3">Commande confirmée</h1>
 
               {/* Message de confirmation */}
               <p className="text-sm text-gray-700 mb-6 leading-relaxed">
-                Your order has been sent to "FAATA Beach" where a member of staff will assemble your groceries and prepare them for delivery.
+                Votre commande a été transmise à «&nbsp;FAATA Beach&nbsp;». Notre équipe prépare actuellement vos produits pour la livraison.
               </p>
 
               {/* Section Important */}
               <div className="bg-gray-100 rounded-xl p-4 text-left">
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Important</h3>
                 <p className="text-xs text-gray-700 leading-relaxed">
-                  In some cases, the store may require your input regarding some of the items in your list. When this happens, you will be alerted via push notifications (if enabled), and your order status will change accordingly.
+                  Dans certains cas, le restaurant peut avoir besoin de précisions supplémentaires sur votre commande. Si cela arrive, vous recevrez une notification (si elles sont activées) et le statut de votre commande sera mis à jour.
                 </p>
               </div>
             </div>
@@ -164,7 +165,7 @@ export function ConfirmationModal() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span>
-                    {order?.createdAt ? formatDate(order.createdAt) : 'Today'} / {timeRange.start} - {timeRange.end}
+                    {order?.createdAt ? formatDate(order.createdAt) : "Aujourd'hui"} / {timeRange.start} - {timeRange.end}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -218,7 +219,7 @@ export function ConfirmationModal() {
                   onClick={() => setShowOrderDetails(!showOrderDetails)}
                   className="px-4 py-2 bg-amber-100 hover:bg-amber-200 rounded-xl text-sm font-medium text-gray-900 flex items-center gap-2 transition-colors"
                 >
-                  Order details
+                  Détails de la commande
                   <svg
                     className={`w-4 h-4 transition-transform ${showOrderDetails ? 'rotate-180' : ''}`}
                     fill="none"
@@ -273,18 +274,18 @@ export function ConfirmationModal() {
 
           {/* Boutons d'action */}
           <div className="space-y-3">
-            <button
-              onClick={handleTrackOrder}
-              className="w-full bg-black text-white py-4 px-6 rounded-xl font-semibold hover:bg-gray-900 transition-colors"
-            >
-              Check order status
-            </button>
-            <button
-              onClick={handleContinueShopping}
-              className="w-full bg-white text-black border-2 border-gray-300 py-4 px-6 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
-            >
-              Continue shopping
-            </button>
+              <button
+                onClick={handleTrackOrder}
+                className="w-full bg-[#39512a] text-white py-2 px-3 rounded-xl font-semibold hover:opacity-90 transition-colors text-sm"
+              >
+                Suivre la commande
+              </button>
+              <button
+                onClick={handleContinueShopping}
+                className="w-full bg-white text-[#39512a] border-2 border-gray-300 py-4 px-6 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+              >
+                Continuer vos achats
+              </button>
           </div>
         </div>
       )}

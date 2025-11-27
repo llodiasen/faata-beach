@@ -236,3 +236,39 @@ const reservationSchema = new Schema<IReservation>(
 
 export const Reservation: Model<IReservation> = mongoose.models.Reservation || mongoose.model<IReservation>('Reservation', reservationSchema)
 
+// Push Subscription Model
+export interface IPushSubscription extends Document {
+  userId?: mongoose.Types.ObjectId
+  endpoint: string
+  keys: {
+    p256dh: string
+    auth: string
+  }
+  tags: string[]
+  deviceInfo?: {
+    platform?: string
+    browser?: string
+  }
+  createdAt: Date
+  updatedAt: Date
+}
+
+const pushSubscriptionSchema = new Schema<IPushSubscription>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+    endpoint: { type: String, required: true, unique: true },
+    keys: {
+      p256dh: { type: String, required: true },
+      auth: { type: String, required: true },
+    },
+    tags: { type: [String], default: [] },
+    deviceInfo: {
+      platform: { type: String },
+      browser: { type: String },
+    },
+  },
+  { timestamps: true },
+)
+
+export const PushSubscription = mongoose.models.PushSubscription || mongoose.model<IPushSubscription>('PushSubscription', pushSubscriptionSchema)
+

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useModalStore } from '../../store/useModalStore'
 import { useCartStore } from '../../store/useCartStore'
+import { useFavoritesStore } from '../../store/useFavoritesStore'
 import { productsAPI } from '../../lib/api'
 import Modal from '../ui/Modal'
 import { getProductImage } from '../../lib/productImages'
@@ -25,11 +26,16 @@ interface Product {
 export function ProductDetailModal() {
   const { currentModal, closeModal, selectedProduct } = useModalStore()
   const { addItem } = useCartStore()
+  const { isFavorite, toggleFavorite } = useFavoritesStore()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
   const [selectedExtras, setSelectedExtras] = useState<Record<string, boolean>>({})
+  const [cartNotification, setCartNotification] = useState<string | null>(null)
+  const [showMoreDetails, setShowMoreDetails] = useState(false)
+  const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const audioContextRef = useRef<AudioContext | null>(null)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -55,6 +61,62 @@ export function ProductDetailModal() {
       fetchProduct()
     }
   }, [currentModal, selectedProduct])
+
+  const playCartSound = async () => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext()
+      }
+      const audioCtx = audioContextRef.current
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume()
+      }
+      const createNote = (frequency: number, startTime: number, duration: number, type: OscillatorType = 'triangle') => {
+        const oscillator = audioCtx.createOscillator()
+        const gainNode = audioCtx.createGain()
+
+        oscillator.type = type
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime + startTime)
+
+        gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime + startTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.2, audioCtx.currentTime + startTime + 0.02)
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + startTime + duration)
+
+        oscillator.connect(gainNode)
+        gainNode.connect(audioCtx.destination)
+
+        oscillator.start(audioCtx.currentTime + startTime)
+        oscillator.stop(audioCtx.currentTime + startTime + duration)
+      }
+
+      // double ding type notification iOS
+      createNote(1200, 0, 0.12, 'triangle')
+      createNote(900, 0.12, 0.18, 'sine')
+    } catch (error) {
+      console.error('Unable to play cart sound', error)
+    }
+  }
+
+  const showCartNotification = (message: string) => {
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current)
+    }
+    setCartNotification(message)
+    notificationTimeoutRef.current = setTimeout(() => {
+      setCartNotification(null)
+    }, 2200)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current)
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close()
+      }
+    }
+  }, [])
 
   const handleConfirmAndChange = () => {
     if (!product) return
@@ -91,6 +153,10 @@ export function ProductDetailModal() {
     // Ajouter directement avec la quantité au lieu d'une boucle
     addItem(itemToAdd, quantity)
 
+    // Son et notification
+    playCartSound()
+    showCartNotification(`${itemName} ajouté au panier`)
+
     // Réinitialiser toutes les sélections et fermer
     setQuantity(1)
     setSelectedExtras({})
@@ -112,135 +178,230 @@ export function ProductDetailModal() {
   }
 
   const imageSrc = getProductImage(product || undefined)
+  const productIsFavorite = product ? isFavorite(product._id) : false
+
+  const handleToggleFavorite = () => {
+    if (!product) return
+    
+    const favoriteItem = {
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      imageUrl: imageSrc || product.imageUrl,
+      description: product.description,
+      restaurant: 'FAATA BEACH'
+    }
+    
+    toggleFavorite(favoriteItem)
+  }
+  
+  // Calculer les calories (estimation basée sur le prix)
+  const estimatedCalories = Math.round((product?.price || 0) / 50)
+  const totalTime = (product?.preparationTime || 0) + (product?.deliveryTime || 0)
+  const rating = 4.5 // Valeur par défaut
 
   return (
-    <Modal isOpen={currentModal === 'productDetail'} onClose={closeModal} size="md">
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-gray-500">Chargement...</div>
+    <>
+      {/* Notification toast */}
+      {cartNotification && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg px-6 py-3 z-50 flex items-center gap-3 animate-slideDown">
+          <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <span className="text-sm font-medium text-gray-900">{cartNotification}</span>
         </div>
       )}
 
-      {error && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-red-600 text-center p-4">{error}</div>
-        </div>
-      )}
+      <Modal isOpen={currentModal === 'productDetail'} onClose={closeModal} size="md">
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-gray-500">Chargement...</div>
+          </div>
+        )}
 
-      {!loading && !error && product && (
-        <div className="space-y-4 px-1">
-          {/* Image produit - dimensions fixes comme sur la capture */}
-          <div className="w-full bg-white rounded-lg overflow-hidden flex justify-center">
-            {imageSrc ? (
-              <img
-                src={imageSrc}
-                alt={product.name}
-                className="w-full max-w-[280px] h-auto object-contain bg-white"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.style.display = 'none'
-                  const parent = target.parentElement
-                  if (parent && !parent.querySelector('.image-fallback')) {
-                    const fallback = document.createElement('div')
-                    fallback.className = 'image-fallback w-full max-w-[280px] h-[200px] bg-gradient-to-br from-[#39512a]/10 to-[#2f2e2e]/10 flex items-center justify-center'
-                    fallback.innerHTML = '<span class="text-5xl">🍽️</span>'
-                    parent.appendChild(fallback)
-                  }
-                }}
-              />
-            ) : (
-              <div className="w-full max-w-[280px] h-[200px] bg-gradient-to-br from-[#39512a]/10 to-[#2f2e2e]/10 flex items-center justify-center">
-                <span className="text-5xl">🍽️</span>
+        {error && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-red-600 text-center p-4">{error}</div>
+          </div>
+        )}
+
+        {!loading && !error && product && (
+          <div className="bg-white rounded-lg overflow-hidden">
+            {/* Header avec retour, titre et favoris */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+              <button
+                onClick={closeModal}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#39512a]/10 hover:bg-[#39512a]/20 transition-colors"
+              >
+                <svg className="w-5 h-5 text-[#39512a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <h2 className="text-lg font-bold text-[#121212]">Détails</h2>
+              <button
+                onClick={handleToggleFavorite}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#39512a]/10 hover:bg-[#39512a]/20 transition-colors"
+                aria-label={productIsFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              >
+                <svg
+                  className={`w-5 h-5 ${productIsFavorite ? 'text-red-500 fill-red-500' : 'text-[#39512a]'}`}
+                  fill={productIsFavorite ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Image produit avec fond blanc */}
+            <div className="w-full bg-white flex justify-center items-center py-8">
+              {imageSrc ? (
+                <img
+                  src={imageSrc}
+                  alt={product.name}
+                  className="w-full max-w-[280px] h-auto object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.style.display = 'none'
+                  }}
+                />
+              ) : (
+                <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center">
+                  <span className="text-6xl">🍽️</span>
+                </div>
+              )}
+            </div>
+
+            {/* Contenu principal */}
+            <div className="px-4 py-4 space-y-4">
+              {/* Nom et prix */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-[#121212]">{product.name}</h3>
+                <span className="text-xl font-bold text-[#39512a]">
+                  {currentPrice.toLocaleString('fr-FR')} FCFA
+                </span>
               </div>
-            )}
-          </div>
 
-          {/* Nom du produit */}
-          <div>
-            <h2 className="text-base font-normal text-gray-900 mb-1">{product.name}</h2>
-            {/* Description/Quantité en texte gris */}
-            {product.description && (
-              <p className="text-sm text-gray-500 leading-relaxed">{product.description}</p>
-            )}
-          </div>
-
-          {/* Prix */}
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm text-gray-900">Prix: </span>
-            <span className="text-base font-normal text-[#39512a]">
-              {currentPrice.toLocaleString('fr-FR')} FCFA
-            </span>
-          </div>
-
-          {/* Section Compléments et Quantité */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
-            {/* Compléments à gauche */}
-            {product.extras && product.extras.filter(e => !/g|kg/i.test(e.name)).length > 0 && (
-              <div>
-                <h3 className="text-xs font-normal text-gray-700 mb-3">Choisissez vos compléments</h3>
-                <div className="space-y-2">
-                  {product.extras.filter(e => !/g|kg/i.test(e.name)).map((extra) => (
-                    <label
-                      key={extra.name}
-                      className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedExtras[extra.name] || false}
-                        onChange={(e) => setSelectedExtras(prev => ({
-                          ...prev,
-                          [extra.name]: e.target.checked
-                        }))}
-                        className="w-4 h-4 text-[#39512a] border-gray-300 rounded focus:ring-[#39512a]"
-                      />
-                      <span className="text-sm text-gray-700">{extra.name}</span>
-                      {extra.price > 0 && (
-                        <span className="text-xs text-gray-500 ml-auto">
-                          +{extra.price.toLocaleString('fr-FR')} FCFA
-                        </span>
-                      )}
-                    </label>
-                  ))}
+              {/* Informations nutritionnelles */}
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  <span className="text-orange-500">🔥</span>
+                  <span>{estimatedCalories} calories</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Temps {totalTime} min</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-yellow-500">⭐</span>
+                  <span>{rating} Note</span>
                 </div>
               </div>
-            )}
 
-            {/* Quantité à droite */}
-            <div className="flex flex-col justify-start">
-              <label className="text-xs font-normal text-gray-700 mb-3">Quantité:</label>
-              <div className="flex items-center border border-gray-300 rounded-full w-fit">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-l-full transition-colors font-semibold"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  value={quantity}
-                  readOnly
-                  className="w-16 text-center text-sm font-semibold border-0 focus:outline-none bg-transparent"
-                />
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-r-full transition-colors font-semibold"
-                >
-                  +
-                </button>
+              {/* Description */}
+              {product.description && (
+                <div>
+                  <h4 className="text-base font-bold text-[#121212] mb-2">Description</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
+                </div>
+              )}
+
+              {/* Section Customize */}
+              <div className="border-t border-gray-200 pt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-base font-bold text-[#121212]">Personnaliser</h4>
+                  {product.extras && product.extras.length > 0 && (
+                    <button
+                      onClick={() => setShowMoreDetails(!showMoreDetails)}
+                      className="flex items-center gap-1 text-sm text-[#39512a] hover:text-[#39512a]/80 transition-colors"
+                    >
+                      <span>Plus de détails</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${showMoreDetails ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+
+                {/* Suppléments et compléments (expandable) - Affiché avant le bouton */}
+                {showMoreDetails && product.extras && product.extras.length > 0 && (
+                  <div className="mb-4 space-y-3">
+                    <h5 className="text-sm font-semibold text-[#121212] mb-2">Suppléments et compléments</h5>
+                    {product.extras.map((extra) => (
+                      <label
+                        key={extra.name}
+                        className="flex items-center justify-between cursor-pointer p-3 hover:bg-gray-50 rounded-lg transition-colors border border-gray-200"
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedExtras[extra.name] || false}
+                            onChange={(e) => setSelectedExtras(prev => ({
+                              ...prev,
+                              [extra.name]: e.target.checked
+                            }))}
+                            className="w-5 h-5 text-[#39512a] border-gray-300 rounded focus:ring-[#39512a]"
+                          />
+                          <span className="text-sm text-[#121212]">{extra.name}</span>
+                        </div>
+                        {extra.price > 0 && (
+                          <span className="text-sm font-medium text-[#39512a]">
+                            +{extra.price.toLocaleString('fr-FR')} FCFA
+                          </span>
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {/* Sélecteur de quantité et bouton Add to Cart */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center border border-gray-300 rounded-full">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-10 h-10 flex items-center justify-center text-[#121212] hover:bg-gray-100 rounded-l-full transition-colors font-semibold"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      value={quantity.toString().padStart(2, '0')}
+                      readOnly
+                      className="w-12 text-center text-sm font-semibold border-0 focus:outline-none bg-transparent text-[#121212]"
+                    />
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-10 h-10 flex items-center justify-center text-[#121212] hover:bg-gray-100 rounded-r-full transition-colors font-semibold"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleConfirmAndChange}
+                    className="flex-1 bg-[#39512a] hover:opacity-90 text-white py-3 px-4 rounded-lg font-medium text-sm transition-colors"
+                  >
+                    Ajouter au panier
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Bouton Ajouter au panier */}
-          <button
-            onClick={handleConfirmAndChange}
-                className="w-full bg-[#39512a] hover:opacity-90 text-white py-4 px-6 rounded-lg font-normal text-sm transition-colors"
-          >
-            Ajouter au panier
-          </button>
-        </div>
-      )}
-    </Modal>
+        )}
+      </Modal>
+    </>
   )
 }
 

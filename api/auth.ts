@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import connectDB from '../lib/mongodb.js'
-import { User } from '../lib/models.js'
-import { generateToken, getTokenFromRequest, verifyToken } from '../lib/auth.js'
-import { hashPassword } from '../lib/bcrypt.js'
+import connectDB from './lib/mongodb.js'
+import { User } from './lib/models.js'
+import { generateToken, getTokenFromRequest, verifyToken } from './lib/auth.js'
+import { hashPassword } from './lib/bcrypt.js'
 
 // Import direct de bcryptjs pour Vercel
 import bcryptjs from 'bcryptjs'
@@ -16,16 +16,11 @@ const getBcrypt = () => {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Dans Vercel, les paramètres dynamiques [action] sont dans req.query
-  // Extraire l'action depuis req.query.action ou depuis l'URL
-  let action = req.query.action as string
-  
-  // Si action n'est pas dans query, essayer de l'extraire de l'URL
-  if (!action && req.url) {
-    const match = req.url.match(/\/auth\/([^/?]+)/)
-    if (match) {
-      action = match[1]
-    }
+  // Extraire l'action depuis req.query.action (pour les query params)
+  const action = req.query.action as string
+
+  if (!action) {
+    return res.status(400).json({ message: 'Paramètre action requis' })
   }
 
   // LOGIN

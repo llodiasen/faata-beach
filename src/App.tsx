@@ -14,6 +14,10 @@ import ProductPage from './pages/ProductPage'
 import FavouritesPage from './pages/FavouritesPage'
 import MenuPage from './pages/MenuPage'
 import CheckoutPage from './pages/CheckoutPage'
+import OrderDetailsPage from './pages/OrderDetailsPage'
+import AboutPage from './pages/AboutPage'
+import LocationPage from './pages/LocationPage'
+import GalleryPage from './pages/GalleryPage'
 
 // Protected Route Component
 function ProtectedRoute({ 
@@ -49,6 +53,10 @@ function App() {
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/favourites" element={<FavouritesPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/location" element={<LocationPage />} />
+        <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         

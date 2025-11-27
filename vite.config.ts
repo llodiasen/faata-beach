@@ -1,38 +1,30 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-// PWA désactivé temporairement pour le déploiement - problème avec workbox-build en ESM
-// import { VitePWA } from 'vite-plugin-pwa'
+import { createRequire } from 'node:module'
+import manifest from './public/manifest.json' with { type: 'json' }
+
+const require = createRequire(import.meta.url)
+const { VitePWA } = require('vite-plugin-pwa') as typeof import('vite-plugin-pwa')
 
 export default defineConfig({
   plugins: [
     react(),
-    // VitePWA désactivé temporairement - à réactiver plus tard si besoin
-    // VitePWA({
-    //   registerType: 'autoUpdate',
-    //   includeAssets: ['favicon.ico', 'icons/*.png'],
-    //   manifest: {
-    //     name: 'FAATA Beach',
-    //     short_name: 'FAATA',
-    //     description: 'Application de commande pour FAATA Beach',
-    //     theme_color: '#DC2626',
-    //     background_color: '#000000',
-    //     display: 'standalone',
-    //     icons: [
-    //       {
-    //         src: 'icons/icon-192x192.png',
-    //         sizes: '192x192',
-    //         type: 'image/png'
-    //       },
-    //       {
-    //         src: 'icons/icon-512x512.png',
-    //         sizes: '512x512',
-    //         type: 'image/png'
-    //       }
-    //     ]
-    //   },
-    //   workbox: {
-    //     globPatterns: ['**/*.{js,css,html,ico,png,svg}']
-    //   }
-    // })
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      registerType: 'autoUpdate',
+      injectRegister: false,
+      includeAssets: ['favicon.ico', 'images/icon.png', 'images/logo.png', 'icons/*.png', 'offline.html'],
+      manifest,
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,webp}'],
+        rollupFormat: 'es',
+      },
+    }),
   ],
 })

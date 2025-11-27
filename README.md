@@ -37,9 +37,12 @@ Créer un fichier `.env` à la racine :
 MONGODB_URI=mongodb+srv://wopallodia92:faatabeach2K25@faatabeach.1d89gut.mongodb.net/faata-beach?retryWrites=true&w=majority
 JWT_SECRET=faata_beach_jwt_secret_2025_changez_en_production
 VITE_API_URL=/api
+VAPID_PUBLIC_KEY=<clé publique générée>
+VAPID_PRIVATE_KEY=<clé privée générée>
+VITE_VAPID_PUBLIC_KEY=<copiez la clé publique>
 ```
 
-**Note** : Voir `CONFIG.md` pour plus de détails sur la configuration MongoDB.
+**Note** : Voir `CONFIG.md` pour la génération des clés VAPID et la configuration MongoDB.
 
 4. **Lancer en développement**
 ```bash
@@ -56,6 +59,7 @@ npm run dev
 - ✅ Authentification utilisateur (optionnel)
 - ✅ PWA installable sur mobile
 - ✅ Mode offline (avec cache)
+- ✅ Notifications push (promotions, statut commande)
 
 ## 🏗️ Structure du projet
 
@@ -90,7 +94,7 @@ vercel
 
 2. **Configurer les variables d'environnement dans Vercel**
    - Allez dans Settings > Environment Variables
-   - Ajoutez `MONGODB_URI` et `JWT_SECRET`
+   - Ajoutez `MONGODB_URI`, `JWT_SECRET`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VITE_VAPID_PUBLIC_KEY`
 
 3. **Déployer**
 ```bash
@@ -104,6 +108,7 @@ Les collections suivantes seront créées automatiquement :
 - `categories` - Catégories de produits
 - `products` - Produits
 - `orders` - Commandes
+- `pushsubscriptions` - Abonnements aux notifications push
 
 ### Exemple de données
 

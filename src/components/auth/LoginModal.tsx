@@ -29,7 +29,7 @@ export function LoginModal() {
         } else if (userRole === 'delivery') {
           navigate('/dashboard-livreur')
         } else {
-          navigate('/')
+          navigate('/profile')
         }
         closeModal()
       }, 100)
@@ -44,7 +44,15 @@ export function LoginModal() {
   }
 
   return (
-    <Modal isOpen={currentModal === 'login'} onClose={handleClose} title="Se connecter" size="sm" noScroll>
+    <Modal 
+      isOpen={currentModal === 'login'} 
+      onClose={handleClose} 
+      title="Se connecter" 
+      size="sm" 
+      noScroll 
+      transparentOverlay
+      heroBackground="http://wasafrica.org/wp-content/uploads/2025/11/96444e8b6107fad5-scaled.webp"
+    >
       <form onSubmit={handleSubmit} className="space-y-3.5 md:space-y-4">
         <div>
           <label className="block text-gray-700 font-semibold mb-1.5 text-sm md:text-base">Email</label>

@@ -39,7 +39,7 @@ export function SignupModal() {
         } else if (userRole === 'delivery') {
           navigate('/dashboard-livreur')
         } else {
-          navigate('/')
+          navigate('/profile')
         }
         closeModal()
       }, 100)
@@ -54,7 +54,15 @@ export function SignupModal() {
   }
 
   return (
-    <Modal isOpen={currentModal === 'signup'} onClose={handleClose} title="S'inscrire" size="sm" noScroll>
+    <Modal 
+      isOpen={currentModal === 'signup'} 
+      onClose={handleClose} 
+      title="S'inscrire" 
+      size="sm" 
+      noScroll 
+      transparentOverlay
+      heroBackground="http://wasafrica.org/wp-content/uploads/2025/11/96444e8b6107fad5-scaled.webp"
+    >
       <form onSubmit={handleSubmit} className="space-y-3 md:space-y-3.5">
         <div>
           <label className="block text-gray-700 font-semibold mb-1.5 text-sm md:text-base">Nom complet</label>
