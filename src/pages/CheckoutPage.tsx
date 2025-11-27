@@ -299,9 +299,9 @@ export default function CheckoutPage() {
 
         clearCart()
         
-        // Rediriger immédiatement vers la page de détails de commande
-        console.log('Navigating to:', `/order/${orderId}`) // Debug log
-        navigate(`/order/${orderId}`, { replace: true })
+        // Rediriger immédiatement vers la page de remerciement
+        console.log('Navigating to:', `/thank-you/${orderId}`) // Debug log
+        navigate(`/thank-you/${orderId}`, { replace: true })
       } else {
         console.error('No orderId found in response:', order) // Debug log
         setError('Erreur: Impossible de récupérer l\'ID de commande')

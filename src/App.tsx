@@ -15,6 +15,7 @@ import FavouritesPage from './pages/FavouritesPage'
 import MenuPage from './pages/MenuPage'
 import CheckoutPage from './pages/CheckoutPage'
 import OrderDetailsPage from './pages/OrderDetailsPage'
+import ThankYouPage from './pages/ThankYouPage'
 import AboutPage from './pages/AboutPage'
 import LocationPage from './pages/LocationPage'
 import GalleryPage from './pages/GalleryPage'
@@ -54,6 +55,7 @@ function App() {
         <Route path="/favourites" element={<FavouritesPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+        <Route path="/thank-you/:orderId" element={<ThankYouPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/location" element={<LocationPage />} />
         <Route path="/gallery" element={<GalleryPage />} />

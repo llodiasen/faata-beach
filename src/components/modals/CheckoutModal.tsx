@@ -128,7 +128,15 @@ export function CheckoutModal() {
 
       clearCart()
       closeModal()
-      openModal('confirmation')
+      
+      // Stocker l'ID de commande dans sessionStorage pour la page de remerciement
+      if (orderId && order) {
+        sessionStorage.setItem('faata_lastOrderId', orderId)
+        sessionStorage.setItem('faata_lastOrderData', JSON.stringify(order))
+      }
+      
+      // Rediriger vers la page de remerciement
+      window.location.href = `/thank-you/${orderId}`
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la commande')
     } finally {
