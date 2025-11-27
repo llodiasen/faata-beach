@@ -183,10 +183,10 @@ export default function ThankYouPage() {
               const productName = typeof item.productId === 'object' && item.productId?.name 
                 ? item.productId.name 
                 : item.name
-              const productRef = typeof item.productId === 'object' && item.productId?._id 
-                ? { _id: item.productId._id } 
-                : (typeof item.productId === 'string' ? { _id: item.productId } : undefined)
-              const productImage = productRef ? getProductImage(productRef) : undefined
+              const productRef = typeof item.productId === 'object' && item.productId
+                ? { name: item.productId.name, imageUrl: item.productId.imageUrl }
+                : { name: item.name }
+              const productImage = getProductImage(productRef)
 
               return (
                 <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
