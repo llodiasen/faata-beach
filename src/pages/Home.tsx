@@ -203,13 +203,7 @@ export default function Home() {
             <div className="flex items-center gap-2 md:gap-4">
               {user ? (
                 <>
-                  {/* Message de bienvenue - Desktop */}
-                  <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-full bg-white/90 backdrop-blur-sm border border-[#39512a]/20">
-                    <span className="text-[#39512a] font-medium text-sm">
-                      Hello, <span className="font-semibold">{user.name}</span>
-                    </span>
-                  </div>
-                  {/* Icône profil - Mobile */}
+                  {/* Icône profil - Desktop et Mobile */}
                   <button
                     onClick={() => {
                       if (userRole === 'admin') {
@@ -220,12 +214,16 @@ export default function Home() {
                         navigate('/profile')
                       }
                     }}
-                    className="md:hidden p-2 hover:bg-white/20 rounded-full transition-all"
+                    className="p-2 hover:bg-white/20 md:hover:bg-white/80 rounded-full transition-all flex items-center gap-2"
                     aria-label="Mon profil"
                   >
-                    <div className="w-7 h-7 rounded-full bg-[#39512a] flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#39512a] flex items-center justify-center text-white font-bold text-sm md:text-base shadow-md">
                       {user.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
+                    {/* Texte sur desktop */}
+                    <span className="hidden md:block text-[#39512a] font-medium text-sm px-2">
+                      Hello, <span className="font-semibold">{user.name}</span>
+                    </span>
                   </button>
                 </>
               ) : (
