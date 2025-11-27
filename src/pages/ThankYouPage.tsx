@@ -3,8 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ordersAPI } from '../lib/api'
 import { getProductImage } from '../lib/productImages'
 import BottomNavigation from '../components/layout/BottomNavigation'
-import { useAuthStore } from '../store/useAuthStore'
-import { getUserRole } from '../lib/permissions'
 
 interface OrderItem {
   productId: {
@@ -45,8 +43,6 @@ interface Order {
 export default function ThankYouPage() {
   const { orderId } = useParams<{ orderId: string }>()
   const navigate = useNavigate()
-  const { user } = useAuthStore()
-  const userRole = getUserRole(user)
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -187,10 +183,10 @@ export default function ThankYouPage() {
               const productName = typeof item.productId === 'object' && item.productId?.name 
                 ? item.productId.name 
                 : item.name
-              const productId = typeof item.productId === 'object' && item.productId?._id 
-                ? item.productId._id 
-                : (typeof item.productId === 'string' ? item.productId : undefined)
-              const productImage = productId ? getProductImage(productId) : undefined
+              const productRef = typeof item.productId === 'object' && item.productId?._id 
+                ? { _id: item.productId._id } 
+                : (typeof item.productId === 'string' ? { _id: item.productId } : undefined)
+              const productImage = productRef ? getProductImage(productRef) : undefined
 
               return (
                 <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
