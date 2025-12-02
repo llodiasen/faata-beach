@@ -5,6 +5,57 @@ import { getTokenFromRequest, verifyToken } from './lib/auth.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { id } = req.query
+  const url = req.url || ''
+
+  // Route spéciale: /api/orders/delivery/assigned - Commandes assignées au livreur
+  if (url.includes('/delivery/assigned')) {
+    if (req.method !== 'GET') {
+      return res.status(405).json({ message: 'Method not allowed' })
+    }
+
+    try {
+      await connectDB()
+      const token = getTokenFromRequest(req)
+      if (!token) {
+        return res.status(401).json({ message: 'Non autorisé' })
+      }
+
+      const payload = verifyToken(token)
+      const { userId } = payload
+      let role = payload.role
+      
+      // Si le rôle n'est pas dans le token, vérifier en base
+      if (!role) {
+        const user = await User.findById(userId)
+        if (!user) {
+          return res.status(403).json({ message: 'Utilisateur non trouvé' })
+        }
+        role = user.role
+      }
+      
+      // Vérifier que l'utilisateur est un livreur
+      if (role !== 'delivery') {
+        return res.status(403).json({ message: 'Accès refusé - Rôle livreur requis' })
+      }
+
+      // Récupérer les commandes assignées à ce livreur avec statuts assign ou on_the_way
+      const orders = await Order.find({
+        assignedDeliveryId: userId,
+        status: { $in: ['assigned', 'on_the_way'] },
+      })
+        .populate('items.productId', 'name imageUrl')
+        .populate('userId', 'name email')
+        .sort({ createdAt: -1 })
+
+      return res.status(200).json(orders)
+    } catch (error: any) {
+      console.error('Get assigned orders error:', error)
+      if (error.message === 'Token invalide') {
+        return res.status(401).json({ message: 'Token invalide' })
+      }
+      return res.status(500).json({ message: error.message || 'Erreur serveur' })
+    }
+  }
 
   // Route: /api/orders (GET/POST) - Liste ou création
   if (!id) {
@@ -13,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         await connectDB()
 
-        const { items, tableNumber, orderType, deliveryAddress, customerInfo } = req.body
+        const { items, tableNumber, orderType, deliveryAddress, customerInfo, note } = req.body
 
         if (!items || !Array.isArray(items) || items.length === 0) {
           return res.status(400).json({ message: 'Items requis' })
@@ -92,10 +143,53 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           items: orderItems,
           totalAmount,
           customerInfo: customerInfo || {},
+          note: note || undefined,
         })
 
         await order.save()
         await order.populate('items.productId', 'name imageUrl')
+
+        // Synchroniser avec Odoo (en arrière-plan, ne pas bloquer la réponse)
+        console.log('🔄 Tentative de synchronisation Odoo...')
+        try {
+          const { createOdooSalesOrder } = await import('./lib/odoo.js')
+          console.log('✅ Module Odoo importé avec succès')
+          
+          // Préparer les données pour Odoo
+          const productsForOdoo = orderItems.map((item, index) => ({
+            productId: item.productId,
+            item: orderItems[index]
+          }))
+
+          console.log(`📦 ${productsForOdoo.length} produit(s) à synchroniser avec Odoo`)
+
+          // Appeler Odoo (ne pas attendre la réponse pour ne pas bloquer)
+          createOdooSalesOrder(order, productsForOdoo).then(odooOrderId => {
+            if (odooOrderId) {
+              console.log(`✅ Commande Odoo créée avec ID: ${odooOrderId}`)
+              // Mettre à jour la commande avec l'ID Odoo
+              Order.findByIdAndUpdate(order._id, { odooOrderId }).catch(err => {
+                console.error('❌ Erreur mise à jour odooOrderId:', err)
+              })
+            } else {
+              console.warn('⚠️  Synchronisation Odoo terminée mais aucun ID retourné')
+            }
+          }).catch(err => {
+            console.error('❌ Erreur synchronisation Odoo:', err)
+            if (err instanceof Error) {
+              console.error('   Message:', err.message)
+              console.error('   Stack:', err.stack)
+            }
+            // Ne pas bloquer la création de commande si Odoo échoue
+          })
+        } catch (odooError) {
+          console.error('❌ Erreur import module Odoo:', odooError)
+          if (odooError instanceof Error) {
+            console.error('   Message:', odooError.message)
+            console.error('   Stack:', odooError.stack)
+          }
+          // Continuer même si le module Odoo ne peut pas être chargé
+        }
 
         res.status(201).json(order)
       } catch (error: any) {
@@ -165,11 +259,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         await connectDB()
 
-        const token = getTokenFromRequest(req)
-        if (!token) {
-          return res.status(401).json({ message: 'Non autorisé' })
+        const order = await Order.findById(id)
+          .populate('items.productId', 'name imageUrl')
+          .populate('userId', 'name email')
+          .populate('assignedDeliveryId', 'name phone')
+
+        if (!order) {
+          return res.status(404).json({ message: 'Commande non trouvée' })
         }
 
+        const token = getTokenFromRequest(req)
+        
+        // Si pas de token, permettre l'accès seulement pour les commandes récentes (moins de 1 heure)
+        if (!token) {
+          const orderAge = Date.now() - new Date(order.createdAt).getTime()
+          const oneHour = 60 * 60 * 1000
+          
+          if (orderAge < oneHour) {
+            // Commande récente, permettre l'accès sans token (pour la page thank-you)
+            return res.status(200).json(order)
+          } else {
+            return res.status(401).json({ message: 'Non autorisé - Token requis pour les commandes anciennes' })
+          }
+        }
+
+        // Si token présent, vérifier les permissions normalement
         const payload = verifyToken(token)
         const { userId } = payload
         let role = payload.role
@@ -181,15 +295,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(401).json({ message: 'Utilisateur non trouvé' })
           }
           role = user.role
-        }
-
-        const order = await Order.findById(id)
-          .populate('items.productId', 'name imageUrl')
-          .populate('userId', 'name email')
-          .populate('assignedDeliveryId', 'name phone')
-
-        if (!order) {
-          return res.status(404).json({ message: 'Commande non trouvée' })
         }
 
         // Vérifier les permissions
@@ -282,4 +387,3 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   res.status(400).json({ message: 'ID invalide' })
 }
-

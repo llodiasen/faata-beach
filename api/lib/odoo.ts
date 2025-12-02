@@ -115,6 +115,8 @@ export async function createOdooSalesOrder(
   order: IOrder,
   products: Array<{ productId: any; item: IOrderItem }>
 ): Promise<number | null> {
+  console.log('🔍 Vérification configuration Odoo...')
+  
   // Vérifier la configuration Odoo
   const config: OdooConfig = {
     url: process.env.ODOO_URL || '',
@@ -123,8 +125,21 @@ export async function createOdooSalesOrder(
     apiKey: process.env.ODOO_API_KEY || '',
   }
 
+  console.log('📋 Configuration Odoo:', {
+    url: config.url ? '✅ Défini' : '❌ Manquant',
+    database: config.database ? '✅ Défini' : '❌ Manquant',
+    username: config.username ? '✅ Défini' : '❌ Manquant',
+    apiKey: config.apiKey ? '✅ Défini (' + config.apiKey.substring(0, 10) + '...)' : '❌ Manquant',
+  })
+
   if (!config.url || !config.database || !config.username || !config.apiKey) {
     console.warn('⚠️  Configuration Odoo incomplète, synchronisation ignorée')
+    console.warn('   Variables manquantes:', {
+      url: !config.url,
+      database: !config.database,
+      username: !config.username,
+      apiKey: !config.apiKey,
+    })
     return null
   }
 
@@ -190,8 +205,8 @@ export async function createOdooSalesOrder(
     if (order.deliveryAddress) {
       noteParts.push(`Adresse: ${order.deliveryAddress.fullAddress}`)
     }
-    if (order.note) {
-      noteParts.push(`Note: ${order.note}`)
+    if ((order as any).note) {
+      noteParts.push(`Note: ${(order as any).note}`)
     }
     if (customerName) {
       noteParts.push(`Client: ${customerName}`)
