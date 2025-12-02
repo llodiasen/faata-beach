@@ -4,49 +4,140 @@ type ProductRef = {
 }
 
 const encodeMenuImagePath = (fileName: string) =>
-  `/images/Menu/${encodeURIComponent(fileName).replace(/%2F/g, '/')}`
+  `/images/Menu/menu og/${encodeURIComponent(fileName).replace(/%2F/g, '/')}`
 
 export const productImageFileMap: Record<string, string> = {
-  'Glace 2 boules': 'Glace 2 boules.png',
-  'Brochettes lotte': 'Brochettes lotte.png',
+  // Boissons - Cocktails sans alcools
+  'Île du Saloum': 'Île du Saloum.jpg',
+  'Teranga': 'Teranga.jpg',
+  'Beach cumber': 'Beach Cumber.jpg',
+  'Virgil mojito': 'Virgin Mojito.png',
+  'Virgil colada': 'Virgil colada.jpg',
+  'Fraîcheur des îles': 'Fraicheur des iles.jpg',
+  'Touraco basilic': '241220241735049947.webp',
+  'Lac rose': '241220241735049947.webp',
+  
+  // Boissons - Cocktails avec alcools
+  'Bloody mary': 'Bloody mary.jpg',
+  'Mojito': 'Mojito.webp',
+  'Ti punch': 'Ti punch.webp',
+  'Piña colada': 'Piña colada.webp',
+  'Moscow mule': 'Moscow mule.webp',
+  'Nik fizz': 'Nik fizz.webp',
+  'Americano': 'Americano.jpg',
+  'Margarita': 'Margarita.jpeg',
+  'Tom collins': 'Tom Collins.jpg',
+  'Negroni': 'Negroni.webp',
+  'Yummy\'mosa': '241220241735049947.webp',
+  
+  // Boissons - Jus locaux
+  'Bissap': 'jus bissap.jpg',
+  'Bouye': 'jus bouye.jpg',
+  'Gingembre': 'jus Gingembre.jpg',
+  'Orange pressée': 'Orange pressée.webp',
+  
+  // Boissons - Softs
+  'Coca normal': 'coca normal.jpeg',
+  'Coca zéro': 'coca-zero-canette-33cl.webp',
+  'Fanta': 'Fanta Orange.png',
+  'Sprite': 'Sprite.png',
+  'Tonic': 'Sprite.png',
+  
+  // Boissons - Bières
+  'Gazelle': 'Flag.jpg',
+  'Flag': 'Flag.jpg',
+  
+  // Boissons - Jus frais
+  'Coco ananas': 'jus coco ananas.webp',
+  'Orange': 'jus d;orange.webp',
+  'Ananas': 'jus d\'ananas.jpg',
+  'Cocktail': 'jus coctail.jpg',
+  'Goyave': 'jus goyave.jpeg',
+  
+  // Boissons - Café et Thé
+  'Café': 'Americano.jpg',
+  'Thé': 'Americano.jpg',
+  
+  // Entrées
+  'Salade niçoise': 'Salade niçoise.jpeg',
+  'Salade du chef': 'Salade du chef.jpg',
+  'Cocktail d\'avocat aux crevettes': 'Cocktail d\'avocat aux crevettes.jpeg',
+  'Salade italienne': 'Salade italienne.jpg',
+  'Salade exotique': 'Salade exotique.jpg',
+  'Salade chinoise': 'Salade chinoise.png',
+  'Œuf mimosa': 'Œuf mimosa.jpg',
+  'Salade d\'avocat': 'Salade d\'avocat.jpeg',
+  'Cocktail de crevette': 'Cocktail de crevette aux agrumes.jpeg',
+  'Choux à l\'anglaise': 'Choux à l\'anglaise.webp',
+  'Salade de fruit de mer': 'Salade fruits de mer.jpeg',
+  'Tomate mozzarella': 'Tomate mozzarella.webp',
+  'Calamar frite': 'Calamar frite.jpg',
+  'Cocktail de crevette aux agrumes': 'Cocktail de crevette aux agrumes.jpeg',
+  'Beignets de crevettes': 'Beignets de crevettes.jpeg',
+  'Soupe de légumes': 'Soupe de legumes.jpeg',
+  'Soupe de poisson': 'Soupe de poisson.webp',
+  
+  // Plats - À base de poisson
+  'Brochettes lotte': 'Brochettes lotte.jpeg',
+  'Poisson braisé': 'Poisson braisé.jpg',
+  'Filet lotte pané': 'Filet lotte pane.png',
+  'Sole meunière': 'Sole meuniere.png',
+  'Sole Colbert': 'Sole Colbert.png',
+  
+  // Plats - À base de fruits de mer
+  'Crevettes sautées à l\'ail': 'Crevettes sautées à l\'ail.jpg',
+  'Gambas grillées': 'Gambas grillées.webp',
+  
+  // Plats - À base de poulet
+  'Brochettes de poulet': 'Brochettes de poulet.jpg',
+  'Poulet grillé': 'Poulet grillé.jpg',
+  'Poulet pané': 'Poulet pané.jpg',
+  'Cordon bleu': 'Cordon bleu.png',
+  
+  // Plats - À base de viande
+  'Steak grillé': 'Steak grillé.jpg',
+  'Émincé de bœuf': 'Émincé de bœuf.jpeg',
   'Brochettes mixtes': 'Brochettes mixtes.png',
-  'Brochettes poulet': 'Brochettes poulet.png',
+  'Ragoût de bœuf': 'Ragout boeuf.png',
+  
+  // Accompagnements
+  'Riz pilaf': 'Riz pilaf.jpg',
+  'Riz blanc': 'Riz blanc.png',
+  'Frites': 'Frites.jpeg',
+  'Légumes sautés': 'Légumes sautés.webp',
+  'Pommes de terre sautées': 'Pommes de terre sautées.jpg',
+  'Spaghetti': 'Spaghetti.jpg',
+  'Gratin dauphinois': 'Gratin dauphinois.png',
+  
+  // Desserts
+  'Fondant chocolat': 'Fondant chocolat.png',
+  'Mousse passion': 'Mousse passion.png',
+  'Tarte coco': 'Tarte coco.png',
+  'Glace 2 boules': 'Glace 2 boules.png',
+  'Salade de fruits': 'Salade de fruits.webp',
+  'Fruits de saison': 'Fruits de saison.webp',
+  'Crêpe au chocolat': 'Crêpe au chocolat.jpg',
+  'Crêpe à base de fruits': 'Crêpe à base de fruits.jpg',
+  'Bananes flambées': 'Bananes flambees.jpg',
+  
+  // Pizzas
+  'Pizza au fromage': 'Pizza au fromage.jpg',
+  'Pizza au fruit de mer': 'Pizza au fruit de mer.jpeg',
+  'Pizza reine': 'Pizza reine.webp',
+  'Pizza viande hachée': 'Pizza viande hachée.jpg',
+  
+  // Anciens produits (pour compatibilité avec variantes de noms)
   'Coca-Cola': 'Coca-Cola.png',
   'Cocktail avocat crevettes': 'Cocktail avocat crevettes.png',
-  'Cordon bleu': 'Cordon bleu.png',
   'Crevettes sautées ail': 'Crevettes sautees ail.png',
   'Eau gazeuse': 'Eau gazeuse.png',
   'Eau minérale': 'Eau minerale.png',
-  'Émincé bœuf': 'Emince boeuf.png',
+  'Émincé bœuf': 'Émincé de bœuf.jpeg', // Utiliser la nouvelle image
   'Fanta Orange': 'Fanta Orange.png',
-  'Filet lotte pané': 'Filet lotte pane.png',
-  'Fondant chocolat': 'Fondant chocolat.png',
-  Frites: 'Frites.png',
-  'Gambas grillées': 'Gambas grillees.png',
-  'Gratin dauphinois': 'Gratin dauphinois.png',
   'Ice Tea Pêche': 'Ice Tea Peche.png',
-  'Légumes sautés': 'Legumes sautes.png',
-  'Mousse passion': 'Mousse passion.png',
-  'Poisson braisé': 'Poisson braise.png',
-  'Pommes terre sautées': 'Pommes terre sautees.png',
-  'Poulet grillé': 'Poulet grille.png',
-  'Poulet pané': 'Poulet pane.png',
-  'Ragoût bœuf': 'Ragout boeuf.png',
-  'Riz blanc': 'Riz blanc.png',
-  'Riz pilaf': 'Riz pilaf.png',
+  'Pommes terre sautées': 'Pommes de terre sautées.jpg', // Utiliser la nouvelle image
   'Salade chef': 'Salade chef.png',
-  'Salade chinoise': 'Salade chinoise.png',
-  'Salade exotique': 'Salade exotique.png',
-  'Salade italienne': 'Salade italienne.png',
-  'Salade niçoise': 'Salade nicoise.png',
-  'Sole Colbert': 'Sole Colbert.png',
-  'Sole meunière': 'Sole meuniere.png',
-  Spaghetti: 'Spaghetti.png',
-  Sprite: 'Sprite.png',
-  'Steak grillé': 'Steak grille.png',
-  'Sunset Beach (Cocktail sans alcool)': 'Sunset Beach (Cocktail sans alcool).png',
-  'Tarte coco': 'Tarte coco.png',
-  'Virgin Mojito': 'Virgin Mojito.png'
+  'Sunset Beach (Cocktail sans alcool)': 'Sunset Beach (Cocktail sans alcool).png'
 }
 
 export const productImagePathMap: Record<string, string> = Object.fromEntries(

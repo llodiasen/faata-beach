@@ -7,11 +7,14 @@ import { useModalStore } from '../store/useModalStore'
 import { ordersAPI } from '../lib/api'
 import BottomNavigation from '../components/layout/BottomNavigation'
 import { LocationModal } from '../components/modals/LocationModal'
+import { OrderDetailsModal } from '../components/modals/OrderDetailsModal'
+import { CartModal } from '../components/modals/CartModal'
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
   const { items, getTotal, clearCart, removeItem } = useCartStore()
   const { user } = useAuthStore()
+  const { closeModal } = useModalStore()
   // const { getCurrentLocation } = useGeolocation() // Utilisé via LocationModal
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -205,9 +208,12 @@ export default function CheckoutPage() {
         name: item.name, // Inclure le nom avec extras
       }))
 
+      // Mapper 'reservation' vers 'sur_place' pour l'API
+      const apiOrderType = orderType === 'reservation' ? 'sur_place' : orderType
+
       const orderData: any = {
         items: orderItems,
-        orderType: orderType,
+        orderType: apiOrderType,
         customerInfo: {
           name: fullName.trim(),
           phone: phone.trim(),
@@ -215,14 +221,17 @@ export default function CheckoutPage() {
         },
       }
 
-      // Si sur place uniquement, ajouter le numéro de table
-      if (orderType === 'sur_place') {
-        if (!tableNumber.trim()) {
+      // Si sur place ou réservation, ajouter le numéro de table
+      if (orderType === 'sur_place' || orderType === 'reservation') {
+        if (orderType === 'sur_place' && !tableNumber.trim()) {
           setError('Veuillez indiquer le numéro de table')
           setLoading(false)
           return
         }
+        // Pour les réservations, on peut utiliser un numéro de table par défaut ou laisser vide
+        if (orderType === 'sur_place') {
         orderData.tableNumber = tableNumber.trim()
+        }
       }
 
       // Si livraison, ajouter l'adresse de livraison
@@ -258,33 +267,50 @@ export default function CheckoutPage() {
         }
       }
 
-      // Ajouter la note de commande
-      if (orderNote.trim()) {
-        orderData.note = orderNote.trim()
-      }
-
+      // Gérer les réservations
       if (orderType === 'reservation') {
         if (!reservationDateTime) {
           setError('Veuillez sélectionner une date et une heure de réservation')
           setLoading(false)
           return
         }
-        orderData.reservationDetails = {
-          guestCount: reservationGuests,
-          scheduledDateTime: new Date(reservationDateTime).toISOString(),
+        
+        // Formater les détails de réservation pour la note
+        const reservationDate = new Date(reservationDateTime)
+        const formattedDate = reservationDate.toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+        const formattedTime = reservationDate.toLocaleTimeString('fr-FR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+        
+        const reservationNote = `RÉSERVATION - ${reservationGuests} personne${reservationGuests > 1 ? 's' : ''} - ${formattedDate} à ${formattedTime}`
+        
+        // Ajouter la note de commande avec les détails de réservation
+        if (orderNote.trim()) {
+          orderData.note = `${reservationNote}\n\nNote: ${orderNote.trim()}`
+        } else {
+          orderData.note = reservationNote
+        }
+      } else {
+        // Ajouter la note de commande normale
+        if (orderNote.trim()) {
+          orderData.note = orderNote.trim()
         }
       }
 
       const order = await ordersAPI.create(orderData)
 
-      console.log('Order created:', order) // Debug log
+      console.log('CheckoutPage: Order created:', order) // Debug log
 
       const orderId = (order?._id || order?.id)?.toString()
-      console.log('Order ID extracted:', orderId) // Debug log
+      console.log('CheckoutPage: Order ID extracted:', orderId) // Debug log
 
       if (orderId && order) {
-        useModalStore.getState().setSelectedOrder(orderId)
-        
         // Stocker l'ID de commande dans sessionStorage
         sessionStorage.setItem('faata_lastOrderId', orderId)
         
@@ -292,16 +318,33 @@ export default function CheckoutPage() {
         // Utiliser directement l'objet order qui contient toutes les données formatées
         sessionStorage.setItem('faata_lastOrderData', JSON.stringify(order))
         
-        console.log('Order data stored in sessionStorage') // Debug log
+        console.log('CheckoutPage: Order data stored in sessionStorage') // Debug log
 
         localStorage.removeItem('faata_deliveryAddress')
         localStorage.removeItem('faata_orderType')
 
+        // Vider le panier
         clearCart()
+        console.log('CheckoutPage: Cart cleared') // Debug log
         
-        // Rediriger immédiatement vers la page de remerciement
-        console.log('Navigating to:', `/thank-you/${orderId}`) // Debug log
-        navigate(`/thank-you/${orderId}`, { replace: true })
+        // Définir l'ID de commande sélectionnée et ouvrir le modal de détails
+        const modalStore = useModalStore.getState()
+        modalStore.setSelectedOrder(orderId)
+        console.log('CheckoutPage: Selected order set to', orderId) // Debug log
+
+        // Marquer qu'une commande vient d'être créée pour éviter la redirection automatique
+        setOrderJustCreated(true)
+        
+        // Rediriger vers le menu et ouvrir le modal de détails
+        navigate('/menu', { replace: true })
+        console.log('CheckoutPage: Navigated to menu') // Debug log
+        
+        // Ouvrir le modal de détails après un court délai pour s'assurer que la navigation est terminée
+        setTimeout(() => {
+          console.log('CheckoutPage: Opening orderDetails modal') // Debug log
+          modalStore.openModal('orderDetails')
+          console.log('CheckoutPage: OrderDetails modal opened, currentModal:', modalStore.currentModal) // Debug log
+        }, 300)
       } else {
         console.error('No orderId found in response:', order) // Debug log
         setError('Erreur: Impossible de récupérer l\'ID de commande')
@@ -332,12 +375,14 @@ export default function CheckoutPage() {
     }
   }, [])
 
-  // Rediriger si le panier est vide
+  // Rediriger si le panier est vide (sauf si on vient de valider une commande)
+  const [orderJustCreated, setOrderJustCreated] = useState(false)
+  
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !orderJustCreated) {
       navigate('/menu')
     }
-  }, [items.length, navigate])
+  }, [items.length, navigate, orderJustCreated])
 
   useEffect(() => {
     if (orderType === 'reservation') {
@@ -609,7 +654,10 @@ export default function CheckoutPage() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-base font-normal text-[#2f2e2e]">Résumé de la commande</h2>
                 <button
-                  onClick={() => navigate('/menu')}
+                  onClick={() => {
+                    closeModal()
+                    navigate('/menu')
+                  }}
                   className="text-sm text-[#39512a] hover:underline"
                 >
                   Modifier
@@ -707,7 +755,9 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {/* Location Modal */}
+      {/* Modales */}
+      <CartModal />
+      <OrderDetailsModal />
       <LocationModal
         isOpen={showLocationModal}
         onClose={() => setShowLocationModal(false)}

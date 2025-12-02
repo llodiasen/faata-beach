@@ -68,6 +68,13 @@ export default function ThankYouPage() {
             if (cachedOrder._id === targetOrderId) {
               setOrder(cachedOrder)
               setLoading(false)
+              // Essayer quand même de récupérer depuis l'API en arrière-plan pour avoir les données à jour
+              ordersAPI.getById(targetOrderId).then(data => {
+                setOrder(data)
+                sessionStorage.setItem('faata_lastOrderData', JSON.stringify(data))
+              }).catch(() => {
+                // Ignorer l'erreur, on garde le cache
+              })
               return
             }
           } catch (parseError) {
@@ -76,9 +83,27 @@ export default function ThankYouPage() {
         }
         
         // Sinon, récupérer depuis l'API
-        const data = await ordersAPI.getById(targetOrderId)
-        setOrder(data)
-        setError(null)
+        try {
+          const data = await ordersAPI.getById(targetOrderId)
+          setOrder(data)
+          sessionStorage.setItem('faata_lastOrderData', JSON.stringify(data))
+          setError(null)
+        } catch (apiError: any) {
+          // Si l'API échoue, essayer d'utiliser le cache comme fallback
+          if (lastOrderData) {
+            try {
+              const cachedOrder = JSON.parse(lastOrderData)
+              if (cachedOrder._id === targetOrderId) {
+                setOrder(cachedOrder)
+                setError(null)
+                return
+              }
+            } catch (parseError) {
+              console.error('Error parsing cached order as fallback:', parseError)
+            }
+          }
+          throw apiError
+        }
       } catch (err: any) {
         console.error('Error fetching order:', err)
         setError(err.message || 'Erreur lors du chargement de la commande')

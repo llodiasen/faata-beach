@@ -117,8 +117,11 @@ export function CheckoutModal() {
       }
 
       const order = await ordersAPI.create(orderData)
+      console.log('CheckoutModal: Order created', order)
 
       const orderId = (order._id || order.id)?.toString()
+      console.log('CheckoutModal: Order ID', orderId)
+      
       if (orderId) {
         useModalStore.getState().setSelectedOrder(orderId)
       }
@@ -126,17 +129,39 @@ export function CheckoutModal() {
       localStorage.removeItem('faata_deliveryAddress')
       localStorage.removeItem('faata_orderType')
 
-      clearCart()
-      closeModal()
-      
-      // Stocker l'ID de commande dans sessionStorage pour la page de remerciement
+      // Stocker l'ID de commande dans sessionStorage
       if (orderId && order) {
         sessionStorage.setItem('faata_lastOrderId', orderId)
         sessionStorage.setItem('faata_lastOrderData', JSON.stringify(order))
+        console.log('CheckoutModal: Order saved to sessionStorage')
+        
+        // Vider le panier
+        clearCart()
+        console.log('CheckoutModal: Cart cleared')
+        
+        // Définir l'ID de commande sélectionnée et ouvrir le modal de détails
+        const modalStore = useModalStore.getState()
+        modalStore.setSelectedOrder(orderId)
+        console.log('CheckoutModal: Selected order set to', orderId)
+        
+        // Fermer le modal checkout et ouvrir immédiatement le modal de détails
+        // Utiliser une seule opération pour éviter les conflits
+        closeModal()
+        console.log('CheckoutModal: Checkout modal closed')
+        
+        // Utiliser requestAnimationFrame pour s'assurer que le DOM est prêt
+        requestAnimationFrame(() => {
+        setTimeout(() => {
+            console.log('CheckoutModal: Opening orderDetails modal')
+            modalStore.openModal('orderDetails')
+            console.log('CheckoutModal: OrderDetails modal opened, currentModal:', modalStore.currentModal, 'selectedOrder:', modalStore.selectedOrder)
+        }, 150)
+        })
+      } else {
+        console.error('CheckoutModal: No orderId or order')
+        closeModal()
+        setError('Erreur: Impossible de récupérer l\'ID de commande')
       }
-      
-      // Rediriger vers la page de remerciement
-      window.location.href = `/thank-you/${orderId}`
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la commande')
     } finally {

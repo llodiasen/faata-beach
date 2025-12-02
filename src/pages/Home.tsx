@@ -14,6 +14,7 @@ import { ProductDetailModal } from '../components/modals/ProductDetailModal'
 import { CartModal } from '../components/modals/CartModal'
 import { CheckoutModal } from '../components/modals/CheckoutModal'
 import { ConfirmationModal } from '../components/modals/ConfirmationModal'
+import { OrderDetailsModal } from '../components/modals/OrderDetailsModal'
 import { OrderTrackingModal } from '../components/modals/OrderTrackingModal'
 import { MenuModal } from '../components/modals/MenuModal'
 import { LoginModal } from '../components/auth/LoginModal'
@@ -701,6 +702,7 @@ export default function Home() {
       {currentModal === 'cart' && <CartModal />}
       {currentModal === 'checkout' && <CheckoutModal />}
       {currentModal === 'confirmation' && <ConfirmationModal />}
+      {currentModal === 'orderDetails' && <OrderDetailsModal />}
       {currentModal === 'orderTracking' && <OrderTrackingModal />}
       {currentModal === 'menu' && <MenuModal />}
       {currentModal === 'login' && <LoginModal />}

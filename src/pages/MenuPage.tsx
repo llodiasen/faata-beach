@@ -10,6 +10,8 @@ import { getProductImage } from '../lib/productImages'
 import BottomNavigation from '../components/layout/BottomNavigation'
 import { CartModal } from '../components/modals/CartModal'
 import { ProductDetailModal } from '../components/modals/ProductDetailModal'
+import { OrderDetailsModal } from '../components/modals/OrderDetailsModal'
+import { LoginModal } from '../components/auth/LoginModal'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { LocationModal } from '../components/modals/LocationModal'
 import { useFavoritesStore } from '../store/useFavoritesStore'
@@ -429,7 +431,7 @@ export default function MenuPage() {
         <img
           src={imageSrc}
           alt={product.name}
-          className="w-full h-full object-contain p-2"
+          className="w-full h-full object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement
             target.style.display = 'none'
@@ -471,13 +473,15 @@ export default function MenuPage() {
   const getCategoryEmoji = (categoryName: string): string => {
     const emojiMap: Record<string, string> = {
       'Entrées': '🥗',
+      'Plats': '🍽️',
       'Plats — À base de poisson': '🐟',
       'Plats — À base de fruits de mer': '🦐',
       'Plats — À base de poulet': '🍗',
       'Plats — À base de viande': '🥩',
       'Accompagnements': '🍟',
       'Boissons': '🥤',
-      'Desserts': '🍰'
+      'Desserts': '🍰',
+      'Pizzas': '🍕'
     }
     return emojiMap[categoryName] || '🍽️'
   }
@@ -489,7 +493,12 @@ export default function MenuPage() {
       'Entrées': {
         name: 'Entrées',
         bgColor: 'bg-green-50',
-        productKeywords: ['salade', 'niçoise', 'chef', 'italienne', 'exotique', 'chinoise', 'cocktail', 'avocat']
+        productKeywords: ['salade', 'niçoise', 'chef', 'italienne', 'exotique', 'chinoise', 'cocktail', 'avocat', 'œuf', 'mimosa', 'crevette', 'soupe']
+      },
+      'Plats': {
+        name: 'Plats',
+        bgColor: 'bg-blue-50',
+        productKeywords: ['salade', 'césar', 'brochette', 'lotte', 'viande', 'bœuf', 'côte']
       },
       'Plats — À base de poisson': {
         name: 'Poissons',
@@ -515,13 +524,32 @@ export default function MenuPage() {
         name: 'Accompagnements',
         bgColor: 'bg-yellow-50',
         productKeywords: ['riz', 'frites', 'légumes', 'pommes', 'spaghetti', 'gratin', 'dauphinois']
+      },
+      'Boissons': {
+        name: 'Boissons',
+        bgColor: 'bg-cyan-50',
+        productKeywords: ['cocktail', 'mojito', 'coca', 'sprite', 'fanta', 'bissap', 'bouye', 'gingembre', 'bière', 'gazelle', 'flag', 'café', 'thé']
+      },
+      'Desserts': {
+        name: 'Desserts',
+        bgColor: 'bg-pink-50',
+        productKeywords: ['glace', 'fondant', 'chocolat', 'tarte', 'mousse', 'banane', 'flambée', 'crêpe', 'fruits']
+      },
+      'Pizzas': {
+        name: 'Pizzas',
+        bgColor: 'bg-orange-50',
+        productKeywords: ['pizza', 'reine', 'oriental', 'fromage', 'viande']
       }
     }
 
     return categories
-      .filter(cat => categoryMapping[cat.name])
+      .filter(cat => categoryMapping[cat.name] || true) // Afficher toutes les catégories
       .map(cat => {
-        const mapping = categoryMapping[cat.name]
+        const mapping = categoryMapping[cat.name] || {
+          name: cat.name,
+          bgColor: 'bg-gray-50',
+          productKeywords: []
+        }
         // Trouver un produit représentatif pour cette catégorie
         const representativeProduct = allProducts.find(product => {
           const productCategoryId = typeof product.categoryId === 'object' 
@@ -529,8 +557,11 @@ export default function MenuPage() {
             : product.categoryId?.toString()
           if (productCategoryId === cat._id) {
             // Si le produit appartient à la catégorie, vérifier aussi les mots-clés pour un meilleur match
-            const productName = product.name.toLowerCase()
-            return mapping.productKeywords.some(keyword => productName.includes(keyword))
+            if (mapping.productKeywords.length > 0) {
+              const productName = product.name.toLowerCase()
+              return mapping.productKeywords.some(keyword => productName.includes(keyword))
+            }
+            return true
           }
           return false
         }) || allProducts.find(product => {
@@ -595,7 +626,7 @@ export default function MenuPage() {
         className="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-all cursor-pointer group flex flex-col h-full"
         onClick={() => handleProductClick(product._id)}
       >
-        <div className="relative h-40 bg-white flex items-center justify-center">
+        <div className="relative h-48 bg-white overflow-hidden">
           {renderProductImage(product)}
 
           <FavoriteButton product={product} />
@@ -616,9 +647,19 @@ export default function MenuPage() {
             </div>
           </div>
 
-          {/* Prix sur une ligne */}
-          <div className="mb-2">
-            <span className="text-base font-medium text-[#39512a]">{formatPrice(product.price)} FCFA</span>
+          {/* Prix et temps de préparation */}
+          <div className="mb-2 space-y-1">
+            <div>
+              <span className="text-base font-medium text-[#39512a]">{formatPrice(product.price)} FCFA</span>
+            </div>
+            {product.preparationTime && (
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{product.preparationTime} min</span>
+              </div>
+            )}
           </div>
 
           {/* Bouton Ajouter panier */}
@@ -812,7 +853,7 @@ export default function MenuPage() {
       </div>
 
       {/* Section scrollable - Liste des items */}
-      <div className="mb-6 flex flex-col flex-1 min-h-0">
+      <div className="mb-6 flex flex-col flex-1 min-h-0 lg:min-h-auto">
         <div className="flex items-center gap-2 mb-4 flex-shrink-0">
           <h3 className="text-lg font-medium text-[#39512a]">Ma commande</h3>
           {getItemCount() > 0 && (
@@ -821,60 +862,86 @@ export default function MenuPage() {
             </span>
           )}
         </div>
-        <div className="space-y-2 flex-1 overflow-y-auto min-h-0 lg:pr-2">
+        {/* Sur mobile: scroll avec maxHeight, sur desktop: scroll seulement si plus de 3 éléments */}
+        <div 
+          className={`space-y-2 flex-1 overflow-x-hidden min-h-0 lg:pr-2 ${
+            items.length > 3 
+              ? 'overflow-y-auto lg:max-h-[calc(100vh-500px)]' 
+              : 'overflow-y-visible lg:overflow-visible'
+          }`}
+          style={items.length <= 3 ? {} : { maxHeight: 'calc(100vh - 400px)' }}
+        >
           {items.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-8">Votre panier est vide</p>
           ) : (
-            items.map((item) => (
-              <div key={item.id} className="relative flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
-                <button
-                  onClick={() => removeItem(item.id)}
-                  className="absolute top-1 right-1 text-gray-400 hover:text-red-500 transition-colors z-10"
-                  aria-label="Retirer l'article"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                  {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xl">🍽️</div>
+            <>
+              {items.map((item) => (
+                <div key={item.id} className="relative flex items-center gap-3 py-2 border-b border-gray-100 last:border-0 flex-shrink-0">
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="absolute top-1 right-1 text-gray-400 hover:text-red-500 transition-colors z-10"
+                    aria-label="Retirer l'article"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 relative" style={{ minWidth: '64px', minHeight: '64px' }}>
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+                        loading="lazy"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.style.display = 'none'
+                          const parent = target.parentElement
+                          if (parent && !parent.querySelector('.image-fallback')) {
+                            const fallback = document.createElement('div')
+                            fallback.className = 'image-fallback w-full h-full flex items-center justify-center text-xl absolute inset-0 bg-gray-100'
+                            fallback.innerHTML = '🍽️'
+                            parent.appendChild(fallback)
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xl absolute inset-0 bg-gray-100">🍽️</div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[#39512a] truncate">{item.name}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">x{item.quantity}</p>
+                  </div>
+                  <div className="text-sm font-semibold text-[#39512a] text-right min-w-[80px] flex-shrink-0">
+                    {formatPrice(item.price * item.quantity)} FCFA
+                  </div>
+                </div>
+              ))}
+              {/* Total dans la section scrollable */}
+              <div className="pt-3 border-t border-gray-200 mt-2 flex-shrink-0">
+                <div className="space-y-2 text-sm text-gray-600">
+                  {orderType === 'livraison' && serviceFee > 0 && (
+                    <div className="flex justify-between">
+                      <span>Livraison</span>
+                      <span className="text-[#39512a] font-medium">{formatPrice(serviceFee)} FCFA</span>
+                    </div>
                   )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#39512a]">{item.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">x{item.quantity}</p>
-                </div>
-                <div className="text-sm font-semibold text-[#39512a] text-right min-w-[80px]">
-                  {formatPrice(item.price * item.quantity)} FCFA
+                  <div className="flex justify-between text-base font-semibold text-[#39512a] pt-2 border-t border-gray-100">
+                    <span>Total</span>
+                    <span>{formatPrice(total)} FCFA</span>
+                  </div>
                 </div>
               </div>
-            ))
+            </>
           )}
         </div>
       </div>
 
-      {/* Section fixe en bas - Total et boutons */}
+      {/* Section fixe en bas - Boutons */}
       {items.length > 0 && (
         <div className="flex-shrink-0 border-t border-gray-200 pt-4 space-y-4">
-          <div className="space-y-2 text-sm text-gray-600">
-            {orderType === 'livraison' && serviceFee > 0 && (
-            <div className="flex justify-between">
-                <span>Livraison</span>
-                <span className="text-[#39512a] font-medium">{formatPrice(serviceFee)} FCFA</span>
-            </div>
-            )}
-            <div className="flex justify-between text-base font-semibold text-[#39512a] pt-2 border-t border-gray-100">
-              <span>Total</span>
-              <span>{formatPrice(total)} FCFA</span>
-            </div>
-          </div>
 
           <button className="w-full bg-[#39512a]/10 hover:bg-[#39512a]/20 text-[#39512a] py-3 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-between">
             <span>Vous avez un code promo ?</span>
@@ -995,11 +1062,17 @@ export default function MenuPage() {
       {/* Contenu principal */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {/* Catégories - Design style pills horizontal - Pleine largeur */}
-        <section className="w-full px-4 md:px-8 lg:px-12 py-4 md:py-6 mb-6">
+        <section className="w-full px-4 md:px-8 lg:px-12 py-4 md:py-6 mb-2">
           <div className="w-full">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xl md:text-2xl font-bold text-[#39512a]">Menu</h2>
-              <button className="text-sm text-[#121212] hover:text-[#39512a] transition-colors">
+              <h2 className="text-lg md:text-xl font-bold text-[#39512a]">Menu</h2>
+              <button 
+                onClick={() => {
+                  setSelectedCategory(null)
+                  setStoreSelectedCategory(null)
+                }}
+                className="text-sm text-[#121212] hover:text-[#39512a] transition-colors"
+              >
                 Voir tout
               </button>
             </div>
@@ -1041,7 +1114,7 @@ export default function MenuPage() {
           </div>
         </section>
 
-        <div className="w-full px-4 md:px-8 lg:px-12 py-8">
+        <div className="w-full px-4 md:px-8 lg:px-12 py-4">
           <div className="w-full max-w-[1400px] mx-auto">
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -1050,17 +1123,21 @@ export default function MenuPage() {
               {/* Produits filtrés par catégorie */}
               {selectedCategory && filteredProducts.length > 0 && (
                 <section>
-                  <h2 className="text-2xl font-semibold text-[#39512a] mb-6">
+                  <h2 className="text-xl font-semibold text-[#39512a] mb-4">
                     {(() => {
                       const category = categories.find(c => c._id === selectedCategory)
                       if (!category) return ''
                       const categoryMapping: Record<string, string> = {
                         'Entrées': 'Entrées',
+                        'Plats': 'Plats',
                         'Plats — À base de poisson': 'Poissons',
                         'Plats — À base de fruits de mer': 'Fruits de mer',
                         'Plats — À base de poulet': 'Poulet',
                         'Plats — À base de viande': 'Viandes',
-                        'Accompagnements': 'Accompagnements'
+                        'Accompagnements': 'Accompagnements',
+                        'Boissons': 'Boissons',
+                        'Desserts': 'Desserts',
+                        'Pizzas': 'Pizzas'
                       }
                       return categoryMapping[category.name] || category.name.replace('Plats — ', '')
                     })()}
@@ -1102,7 +1179,7 @@ export default function MenuPage() {
             </div>
 
             {/* Sidebar droite - My Order */}
-            <aside className="hidden lg:block w-full lg:max-w-[360px] bg-white/95 border border-gray-200 rounded-2xl p-6 shadow-xl h-[calc(100vh-140px)] flex flex-col">
+            <aside className="hidden lg:block w-full lg:max-w-[360px] bg-white/95 border border-gray-200 rounded-2xl p-6 shadow-xl lg:h-auto lg:max-h-[calc(100vh-140px)] flex flex-col">
               {orderSummaryContent}
             </aside>
           </div>
@@ -1327,6 +1404,8 @@ export default function MenuPage() {
       {/* Modales */}
       <CartModal />
       <ProductDetailModal />
+      <OrderDetailsModal />
+      {currentModal === 'login' && <LoginModal />}
       <LocationModal
         isOpen={showLocationModal}
         onClose={() => setShowLocationModal(false)}

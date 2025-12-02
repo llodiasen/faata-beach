@@ -18,7 +18,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'images/icon.png', 'images/logo.png', 'icons/*.png', 'offline.html'],
       manifest,
       devOptions: {
-        enabled: true,
+        enabled: false, // Désactiver le service worker en développement pour éviter les conflits avec les routes API
         type: 'module',
       },
       injectManifest: {

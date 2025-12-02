@@ -4,6 +4,7 @@ import { useFavoritesStore } from '../store/useFavoritesStore'
 import { useCartStore } from '../store/useCartStore'
 import { useModalStore } from '../store/useModalStore'
 import BottomNavigation from '../components/layout/BottomNavigation'
+import { CartModal } from '../components/modals/CartModal'
 
 interface FavoriteItem {
   productId: string
@@ -186,6 +187,9 @@ export default function FavouritesPage() {
 
       {/* Bottom Navigation - Mobile uniquement */}
       <BottomNavigation />
+
+      {/* Modales */}
+      <CartModal />
 
       {/* Menu mobile modal */}
       {showMobileMenu && (

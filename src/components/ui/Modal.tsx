@@ -45,7 +45,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', n
       <Dialog.Portal>
         <Dialog.Overlay className={overlayClasses} style={overlayStyle} />
         <Dialog.Content
-          className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${contentBgClasses} rounded-lg shadow-2xl z-50 w-full ${sizeClasses[size]} ${scrollClasses} animate-slideUp flex flex-col max-h-[90vh]`}
+          className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${contentBgClasses} rounded-lg shadow-2xl z-50 w-full ${sizeClasses[size]} ${noScroll ? 'max-h-[90vh] overflow-hidden' : scrollClasses} animate-slideUp flex flex-col ${noScroll ? '' : 'max-h-[90vh]'}`}
         >
           {title && (
             <div className={`px-6 py-4 border-b border-gray-200 flex-shrink-0 ${heroBackground ? 'bg-white/80 backdrop-blur-sm' : 'bg-white'} z-10`}>
@@ -60,7 +60,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', n
               Modal dialog
             </Dialog.Description>
           )}
-          <div className={`p-6 flex-1 ${noScroll ? '' : 'overflow-y-auto'} ${heroBackground ? 'bg-white/80 backdrop-blur-sm rounded-lg' : ''}`}>{children}</div>
+          <div className={`p-6 flex-1 ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'} ${heroBackground ? 'bg-white/80 backdrop-blur-sm rounded-lg' : ''}`}>{children}</div>
           <Dialog.Close asChild>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1 z-20"

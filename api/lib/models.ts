@@ -160,6 +160,8 @@ export interface IOrder extends Document {
     phone?: string
     email?: string
   }
+  note?: string
+  odooOrderId?: number // ID de la commande dans Odoo
   createdAt: Date
   updatedAt: Date
 }
@@ -188,6 +190,8 @@ const orderSchema = new Schema<IOrder>(
       phone: String,
       email: String,
     },
+    note: { type: String },
+    odooOrderId: { type: Number },
   },
   { timestamps: true }
 )

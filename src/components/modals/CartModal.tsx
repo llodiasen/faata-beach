@@ -22,24 +22,15 @@ export function CartModal() {
   const subtotal = getTotal()
 
   return (
-    <Modal isOpen={currentModal === 'cart'} onClose={closeModal} size="md">
+    <Modal isOpen={currentModal === 'cart'} onClose={closeModal} size="md" noScroll={true}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-base font-normal text-gray-900">Panier d'achat</h2>
-        <button
-          onClick={closeModal}
-          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-          aria-label="Fermer"
-        >
-          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
       </div>
 
-      {/* Items du panier */}
+      {/* Items du panier avec scroll */}
       <div
-        className={`space-y-4 mb-6 ${items.length > 3 ? 'max-h-[400px] overflow-y-auto pr-1' : ''}`}
+        className={`space-y-4 mb-6 ${items.length > 3 ? 'max-h-[400px] overflow-y-auto pr-1' : 'overflow-y-visible'}`}
       >
         {items.length === 0 ? (
           <div className="text-center py-12">
@@ -55,8 +46,9 @@ export function CartModal() {
             </button>
           </div>
         ) : (
-          items.map((item) => (
-            <div key={item.id} className="flex items-start gap-3 relative">
+          <>
+            {items.map((item) => (
+              <div key={item.id} className="flex items-start gap-3 relative bg-white rounded-lg p-3">
               {/* Image produit */}
               <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                 {item.imageUrl ? (
@@ -122,13 +114,10 @@ export function CartModal() {
                 </svg>
               </button>
             </div>
-          ))
-        )}
-      </div>
+            ))}
 
-      {/* Sous-total et boutons */}
-      {items.length > 0 && (
-        <div className="space-y-4 pt-4 border-t border-gray-200">
+            {/* Sous-total et boutons - même design que les items */}
+            <div className="bg-white rounded-lg p-4 space-y-4 border-t border-gray-200 mt-4">
           {/* Sous-total */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-900">Sous Total:</span>
@@ -151,7 +140,9 @@ export function CartModal() {
             </button>
           </div>
         </div>
+          </>
       )}
+      </div>
     </Modal>
   )
 }

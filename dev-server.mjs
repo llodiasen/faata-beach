@@ -134,23 +134,23 @@ async function startServer() {
   }
 
   // Routes API avec paramètres d'abord (plus spécifiques)
-  app.all('/api/orders/:id', createApiRoute('/api/orders/:id', './api/orders/[id].ts', true))
+  app.all('/api/orders/:id', createApiRoute('/api/orders/:id', './api/orders.ts', true))
   app.all('/api/categories/:id', createApiRoute('/api/categories/:id', './api/categories.ts', true))
   app.all('/api/products/:id', createApiRoute('/api/products/:id', './api/products.ts', true))
 
   // Routes API sans paramètres (moins spécifiques)
   app.all('/api/categories', createApiRoute('/api/categories', './api/categories.ts'))
   app.all('/api/products', createApiRoute('/api/products', './api/products.ts'))
-  app.all('/api/orders', createApiRoute('/api/orders', './api/orders/index.ts'))
+  app.all('/api/orders', createApiRoute('/api/orders', './api/orders.ts'))
+  app.all('/api/orders/delivery/assigned', createApiRoute('/api/orders/delivery/assigned', './api/orders.ts'))
   app.all('/api/reservations', createApiRoute('/api/reservations', './api/reservations.ts'))
+  app.all('/api/push', createApiRoute('/api/push', './api/push.ts'))
   
-  // Routes API - Auth (consolidées dans [action].ts)
-  // Route avec segment d'URL : /api/auth/:action
+  // Routes API - Auth
   app.all('/api/auth/:action', async (req, res) => {
     try {
-      const handler = await import('./api/auth/[action].ts')
+      const handler = await import('./api/auth.ts')
       const vercelReq = createVercelRequest(req)
-      // Extraire l'action depuis l'URL si elle n'est pas déjà dans query
       vercelReq.query.action = req.params.action || vercelReq.query.action
       const vercelRes = createVercelResponse(res)
       await handler.default(vercelReq, vercelRes)
@@ -165,9 +165,8 @@ async function startServer() {
   // Route avec query param : /api/auth?action=...
   app.all('/api/auth', async (req, res) => {
     try {
-      const handler = await import('./api/auth/[action].ts')
+      const handler = await import('./api/auth.ts')
       const vercelReq = createVercelRequest(req)
-      // L'action doit être dans req.query.action
       if (!vercelReq.query.action) {
         return res.status(400).json({ message: 'Paramètre action requis' })
       }
@@ -181,7 +180,7 @@ async function startServer() {
     }
   })
   
-  // Routes API - Users (consolidées dans [action].ts)
+  // Routes API - Users
   app.all('/api/users/:action', async (req, res) => {
     try {
       const handler = await import('./api/users/[action].ts')
@@ -197,8 +196,19 @@ async function startServer() {
     }
   })
   
-  // Route API - Orders delivery
-  app.all('/api/orders/delivery/assigned', createApiRoute('/api/orders/delivery/assigned', './api/orders/delivery/assigned.ts'))
+  app.all('/api/users', async (req, res) => {
+    try {
+      const handler = await import('./api/users/[action].ts')
+      const vercelReq = createVercelRequest(req)
+      const vercelRes = createVercelResponse(res)
+      await handler.default(vercelReq, vercelRes)
+    } catch (error) {
+      console.error('Users API Error:', error)
+      if (!res.headersSent) {
+        res.status(500).json({ message: error.message || 'Erreur serveur' })
+      }
+    }
+  })
 
 
   // Utiliser Vite pour servir le frontend

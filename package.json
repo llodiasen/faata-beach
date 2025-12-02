@@ -18,8 +18,11 @@
     "check-last-order": "tsx scripts/check-last-order-odoo.ts",
     "test-odoo": "tsx scripts/test-odoo-connection.ts",
     "test-odoo-api-key": "tsx scripts/test-odoo-api-key.ts",
+    "verify-vercel-env": "tsx scripts/verify-vercel-env.ts",
     "backup:vercel": "powershell -ExecutionPolicy Bypass -File scripts/backup-vercel-env.ps1",
-    "delete-products": "tsx scripts/delete-products.ts"
+    "delete-products": "tsx scripts/delete-products.ts",
+    "cleanup:deployments": "powershell -ExecutionPolicy Bypass -File scripts/cleanup-deployments.ps1",
+    "update-prices": "tsx scripts/update-prices-and-add-ice-creams.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.5",

@@ -29,3 +29,11 @@ dist-ssr
 .env.production.local
 
 .vercel
+
+# Exports
+exports/
+*.csv
+
+# Backups
+backups/
+.env*.local

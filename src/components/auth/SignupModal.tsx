@@ -8,7 +8,7 @@ import Button from '../ui/Button'
 
 export function SignupModal() {
   const navigate = useNavigate()
-  const { currentModal, closeModal } = useModalStore()
+  const { currentModal, closeModal, selectedOrder, openModal } = useModalStore()
   const { register, isLoading } = useAuthStore()
   const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '' })
   const [error, setError] = useState<string | null>(null)
@@ -50,7 +50,14 @@ export function SignupModal() {
 
   const handleClose = () => {
     closeModal()
+    // Si on vient du modal de détails de commande, rouvrir ce modal
+    if (selectedOrder) {
+      setTimeout(() => {
+        openModal('orderDetails')
+      }, 200)
+    } else {
     navigate('/')
+    }
   }
 
   return (
@@ -149,7 +156,16 @@ export function SignupModal() {
             type="button"
             onClick={() => {
               closeModal()
+              // Si on vient du modal de détails de commande, préserver le contexte
+              if (selectedOrder) {
+                setTimeout(() => {
+                  const store = useModalStore.getState()
+                  store.setSelectedOrder(selectedOrder)
+                  store.openModal('login')
+                }, 200)
+              } else {
               navigate('/login')
+              }
             }}
             className="text-[#39512a] hover:underline text-sm md:text-xs font-medium"
           >

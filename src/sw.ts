@@ -58,11 +58,12 @@ registerRoute(
   }),
 )
 
+// Routes API - NetworkFirst avec gestion d'erreur améliorée
 registerRoute(
   ({ url }) => url.pathname.startsWith('/api/'),
   new NetworkFirst({
     cacheName: 'faata-api-cache',
-    networkTimeoutSeconds: 5,
+    networkTimeoutSeconds: 10, // Augmenter le timeout
     plugins: [
       new ExpirationPlugin({
         maxEntries: 30,
