@@ -1,20 +1,22 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const path = (req.query.path as string[]) || []
-  const route = path.join('/')
-  const fullPath = `/api/${route}`
+  // Extraire le chemin depuis l'URL de la requête
+  const url = req.url || ''
+  let path = url.replace(/^\/api/, '').split('?')[0] // Enlever /api et les query params
+  if (!path || path === '/') path = ''
+  const route = path.split('/').filter(Boolean).join('/') // Nettoyer les slashes
 
   // Préserver l'URL originale pour les handlers qui l'utilisent (comme orders.ts)
-  if (!req.url) {
-    req.url = fullPath
+  if (!req.url || !req.url.startsWith('/api')) {
+    req.url = `/api/${route}`
   }
 
   // Router vers le bon handler selon le chemin
   try {
     // Route: /api/auth?action=login
-    if (route === 'auth') {
-      const authHandler = (await import('./handlers/auth.js')).default
+    if (route === 'auth' || route.startsWith('auth')) {
+      const authHandler = (await import('../server/handlers/auth.js')).default
       return authHandler(req, res)
     }
 
@@ -25,7 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (idMatch) {
         req.query.id = idMatch[1]
       }
-      const categoriesHandler = (await import('./handlers/categories.js')).default
+      const categoriesHandler = (await import('../server/handlers/categories.js')).default
       return categoriesHandler(req, res)
     }
 
@@ -36,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (idMatch) {
         req.query.id = idMatch[1]
       }
-      const productsHandler = (await import('./handlers/products.js')).default
+      const productsHandler = (await import('../server/handlers/products.js')).default
       return productsHandler(req, res)
     }
 
@@ -50,13 +52,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           req.query.id = idMatch[1]
         }
       }
-      const ordersHandler = (await import('./handlers/orders.js')).default
+      const ordersHandler = (await import('../server/handlers/orders.js')).default
       return ordersHandler(req, res)
     }
 
     // Route: /api/push
     if (route === 'push') {
-      const pushHandler = (await import('./handlers/push.js')).default
+      const pushHandler = (await import('../server/handlers/push.js')).default
       return pushHandler(req, res)
     }
 
@@ -67,13 +69,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (idMatch) {
         req.query.id = idMatch[1]
       }
-      const reservationsHandler = (await import('./handlers/reservations.js')).default
+      const reservationsHandler = (await import('../server/handlers/reservations.js')).default
       return reservationsHandler(req, res)
     }
 
     // Route: /api/users/:action
     if (route === 'users' || route.startsWith('users/')) {
-      const usersHandler = (await import('./handlers/users.js')).default
+      const usersHandler = (await import('../server/handlers/users.js')).default
       // Extraire l'action du chemin: /api/users/profile -> action = profile
       const actionMatch = route.match(/^users\/(.+)$/)
       if (actionMatch) {
@@ -83,7 +85,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Route non trouvée
-    return res.status(404).json({ message: 'Route non trouvée', path: fullPath })
+    return res.status(404).json({ message: 'Route non trouvée', path: `/api/${route}` })
   } catch (error: any) {
     console.error('Erreur dans le routeur:', error)
     return res.status(500).json({ 
