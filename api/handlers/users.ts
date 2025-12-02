@@ -80,3 +80,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   res.status(404).json({ message: 'Action non trouvée' })
 }
+

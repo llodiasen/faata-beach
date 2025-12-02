@@ -73,7 +73,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Route: /api/users/:action
     if (route === 'users' || route.startsWith('users/')) {
-      const usersHandler = (await import('./handlers/users/[action].js')).default
+      const usersHandler = (await import('./handlers/users.js')).default
       // Extraire l'action du chemin: /api/users/profile -> action = profile
       const actionMatch = route.match(/^users\/(.+)$/)
       if (actionMatch) {

@@ -152,7 +152,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Synchroniser avec Odoo (en arrière-plan, ne pas bloquer la réponse)
         console.log('[Odoo] Tentative de synchronisation Odoo...')
         try {
-          const { createOdooSalesOrder } = await import('./lib/odoo.js')
+          const { createOdooSalesOrder } = await import('../lib/odoo.js')
           console.log('[Odoo] Module Odoo importe avec succes')
           
           // Préparer les données pour Odoo
@@ -164,17 +164,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           console.log(`[Odoo] ${productsForOdoo.length} produit(s) a synchroniser avec Odoo`)
 
           // Appeler Odoo (ne pas attendre la réponse pour ne pas bloquer)
-          createOdooSalesOrder(order, productsForOdoo).then(odooOrderId => {
+          createOdooSalesOrder(order, productsForOdoo).then((odooOrderId: number | null) => {
             if (odooOrderId) {
               console.log(`[Odoo] SUCCESS: Commande Odoo creee avec ID: ${odooOrderId}`)
               // Mettre à jour la commande avec l'ID Odoo
-              Order.findByIdAndUpdate(order._id, { odooOrderId }).catch(err => {
+              Order.findByIdAndUpdate(order._id, { odooOrderId }).catch((err: any) => {
                 console.error('[Odoo] ERREUR: Mise a jour odooOrderId:', err)
               })
             } else {
               console.warn('[Odoo] WARNING: Synchronisation Odoo terminee mais aucun ID retourne')
             }
-          }).catch(err => {
+          }).catch((err: any) => {
             console.error('[Odoo] ERREUR: Synchronisation Odoo:', err)
             if (err instanceof Error) {
               console.error('[Odoo]   Message:', err.message)
