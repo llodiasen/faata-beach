@@ -229,12 +229,12 @@ export async function createOdooSalesOrder(
 ): Promise<number | null> {
   console.log('[Odoo] Verification configuration Odoo...')
   
-  // Vérifier la configuration Odoo
+  // Vérifier la configuration Odoo (avec trim() pour supprimer les espaces et retours à la ligne)
   const config: OdooConfig = {
-    url: process.env.ODOO_URL || '',
-    database: process.env.ODOO_DATABASE || '',
-    username: process.env.ODOO_USERNAME || '',
-    apiKey: process.env.ODOO_API_KEY || '',
+    url: (process.env.ODOO_URL || '').trim(),
+    database: (process.env.ODOO_DATABASE || '').trim(),
+    username: (process.env.ODOO_USERNAME || '').trim(),
+    apiKey: (process.env.ODOO_API_KEY || '').trim(),
   }
 
   console.log('[Odoo] Configuration Odoo:', {
