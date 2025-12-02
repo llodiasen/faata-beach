@@ -5,6 +5,7 @@ import { useCartStore } from '../../store/useCartStore'
 import { productsAPI } from '../../lib/api'
 import Modal from '../ui/Modal'
 import { getProductImage } from '../../lib/productImages'
+import { cleanProductDescription } from '../../lib/productUtils'
 
 interface Product {
   _id: string
@@ -174,7 +175,7 @@ export function ProductsModal() {
                     
                     {product.description && (
                       <p className="text-xs text-gray-500 mb-2 line-clamp-2 leading-relaxed">
-                        {product.description}
+                        {cleanProductDescription(product.description)}
                       </p>
                     )}
 

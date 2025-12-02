@@ -5,6 +5,7 @@ import { useFavoritesStore } from '../../store/useFavoritesStore'
 import { productsAPI } from '../../lib/api'
 import Modal from '../ui/Modal'
 import { getProductImage } from '../../lib/productImages'
+import { cleanProductDescription } from '../../lib/productUtils'
 
 interface Extra {
   name: string
@@ -197,7 +198,6 @@ export function ProductDetailModal() {
   
   // Calculer les calories (estimation basée sur le prix)
   const estimatedCalories = Math.round((product?.price || 0) / 50)
-  const totalTime = (product?.preparationTime || 0) + (product?.deliveryTime || 0)
   const rating = 4.5 // Valeur par défaut
 
   return (
@@ -260,19 +260,19 @@ export function ProductDetailModal() {
             </div>
 
             {/* Image produit avec fond blanc */}
-            <div className="w-full bg-white flex justify-center items-center py-8">
+            <div className="w-full bg-white overflow-hidden">
               {imageSrc ? (
                 <img
                   src={imageSrc}
                   alt={product.name}
-                  className="w-full max-w-[280px] h-auto object-contain"
+                  className="w-full h-64 object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
                     target.style.display = 'none'
                   }}
                 />
               ) : (
-                <div className="w-full max-w-[280px] h-[200px] flex items-center justify-center">
+                <div className="w-full h-64 flex items-center justify-center bg-gray-100">
                   <span className="text-6xl">🍽️</span>
                 </div>
               )}
@@ -298,7 +298,7 @@ export function ProductDetailModal() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Temps {totalTime} min</span>
+                  <span>Préparation: {product?.preparationTime || 15} min</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-yellow-500">⭐</span>
@@ -310,7 +310,7 @@ export function ProductDetailModal() {
               {product.description && (
                 <div>
                   <h4 className="text-base font-bold text-[#121212] mb-2">Description</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">{cleanProductDescription(product.description)}</p>
                 </div>
               )}
 

@@ -11,7 +11,15 @@
     "postinstall": "patch-package",
     "generate:icons": "tsx scripts/generate-icons.ts",
     "import-data": "tsx scripts/import-data.ts",
-    "create-users": "tsx scripts/create-users.ts"
+    "create-users": "tsx scripts/create-users.ts",
+    "export-to-odoo": "tsx scripts/export-to-odoo.ts",
+    "export-orders-to-odoo": "tsx scripts/export-orders-to-odoo.ts",
+    "verify-odoo-ids": "tsx scripts/verify-odoo-ids.ts",
+    "check-last-order": "tsx scripts/check-last-order-odoo.ts",
+    "test-odoo": "tsx scripts/test-odoo-connection.ts",
+    "test-odoo-api-key": "tsx scripts/test-odoo-api-key.ts",
+    "backup:vercel": "powershell -ExecutionPolicy Bypass -File scripts/backup-vercel-env.ps1",
+    "delete-products": "tsx scripts/delete-products.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.5",
