@@ -51,6 +51,7 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
 
 /**
  * Recherche un produit Odoo par External ID via JSON-RPC
+ * Utilise xmlid_to_res_id qui est la méthode recommandée par Odoo
  */
 async function findProductByExternalId(
   config: OdooConfig,
@@ -58,8 +59,10 @@ async function findProductByExternalId(
   externalId: string
 ): Promise<number | null> {
   try {
-    // Utiliser ir.model.data pour trouver le produit par External ID
-    // Le champ 'name' contient l'external_id complet (module.external_id)
+    console.log(`[Odoo] Recherche produit avec External ID: ${externalId}`)
+    
+    // Essayer d'abord avec xmlid_to_res_id (méthode recommandée)
+    // Cette fonction convertit directement un external_id en res_id
     const response = await fetch(`${config.url}/jsonrpc`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -74,9 +77,9 @@ async function findProductByExternalId(
             uid,
             config.apiKey,
             'ir.model.data',
-            'search_read',
-            [[['name', '=', externalId]]],
-            { fields: ['res_id', 'model'], limit: 1 }
+            'xmlid_to_res_id',
+            [externalId],
+            {}
           ]
         }
       }),
@@ -90,20 +93,91 @@ async function findProductByExternalId(
     const data = await response.json()
     
     if (data.error) {
-      console.error(`[Odoo] ERREUR: Recherche produit Odoo:`, data.error)
-      return null
+      console.error(`[Odoo] ERREUR: Recherche produit Odoo avec xmlid_to_res_id:`, data.error)
+      // Si xmlid_to_res_id échoue, essayer avec search_read comme fallback
+      console.log(`[Odoo] Tentative avec search_read comme fallback...`)
+      return await findProductByExternalIdFallback(config, uid, externalId)
     }
     
-    if (data.result && data.result.length > 0) {
-      const record = data.result[0]
-      // Vérifier que c'est bien un produit
-      if (record.model === 'product.product' || record.model === 'product.template') {
-        return record.res_id
-      }
+    if (data.result && typeof data.result === 'number') {
+      console.log(`[Odoo] Produit trouve avec ID: ${data.result}`)
+      return data.result
     }
-    return null
+    
+    // Si xmlid_to_res_id retourne null ou 0, essayer avec search_read
+    console.log(`[Odoo] xmlid_to_res_id n'a pas trouve le produit, tentative avec search_read...`)
+    return await findProductByExternalIdFallback(config, uid, externalId)
   } catch (error) {
     console.error(`[Odoo] ERREUR: Recherche produit Odoo ${externalId}:`, error)
+    // Essayer avec search_read comme fallback
+    return await findProductByExternalIdFallback(config, uid, externalId)
+  }
+}
+
+/**
+ * Méthode de fallback pour rechercher un produit via ir.model.data.search_read
+ */
+async function findProductByExternalIdFallback(
+  config: OdooConfig,
+  uid: number,
+  externalId: string
+): Promise<number | null> {
+  try {
+    // Essayer plusieurs formats d'external_id possibles
+    const possibleIds = [
+      externalId, // Format original
+      `__export__.${externalId}`, // Format avec module __export__
+      `product.${externalId}`, // Format avec module product
+    ]
+    
+    for (const testId of possibleIds) {
+      console.log(`[Odoo] Tentative avec External ID: ${testId}`)
+      const response = await fetch(`${config.url}/jsonrpc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'call',
+          params: {
+            service: 'object',
+            method: 'execute_kw',
+            args: [
+              config.database,
+              uid,
+              config.apiKey,
+              'ir.model.data',
+              'search_read',
+              [[['name', '=', testId]]],
+              { fields: ['res_id', 'model'], limit: 1 }
+            ]
+          }
+        }),
+      })
+
+      if (!response.ok) {
+        continue
+      }
+
+      const data = await response.json()
+      
+      if (data.error) {
+        continue
+      }
+      
+      if (data.result && data.result.length > 0) {
+        const record = data.result[0]
+        // Vérifier que c'est bien un produit
+        if (record.model === 'product.product' || record.model === 'product.template') {
+          console.log(`[Odoo] Produit trouve avec ID: ${record.res_id} (format: ${testId})`)
+          return record.res_id
+        }
+      }
+    }
+    
+    console.warn(`[Odoo] WARNING: Produit ${externalId} introuvable dans Odoo`)
+    return null
+  } catch (error) {
+    console.error(`[Odoo] ERREUR: Fallback recherche produit Odoo ${externalId}:`, error)
     return null
   }
 }

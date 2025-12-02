@@ -18,7 +18,7 @@ if (!MONGODB_URI) {
 }
 
 // Importer les modèles
-const { Order } = await import('../api/lib/models.js')
+const { Order } = await import('../server/lib/models.js')
 
 async function checkLastOrder() {
   try {
