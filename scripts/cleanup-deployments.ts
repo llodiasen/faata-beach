@@ -53,11 +53,11 @@ async function cleanupDeployments() {
       return
     }
     
-    // Garder seulement le dernier déploiement (le premier de la liste)
-    const toKeep = deployments.slice(0, 1)
-    const toDelete = deployments.slice(1)
+    // Garder les 2 derniers déploiements (les 2 premiers de la liste)
+    const toKeep = deployments.slice(0, 2)
+    const toDelete = deployments.slice(2)
     
-    console.log('✅ Déploiement à CONSERVER (le plus récent):')
+    console.log('✅ Déploiements à CONSERVER (les 2 plus récents):')
     toKeep.forEach((url, index) => {
       console.log(`   ${index + 1}. ${url}`)
     })
@@ -68,7 +68,7 @@ async function cleanupDeployments() {
     })
     
     if (toDelete.length === 0) {
-      console.log('\n✨ Aucun déploiement à supprimer. Vous avez déjà seulement 1 déploiement.')
+      console.log('\n✨ Aucun déploiement à supprimer. Vous avez déjà seulement 2 déploiements ou moins.')
       return
     }
     
