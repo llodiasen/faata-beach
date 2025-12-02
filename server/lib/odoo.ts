@@ -26,12 +26,17 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
     const authUrl = `${config.url}/web/session/authenticate`
     console.log('[Odoo] URL d\'authentification:', authUrl)
     console.log('[Odoo] Envoi requete fetch...')
+    const fetchStartTime = Date.now()
     
     // Ajouter un timeout pour éviter que la requête reste bloquée
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 secondes
+    const timeoutId = setTimeout(() => {
+      console.error('[Odoo] TIMEOUT: La requete fetch a depasse 30 secondes')
+      controller.abort()
+    }, 30000) // 30 secondes
     
     try {
+      console.log('[Odoo] Appel fetch() en cours...')
       const response = await fetch(authUrl, {
         method: 'POST',
         headers: { 
@@ -49,6 +54,8 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
         signal: controller.signal,
       })
       
+      const fetchDuration = Date.now() - fetchStartTime
+      console.log(`[Odoo] Fetch termine apres ${fetchDuration}ms`)
       clearTimeout(timeoutId)
 
       console.log('[Odoo] Reponse HTTP status:', response.status)
