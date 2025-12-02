@@ -34,7 +34,7 @@ async function cleanupDeployments() {
     
     console.log(`📊 Total de déploiements trouvés: ${deploymentLines.length}\n`)
     
-    // Parser chaque ligne pour extraire l'URL
+    // Parser chaque ligne pour extraire l'URL (les déploiements sont déjà triés du plus récent au plus ancien)
     const deployments: string[] = []
     
     for (const line of deploymentLines) {
@@ -45,16 +45,19 @@ async function cleanupDeployments() {
       }
     }
     
+    // Les déploiements sont déjà dans l'ordre du plus récent au plus ancien
+    // Le premier est le plus récent
+    
     if (deployments.length === 0) {
       console.log('⚠️  Aucune URL de déploiement trouvée')
       return
     }
     
-    // Garder seulement les 3 plus récents (les premiers de la liste)
-    const toKeep = deployments.slice(0, 3)
-    const toDelete = deployments.slice(3)
+    // Garder seulement le dernier déploiement (le premier de la liste)
+    const toKeep = deployments.slice(0, 1)
+    const toDelete = deployments.slice(1)
     
-    console.log('✅ Déploiements à CONSERVER (3 plus récents):')
+    console.log('✅ Déploiement à CONSERVER (le plus récent):')
     toKeep.forEach((url, index) => {
       console.log(`   ${index + 1}. ${url}`)
     })
@@ -65,7 +68,7 @@ async function cleanupDeployments() {
     })
     
     if (toDelete.length === 0) {
-      console.log('\n✨ Aucun déploiement à supprimer. Vous avez déjà seulement 3 déploiements ou moins.')
+      console.log('\n✨ Aucun déploiement à supprimer. Vous avez déjà seulement 1 déploiement.')
       return
     }
     

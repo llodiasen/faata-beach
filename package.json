@@ -21,7 +21,7 @@
     "verify-vercel-env": "tsx scripts/verify-vercel-env.ts",
     "backup:vercel": "powershell -ExecutionPolicy Bypass -File scripts/backup-vercel-env.ps1",
     "delete-products": "tsx scripts/delete-products.ts",
-    "cleanup:deployments": "powershell -ExecutionPolicy Bypass -File scripts/cleanup-deployments.ps1",
+    "cleanup:deployments": "tsx scripts/cleanup-deployments.ts",
     "update-prices": "tsx scripts/update-prices-and-add-ice-creams.ts"
   },
   "dependencies": {
