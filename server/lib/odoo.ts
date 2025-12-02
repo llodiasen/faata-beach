@@ -27,59 +27,77 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
     console.log('[Odoo] URL d\'authentification:', authUrl)
     console.log('[Odoo] Envoi requete fetch...')
     
-    const response = await fetch(authUrl, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'call',
-        params: {
-          db: config.database,
-          login: config.username,
-          password: config.apiKey,
+    // Ajouter un timeout pour éviter que la requête reste bloquée
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 secondes
+    
+    try {
+      const response = await fetch(authUrl, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
         },
-      }),
-    })
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'call',
+          params: {
+            db: config.database,
+            login: config.username,
+            password: config.apiKey,
+          },
+        }),
+        signal: controller.signal,
+      })
+      
+      clearTimeout(timeoutId)
 
-    console.log('[Odoo] Reponse HTTP status:', response.status)
-    console.log('[Odoo] Reponse OK:', response.ok)
-    
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error(`[Odoo] ERREUR: HTTP ${response.status} lors de l'authentification Odoo`)
-      console.error(`[Odoo] Reponse texte:`, errorText.substring(0, 500))
-      console.log('[Odoo] === FIN getOdooUID (ERREUR HTTP) ===')
-      return null
-    }
+      console.log('[Odoo] Reponse HTTP status:', response.status)
+      console.log('[Odoo] Reponse OK:', response.ok)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error(`[Odoo] ERREUR: HTTP ${response.status} lors de l'authentification Odoo`)
+        console.error(`[Odoo] Reponse texte:`, errorText.substring(0, 500))
+        console.log('[Odoo] === FIN getOdooUID (ERREUR HTTP) ===')
+        return null
+      }
 
-    console.log('[Odoo] Parsing JSON...')
-    const data = await response.json()
-    console.log('[Odoo] Reponse JSON complete:', JSON.stringify(data))
+      console.log('[Odoo] Parsing JSON...')
+      const data = await response.json()
+      console.log('[Odoo] Reponse JSON complete:', JSON.stringify(data))
     
-    if (data.error) {
-      console.error('[Odoo] ERREUR: Authentification Odoo:', JSON.stringify(data.error))
-      console.log('[Odoo] === FIN getOdooUID (ERREUR JSON) ===')
+      if (data.error) {
+        console.error('[Odoo] ERREUR: Authentification Odoo:', JSON.stringify(data.error))
+        console.log('[Odoo] === FIN getOdooUID (ERREUR JSON) ===')
+        return null
+      }
+      
+      const uid = data.result?.uid
+      console.log('[Odoo] UID extrait:', uid, 'Type:', typeof uid)
+      if (uid && typeof uid === 'number') {
+        console.log('[Odoo] SUCCESS: Authentification reussie, UID:', uid)
+        console.log('[Odoo] === FIN getOdooUID (SUCCESS) ===')
+        return uid
+      }
+      
+      console.error('[Odoo] ERREUR: UID non retourne ou invalide')
+      console.error('[Odoo] Result complet:', JSON.stringify(data.result))
+      console.log('[Odoo] === FIN getOdooUID (UID INVALIDE) ===')
       return null
+    } catch (fetchError) {
+      clearTimeout(timeoutId)
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.error('[Odoo] ERREUR: Timeout lors de l\'authentification Odoo (30 secondes)')
+        console.log('[Odoo] === FIN getOdooUID (TIMEOUT) ===')
+        return null
+      }
+      throw fetchError // Re-lancer l'erreur pour qu'elle soit capturée par le catch externe
     }
-    
-    const uid = data.result?.uid
-    console.log('[Odoo] UID extrait:', uid, 'Type:', typeof uid)
-    if (uid && typeof uid === 'number') {
-      console.log('[Odoo] SUCCESS: Authentification reussie, UID:', uid)
-      console.log('[Odoo] === FIN getOdooUID (SUCCESS) ===')
-      return uid
-    }
-    
-    console.error('[Odoo] ERREUR: UID non retourne ou invalide')
-    console.error('[Odoo] Result complet:', JSON.stringify(data.result))
-    console.log('[Odoo] === FIN getOdooUID (UID INVALIDE) ===')
-    return null
   } catch (error) {
     console.error('[Odoo] ERREUR: Exception lors de l\'authentification Odoo:', error)
     if (error instanceof Error) {
       console.error('[Odoo]   Message:', error.message)
+      console.error('[Odoo]   Name:', error.name)
       console.error('[Odoo]   Stack:', error.stack?.substring(0, 500))
     }
     console.log('[Odoo] === FIN getOdooUID (EXCEPTION) ===')
