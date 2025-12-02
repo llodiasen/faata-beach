@@ -10,7 +10,8 @@ interface OdooConfig {
 }
 
 /**
- * Authentification Odoo et récupération de l'UID via JSON-RPC
+ * Authentification Odoo et récupération de l'UID
+ * Utilise la méthode /web/session/authenticate (même que le script de test)
  */
 async function getOdooUID(config: OdooConfig): Promise<number | null> {
   try {
@@ -20,8 +21,8 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
     console.log('[Odoo] Username:', config.username)
     console.log('[Odoo] API Key present:', config.apiKey ? 'OUI (' + config.apiKey.length + ' caracteres)' : 'NON')
     
-    // Utiliser JSON-RPC pour l'authentification (méthode standard Odoo)
-    const authUrl = `${config.url}/jsonrpc`
+    // Utiliser la méthode /web/session/authenticate (même que le script de test qui fonctionne)
+    const authUrl = `${config.url}/web/session/authenticate`
     console.log('[Odoo] URL d\'authentification:', authUrl)
     
     const response = await fetch(authUrl, {
@@ -33,16 +34,10 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
         jsonrpc: '2.0',
         method: 'call',
         params: {
-          service: 'common',
-          method: 'authenticate',
-          args: [
-            config.database,
-            config.username,
-            config.apiKey,
-            {}
-          ]
+          db: config.database,
+          login: config.username,
+          password: config.apiKey,
         },
-        id: Math.floor(Math.random() * 1000000)
       }),
     })
 
@@ -51,31 +46,32 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
     if (!response.ok) {
       const errorText = await response.text()
       console.error(`[Odoo] ERREUR: HTTP ${response.status} lors de l'authentification Odoo`)
-      console.error(`[Odoo] Reponse texte:`, errorText)
+      console.error(`[Odoo] Reponse texte:`, errorText.substring(0, 500))
       return null
     }
 
     const data = await response.json()
-    console.log('[Odoo] Reponse JSON:', JSON.stringify(data).substring(0, 200))
+    console.log('[Odoo] Reponse JSON (premiers 300 caracteres):', JSON.stringify(data).substring(0, 300))
     
     if (data.error) {
       console.error('[Odoo] ERREUR: Authentification Odoo:', JSON.stringify(data.error))
       return null
     }
     
-    const uid = data.result
+    const uid = data.result?.uid
     if (uid && typeof uid === 'number') {
       console.log('[Odoo] SUCCESS: Authentification reussie, UID:', uid)
       return uid
     }
     
-    console.error('[Odoo] ERREUR: UID non retourne ou invalide:', uid)
+    console.error('[Odoo] ERREUR: UID non retourne ou invalide')
+    console.error('[Odoo] Result complet:', JSON.stringify(data.result).substring(0, 500))
     return null
   } catch (error) {
     console.error('[Odoo] ERREUR: Exception lors de l\'authentification Odoo:', error)
     if (error instanceof Error) {
       console.error('[Odoo]   Message:', error.message)
-      console.error('[Odoo]   Stack:', error.stack)
+      console.error('[Odoo]   Stack:', error.stack?.substring(0, 500))
     }
     return null
   }
