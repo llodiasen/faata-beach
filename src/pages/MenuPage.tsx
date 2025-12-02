@@ -177,16 +177,20 @@ export default function MenuPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('[MenuPage] Fetching categories and products...')
         const [categoriesData, productsData] = await Promise.all([
           categoriesAPI.getAll(),
           productsAPI.getAll()
         ])
         
+        console.log('[MenuPage] Categories received:', categoriesData?.length || 0)
+        console.log('[MenuPage] Products received:', productsData?.length || 0)
+        
         setCategories(categoriesData)
         setAllProducts(productsData)
         setFilteredProducts(productsData)
       } catch (err) {
-        console.error('Error fetching data:', err)
+        console.error('[MenuPage] Error fetching data:', err)
       }
     }
 
@@ -195,6 +199,7 @@ export default function MenuPage() {
 
   // Filtrer les produits selon la catégorie sélectionnée
   useEffect(() => {
+    console.log('[MenuPage] Filtering products. selectedCategory:', selectedCategory, 'allProducts:', allProducts.length)
     if (selectedCategory) {
       // Filtrer par categoryId
       const filtered = allProducts.filter(product => {
@@ -203,8 +208,10 @@ export default function MenuPage() {
           : product.categoryId?.toString()
         return productCategoryId === selectedCategory
       })
+      console.log('[MenuPage] Filtered products count:', filtered.length)
       setFilteredProducts(filtered)
     } else {
+      console.log('[MenuPage] No category selected, showing all products:', allProducts.length)
       setFilteredProducts(allProducts)
     }
   }, [selectedCategory, allProducts])
@@ -1160,6 +1167,12 @@ export default function MenuPage() {
               {/* Message si aucun produit */}
               {filteredProducts.length === 0 && (
                 <div className="text-center py-20">
+                  <p className="text-gray-500">Aucun produit trouvé</p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    selectedCategory: {selectedCategory || 'null'}, 
+                    allProducts: {allProducts.length}, 
+                    filteredProducts: {filteredProducts.length}
+                  </p>
                   <div className="text-6xl mb-4">🔍</div>
                   <p className="text-gray-700 text-base font-normal mb-2">Aucun produit trouvé</p>
                   <p className="text-gray-500 text-base">Essayez de modifier vos filtres ou votre recherche</p>

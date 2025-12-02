@@ -133,77 +133,81 @@ async function startServer() {
     return route
   }
 
-  // Routes API avec paramètres d'abord (plus spécifiques)
-  app.all('/api/orders/:id', createApiRoute('/api/orders/:id', './api/orders.ts', true))
-  app.all('/api/categories/:id', createApiRoute('/api/categories/:id', './api/categories.ts', true))
-  app.all('/api/products/:id', createApiRoute('/api/products/:id', './api/products.ts', true))
-
-  // Routes API sans paramètres (moins spécifiques)
-  app.all('/api/categories', createApiRoute('/api/categories', './api/categories.ts'))
-  app.all('/api/products', createApiRoute('/api/products', './api/products.ts'))
-  app.all('/api/orders', createApiRoute('/api/orders', './api/orders.ts'))
-  app.all('/api/orders/delivery/assigned', createApiRoute('/api/orders/delivery/assigned', './api/orders.ts'))
-  app.all('/api/reservations', createApiRoute('/api/reservations', './api/reservations.ts'))
-  app.all('/api/push', createApiRoute('/api/push', './api/push.ts'))
-  
-  // Routes API - Auth
-  app.all('/api/auth/:action', async (req, res) => {
+  // Routeur centralisé pour toutes les routes API (compatible avec la structure Vercel)
+  app.use('/api', async (req, res, next) => {
     try {
-      const handler = await import('./api/auth.ts')
+      // Extraire le chemin depuis l'URL
+      const path = req.path.replace('/api', '') || ''
+      const route = path.split('/').filter(Boolean).join('/')
+      
+      // Créer un objet req compatible avec Vercel
       const vercelReq = createVercelRequest(req)
-      vercelReq.query.action = req.params.action || vercelReq.query.action
-      const vercelRes = createVercelResponse(res)
-      await handler.default(vercelReq, vercelRes)
-    } catch (error) {
-      console.error('Auth API Error:', error)
-      if (!res.headersSent) {
-        res.status(500).json({ message: error.message || 'Erreur serveur' })
+      
+      // Préserver l'URL originale
+      vercelReq.url = req.path
+      
+      // Router vers le bon handler selon le chemin
+      let handler = null
+      
+      // Route: /api/auth?action=login
+      if (route === 'auth' || route.startsWith('auth')) {
+        handler = (await import('./server/handlers/auth.js')).default
       }
-    }
-  })
-  
-  // Route avec query param : /api/auth?action=...
-  app.all('/api/auth', async (req, res) => {
-    try {
-      const handler = await import('./api/auth.ts')
-      const vercelReq = createVercelRequest(req)
-      if (!vercelReq.query.action) {
-        return res.status(400).json({ message: 'Paramètre action requis' })
+      // Route: /api/categories ou /api/categories/:id
+      else if (route === 'categories' || route.startsWith('categories/')) {
+        const idMatch = route.match(/^categories\/(.+)$/)
+        if (idMatch) {
+          vercelReq.query.id = idMatch[1]
+        }
+        handler = (await import('./server/handlers/categories.js')).default
       }
-      const vercelRes = createVercelResponse(res)
-      await handler.default(vercelReq, vercelRes)
-    } catch (error) {
-      console.error('Auth API Error:', error)
-      if (!res.headersSent) {
-        res.status(500).json({ message: error.message || 'Erreur serveur' })
+      // Route: /api/products ou /api/products/:id
+      else if (route === 'products' || route.startsWith('products/')) {
+        const idMatch = route.match(/^products\/(.+)$/)
+        if (idMatch) {
+          vercelReq.query.id = idMatch[1]
+        }
+        handler = (await import('./server/handlers/products.js')).default
       }
-    }
-  })
-  
-  // Routes API - Users
-  app.all('/api/users/:action', async (req, res) => {
-    try {
-      const handler = await import('./api/users/[action].ts')
-      const vercelReq = createVercelRequest(req)
-      vercelReq.query.action = req.params.action || vercelReq.query.action
-      const vercelRes = createVercelResponse(res)
-      await handler.default(vercelReq, vercelRes)
-    } catch (error) {
-      console.error('Users API Error:', error)
-      if (!res.headersSent) {
-        res.status(500).json({ message: error.message || 'Erreur serveur' })
+      // Route: /api/orders ou /api/orders/:id ou /api/orders/delivery/assigned
+      else if (route === 'orders' || route.startsWith('orders/')) {
+        if (!route.includes('/delivery/')) {
+          const idMatch = route.match(/^orders\/([^/]+)$/)
+          if (idMatch) {
+            vercelReq.query.id = idMatch[1]
+          }
+        }
+        handler = (await import('./server/handlers/orders.js')).default
       }
-    }
-  })
-  
-  app.all('/api/users', async (req, res) => {
-    try {
-      const handler = await import('./api/users/[action].ts')
-      const vercelReq = createVercelRequest(req)
+      // Route: /api/push
+      else if (route === 'push') {
+        handler = (await import('./server/handlers/push.js')).default
+      }
+      // Route: /api/reservations ou /api/reservations/:id
+      else if (route === 'reservations' || route.startsWith('reservations/')) {
+        const idMatch = route.match(/^reservations\/(.+)$/)
+        if (idMatch) {
+          vercelReq.query.id = idMatch[1]
+        }
+        handler = (await import('./server/handlers/reservations.js')).default
+      }
+      // Route: /api/users/:action
+      else if (route === 'users' || route.startsWith('users/')) {
+        const actionMatch = route.match(/^users\/(.+)$/)
+        if (actionMatch) {
+          vercelReq.query.action = actionMatch[1]
+        }
+        handler = (await import('./server/handlers/users.js')).default
+      }
+      
+      if (!handler) {
+        return res.status(404).json({ message: 'Route non trouvée', path: `/api/${route}` })
+      }
+      
       const vercelRes = createVercelResponse(res)
-      await handler.default(vercelReq, vercelRes)
+      await handler(vercelReq, vercelRes)
     } catch (error) {
-      console.error('Users API Error:', error)
+      console.error('API Router Error:', error)
       if (!res.headersSent) {
         res.status(500).json({ message: error.message || 'Erreur serveur' })
       }
