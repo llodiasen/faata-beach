@@ -37,7 +37,17 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
     
     try {
       console.log('[Odoo] Appel fetch() en cours...')
-      const response = await fetch(authUrl, {
+      console.log('[Odoo] Body de la requete:', JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'call',
+        params: {
+          db: config.database,
+          login: config.username,
+          password: '***',
+        },
+      }))
+      
+      const responsePromise = fetch(authUrl, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -53,6 +63,9 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
         }),
         signal: controller.signal,
       })
+      
+      console.log('[Odoo] Promise fetch creee, attente de la reponse...')
+      const response = await responsePromise
       
       const fetchDuration = Date.now() - fetchStartTime
       console.log(`[Odoo] Fetch termine apres ${fetchDuration}ms`)
