@@ -31,20 +31,20 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
     })
 
     if (!response.ok) {
-      console.error(`❌ Erreur HTTP ${response.status} lors de l'authentification Odoo`)
+      console.error(`[Odoo] ERREUR: HTTP ${response.status} lors de l'authentification Odoo`)
       return null
     }
 
     const data = await response.json()
     
     if (data.error) {
-      console.error('❌ Erreur authentification Odoo:', data.error)
+      console.error('[Odoo] ERREUR: Authentification Odoo:', data.error)
       return null
     }
     
     return data.result?.uid || null
   } catch (error) {
-    console.error('❌ Erreur authentification Odoo:', error)
+    console.error('[Odoo] ERREUR: Authentification Odoo:', error)
     return null
   }
 }
@@ -83,14 +83,14 @@ async function findProductByExternalId(
     })
 
     if (!response.ok) {
-      console.error(`❌ Erreur HTTP ${response.status} lors de la recherche produit`)
+      console.error(`[Odoo] ERREUR: HTTP ${response.status} lors de la recherche produit`)
       return null
     }
 
     const data = await response.json()
     
     if (data.error) {
-      console.error(`❌ Erreur recherche produit Odoo:`, data.error)
+      console.error(`[Odoo] ERREUR: Recherche produit Odoo:`, data.error)
       return null
     }
     
@@ -103,7 +103,7 @@ async function findProductByExternalId(
     }
     return null
   } catch (error) {
-    console.error(`❌ Erreur recherche produit Odoo ${externalId}:`, error)
+    console.error(`[Odoo] ERREUR: Recherche produit Odoo ${externalId}:`, error)
     return null
   }
 }
@@ -115,7 +115,7 @@ export async function createOdooSalesOrder(
   order: IOrder,
   products: Array<{ productId: any; item: IOrderItem }>
 ): Promise<number | null> {
-  console.log('🔍 Vérification configuration Odoo...')
+  console.log('[Odoo] Verification configuration Odoo...')
   
   // Vérifier la configuration Odoo
   const config: OdooConfig = {
@@ -125,16 +125,16 @@ export async function createOdooSalesOrder(
     apiKey: process.env.ODOO_API_KEY || '',
   }
 
-  console.log('📋 Configuration Odoo:', {
-    url: config.url ? '✅ Défini' : '❌ Manquant',
-    database: config.database ? '✅ Défini' : '❌ Manquant',
-    username: config.username ? '✅ Défini' : '❌ Manquant',
-    apiKey: config.apiKey ? '✅ Défini (' + config.apiKey.substring(0, 10) + '...)' : '❌ Manquant',
+  console.log('[Odoo] Configuration Odoo:', {
+    url: config.url ? 'DEFINI' : 'MANQUANT',
+    database: config.database ? 'DEFINI' : 'MANQUANT',
+    username: config.username ? 'DEFINI' : 'MANQUANT',
+    apiKey: config.apiKey ? 'DEFINI (' + config.apiKey.substring(0, 10) + '...)' : 'MANQUANT',
   })
 
   if (!config.url || !config.database || !config.username || !config.apiKey) {
-    console.warn('⚠️  Configuration Odoo incomplète, synchronisation ignorée')
-    console.warn('   Variables manquantes:', {
+    console.warn('[Odoo] WARNING: Configuration Odoo incomplete, synchronisation ignoree')
+    console.warn('[Odoo]   Variables manquantes:', {
       url: !config.url,
       database: !config.database,
       username: !config.username,
@@ -147,7 +147,7 @@ export async function createOdooSalesOrder(
     // Authentification
     const uid = await getOdooUID(config)
     if (!uid) {
-      console.error('❌ Impossible de s\'authentifier à Odoo')
+      console.error('[Odoo] ERREUR: Impossible de s\'authentifier a Odoo')
       return null
     }
 
@@ -158,13 +158,13 @@ export async function createOdooSalesOrder(
       // Récupérer l'External ID depuis la description du produit
       const product = await Product.findById(productId)
       if (!product || !product.description) {
-        console.warn(`⚠️  Produit ${productId} sans External ID Odoo, ignoré`)
+        console.warn(`[Odoo] WARNING: Produit ${productId} sans External ID Odoo, ignore`)
         continue
       }
 
       const idMatch = product.description.match(/\[Odoo ID:\s*(.*?)\]/)
       if (!idMatch) {
-        console.warn(`⚠️  Produit ${product.name} sans External ID Odoo, ignoré`)
+        console.warn(`[Odoo] WARNING: Produit ${product.name} sans External ID Odoo, ignore`)
         continue
       }
 
@@ -173,7 +173,7 @@ export async function createOdooSalesOrder(
       // Rechercher le produit dans Odoo
       const odooProductId = await findProductByExternalId(config, uid, externalId)
       if (!odooProductId) {
-        console.warn(`⚠️  Produit Odoo ${externalId} introuvable, ignoré`)
+        console.warn(`[Odoo] WARNING: Produit Odoo ${externalId} introuvable, ignore`)
         continue
       }
 
@@ -185,7 +185,7 @@ export async function createOdooSalesOrder(
     }
 
     if (orderLines.length === 0) {
-      console.warn('⚠️  Aucun produit valide pour Odoo, commande non créée')
+      console.warn('[Odoo] WARNING: Aucun produit valide pour Odoo, commande non creee')
       return null
     }
 
@@ -242,26 +242,26 @@ export async function createOdooSalesOrder(
     })
 
     if (!response.ok) {
-      console.error(`❌ Erreur HTTP ${response.status} lors de la création commande Odoo`)
+      console.error(`[Odoo] ERREUR: HTTP ${response.status} lors de la creation commande Odoo`)
       return null
     }
 
     const data = await response.json()
     
     if (data.error) {
-      console.error('❌ Erreur création commande Odoo:', data.error)
+      console.error('[Odoo] ERREUR: Creation commande Odoo:', data.error)
       return null
     }
 
     const odooOrderId = data.result
     if (odooOrderId) {
-      console.log(`✅ Commande Odoo créée avec ID: ${odooOrderId}`)
+      console.log(`[Odoo] SUCCESS: Commande Odoo creee avec ID: ${odooOrderId}`)
     } else {
-      console.warn('⚠️  Commande Odoo créée mais ID non retourné')
+      console.warn('[Odoo] WARNING: Commande Odoo creee mais ID non retourne')
     }
     return odooOrderId || null
   } catch (error) {
-    console.error('❌ Erreur lors de la création de la commande Odoo:', error)
+    console.error('[Odoo] ERREUR: Creation de la commande Odoo:', error)
     return null
   }
 }

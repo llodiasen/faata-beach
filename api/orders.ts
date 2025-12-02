@@ -150,10 +150,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await order.populate('items.productId', 'name imageUrl')
 
         // Synchroniser avec Odoo (en arrière-plan, ne pas bloquer la réponse)
-        console.log('🔄 Tentative de synchronisation Odoo...')
+        console.log('[Odoo] Tentative de synchronisation Odoo...')
         try {
           const { createOdooSalesOrder } = await import('./lib/odoo.js')
-          console.log('✅ Module Odoo importé avec succès')
+          console.log('[Odoo] Module Odoo importe avec succes')
           
           // Préparer les données pour Odoo
           const productsForOdoo = orderItems.map((item, index) => ({
@@ -161,32 +161,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             item: orderItems[index]
           }))
 
-          console.log(`📦 ${productsForOdoo.length} produit(s) à synchroniser avec Odoo`)
+          console.log(`[Odoo] ${productsForOdoo.length} produit(s) a synchroniser avec Odoo`)
 
           // Appeler Odoo (ne pas attendre la réponse pour ne pas bloquer)
           createOdooSalesOrder(order, productsForOdoo).then(odooOrderId => {
             if (odooOrderId) {
-              console.log(`✅ Commande Odoo créée avec ID: ${odooOrderId}`)
+              console.log(`[Odoo] SUCCESS: Commande Odoo creee avec ID: ${odooOrderId}`)
               // Mettre à jour la commande avec l'ID Odoo
               Order.findByIdAndUpdate(order._id, { odooOrderId }).catch(err => {
-                console.error('❌ Erreur mise à jour odooOrderId:', err)
+                console.error('[Odoo] ERREUR: Mise a jour odooOrderId:', err)
               })
             } else {
-              console.warn('⚠️  Synchronisation Odoo terminée mais aucun ID retourné')
+              console.warn('[Odoo] WARNING: Synchronisation Odoo terminee mais aucun ID retourne')
             }
           }).catch(err => {
-            console.error('❌ Erreur synchronisation Odoo:', err)
+            console.error('[Odoo] ERREUR: Synchronisation Odoo:', err)
             if (err instanceof Error) {
-              console.error('   Message:', err.message)
-              console.error('   Stack:', err.stack)
+              console.error('[Odoo]   Message:', err.message)
+              console.error('[Odoo]   Stack:', err.stack)
             }
             // Ne pas bloquer la création de commande si Odoo échoue
           })
         } catch (odooError) {
-          console.error('❌ Erreur import module Odoo:', odooError)
+          console.error('[Odoo] ERREUR: Import module Odoo:', odooError)
           if (odooError instanceof Error) {
-            console.error('   Message:', odooError.message)
-            console.error('   Stack:', odooError.stack)
+            console.error('[Odoo]   Message:', odooError.message)
+            console.error('[Odoo]   Stack:', odooError.stack)
           }
           // Continuer même si le module Odoo ne peut pas être chargé
         }
