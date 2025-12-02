@@ -1,16 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Extraire le chemin depuis l'URL de la requête
-  const url = req.url || ''
-  let path = url.replace(/^\/api/, '').split('?')[0] // Enlever /api et les query params
-  if (!path || path === '/') path = ''
-  const route = path.split('/').filter(Boolean).join('/') // Nettoyer les slashes
+  // Extraire le chemin depuis les query params (Vercel passe le chemin dans req.query.path)
+  const pathArray = req.query.path as string[] || []
+  const route = pathArray.join('/')
 
   // Préserver l'URL originale pour les handlers qui l'utilisent (comme orders.ts)
   if (!req.url || !req.url.startsWith('/api')) {
     req.url = `/api/${route}`
   }
+  
+  console.log('[Router] Route détectée:', route, 'Path array:', pathArray)
 
   // Router vers le bon handler selon le chemin
   try {
@@ -85,9 +85,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Route non trouvée
+    console.error('[Router] Route non trouvée:', route)
     return res.status(404).json({ message: 'Route non trouvée', path: `/api/${route}` })
   } catch (error: any) {
-    console.error('Erreur dans le routeur:', error)
+    console.error('[Router] Erreur dans le routeur:', error)
     return res.status(500).json({ 
       message: 'Erreur serveur', 
       error: error?.message || 'Erreur inconnue' 
