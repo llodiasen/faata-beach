@@ -100,7 +100,7 @@ export const usersAPI = {
 // API Orders
 export const ordersAPI = {
   create: (data: {
-    items: Array<{ productId: string; quantity: number }>
+    items: Array<{ productId: string; quantity: number; price?: number; name?: string }>
     tableNumber?: string
     orderType: 'sur_place' | 'emporter' | 'livraison'
     deliveryAddress?: {
@@ -114,6 +114,7 @@ export const ordersAPI = {
       }
     }
     customerInfo?: { name?: string; phone?: string; email?: string }
+    note?: string
   }) =>
     fetchAPI('/orders', {
       method: 'POST',

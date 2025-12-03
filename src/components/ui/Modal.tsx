@@ -10,9 +10,10 @@ interface ModalProps {
   noScroll?: boolean // Option pour désactiver le scroll
   transparentOverlay?: boolean // Option pour rendre l'overlay transparent
   heroBackground?: string // URL de l'image de fond du hero
+  customHeader?: boolean // Option pour utiliser un header personnalisé (sans padding)
 }
 
-export default function Modal({ isOpen, onClose, title, children, size = 'md', noScroll = false, transparentOverlay = false, heroBackground }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, size = 'md', noScroll = false, transparentOverlay = false, heroBackground, customHeader = false }: ModalProps) {
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-2xl',
@@ -60,7 +61,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', n
               Modal dialog
             </Dialog.Description>
           )}
-          <div className={`p-6 flex-1 ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'} ${heroBackground ? 'bg-white/80 backdrop-blur-sm rounded-lg' : ''}`}>{children}</div>
+          <div className={`${customHeader ? 'p-0' : 'p-6'} flex-1 ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'} ${heroBackground ? 'bg-white/80 backdrop-blur-sm rounded-lg' : ''}`}>{children}</div>
           <Dialog.Close asChild>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1 z-20"

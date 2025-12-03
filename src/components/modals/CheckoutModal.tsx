@@ -61,9 +61,13 @@ export function CheckoutModal() {
     setError(null)
 
     try {
+      // Vérifier que tous les produits sont toujours disponibles avant de créer la commande
+      // Envoyer aussi price et name pour validation côté serveur
       const orderItems = items.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
+        price: item.price, // Inclure le prix pour validation
+        name: item.name, // Inclure le nom pour validation
       }))
 
       const orderData: any = {
@@ -163,7 +167,18 @@ export function CheckoutModal() {
         setError('Erreur: Impossible de récupérer l\'ID de commande')
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la commande')
+      console.error('CheckoutModal: Error creating order', err)
+      let errorMessage = 'Erreur lors de la création de la commande'
+      
+      if (err instanceof Error) {
+        errorMessage = err.message
+        // Si un produit n'est pas disponible, suggérer de vider le panier
+        if (err.message.includes('non disponible') || err.message.includes('non trouvé') || err.message.includes('non disponible')) {
+          errorMessage = `${err.message}. Veuillez vider votre panier et réessayer.`
+        }
+      }
+      
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

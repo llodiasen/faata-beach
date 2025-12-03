@@ -31,9 +31,9 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
     // Ajouter un timeout pour éviter que la requête reste bloquée
     const controller = new AbortController()
     const timeoutId = setTimeout(() => {
-      console.error('[Odoo] TIMEOUT: La requete fetch a depasse 30 secondes')
+      console.error('[Odoo] TIMEOUT: La requete fetch a depasse 10 secondes')
       controller.abort()
-    }, 30000) // 30 secondes
+    }, 10000) // 10 secondes - timeout réduit pour éviter les blocages
     
     try {
       console.log('[Odoo] Appel fetch() en cours...')
@@ -107,7 +107,7 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
     } catch (fetchError) {
       clearTimeout(timeoutId)
       if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-        console.error('[Odoo] ERREUR: Timeout lors de l\'authentification Odoo (30 secondes)')
+        console.error('[Odoo] ERREUR: Timeout lors de l\'authentification Odoo (10 secondes)')
         console.log('[Odoo] === FIN getOdooUID (TIMEOUT) ===')
         return null
       }
@@ -127,7 +127,7 @@ async function getOdooUID(config: OdooConfig): Promise<number | null> {
 
 /**
  * Recherche un produit Odoo par External ID via JSON-RPC
- * Utilise xmlid_to_res_id qui est la méthode recommandée par Odoo
+ * Utilise search_read sur ir.model.data (compatible Odoo 19.0)
  */
 async function findProductByExternalId(
   config: OdooConfig,
@@ -137,56 +137,12 @@ async function findProductByExternalId(
   try {
     console.log(`[Odoo] Recherche produit avec External ID: ${externalId}`)
     
-    // Essayer d'abord avec xmlid_to_res_id (méthode recommandée)
-    // Cette fonction convertit directement un external_id en res_id
-    const response = await fetch(`${config.url}/jsonrpc`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'call',
-        params: {
-          service: 'object',
-          method: 'execute_kw',
-          args: [
-            config.database,
-            uid,
-            config.apiKey,
-            'ir.model.data',
-            'xmlid_to_res_id',
-            [externalId],
-            {}
-          ]
-        }
-      }),
-    })
-
-    if (!response.ok) {
-      console.error(`[Odoo] ERREUR: HTTP ${response.status} lors de la recherche produit`)
-      return null
-    }
-
-    const data = await response.json()
-    
-    if (data.error) {
-      console.error(`[Odoo] ERREUR: Recherche produit Odoo avec xmlid_to_res_id:`, data.error)
-      // Si xmlid_to_res_id échoue, essayer avec search_read comme fallback
-      console.log(`[Odoo] Tentative avec search_read comme fallback...`)
-      return await findProductByExternalIdFallback(config, uid, externalId)
-    }
-    
-    if (data.result && typeof data.result === 'number') {
-      console.log(`[Odoo] Produit trouve avec ID: ${data.result}`)
-      return data.result
-    }
-    
-    // Si xmlid_to_res_id retourne null ou 0, essayer avec search_read
-    console.log(`[Odoo] xmlid_to_res_id n'a pas trouve le produit, tentative avec search_read...`)
+    // Utiliser directement search_read (méthode compatible Odoo 19.0)
+    // xmlid_to_res_id n'existe plus dans Odoo 19.0
     return await findProductByExternalIdFallback(config, uid, externalId)
   } catch (error) {
     console.error(`[Odoo] ERREUR: Recherche produit Odoo ${externalId}:`, error)
-    // Essayer avec search_read comme fallback
-    return await findProductByExternalIdFallback(config, uid, externalId)
+    return null
   }
 }
 
@@ -353,6 +309,120 @@ export async function createOdooSalesOrder(
                         'Client invité'
 
     const customerPhone = order.customerInfo?.phone || ''
+    const customerEmail = order.customerInfo?.email || 
+                          (order.userId && typeof order.userId === 'object' ? (order.userId as any).email : '')
+
+    // Trouver ou créer le partenaire (client) dans Odoo
+    let partnerId: number | null = null
+    
+    if (customerEmail) {
+      // Chercher le partenaire par email
+      const partnerResponse = await fetch(`${config.url}/jsonrpc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'call',
+          params: {
+            service: 'object',
+            method: 'execute_kw',
+            args: [
+              config.database,
+              uid,
+              config.apiKey,
+              'res.partner',
+              'search',
+              [[['email', '=', customerEmail]]],
+              { limit: 1 }
+            ]
+          }
+        }),
+      })
+
+      if (partnerResponse.ok) {
+        const partnerData = await partnerResponse.json()
+        if (partnerData.result && partnerData.result.length > 0) {
+          partnerId = partnerData.result[0]
+          console.log(`[Odoo] Partenaire trouve avec ID: ${partnerId}`)
+        }
+      }
+    }
+
+    // Si pas trouvé par email, chercher par nom et téléphone
+    if (!partnerId && customerName && customerPhone) {
+      const partnerResponse = await fetch(`${config.url}/jsonrpc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'call',
+          params: {
+            service: 'object',
+            method: 'execute_kw',
+            args: [
+              config.database,
+              uid,
+              config.apiKey,
+              'res.partner',
+              'search',
+              [[['name', '=', customerName], ['phone', '=', customerPhone]]],
+              { limit: 1 }
+            ]
+          }
+        }),
+      })
+
+      if (partnerResponse.ok) {
+        const partnerData = await partnerResponse.json()
+        if (partnerData.result && partnerData.result.length > 0) {
+          partnerId = partnerData.result[0]
+          console.log(`[Odoo] Partenaire trouve par nom/tel avec ID: ${partnerId}`)
+        }
+      }
+    }
+
+    // Si toujours pas trouvé, créer un nouveau partenaire
+    if (!partnerId) {
+      const createPartnerResponse = await fetch(`${config.url}/jsonrpc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'call',
+          params: {
+            service: 'object',
+            method: 'execute_kw',
+            args: [
+              config.database,
+              uid,
+              config.apiKey,
+              'res.partner',
+              'create',
+              [{
+                name: customerName,
+                phone: customerPhone || undefined,
+                email: customerEmail || undefined,
+              }]
+            ]
+          }
+        }),
+      })
+
+      if (createPartnerResponse.ok) {
+        const createPartnerData = await createPartnerResponse.json()
+        if (createPartnerData.result) {
+          partnerId = createPartnerData.result
+          console.log(`[Odoo] Nouveau partenaire cree avec ID: ${partnerId}`)
+        }
+      }
+    }
+
+    // Si toujours pas de partenaire, utiliser le partenaire par défaut (Public User)
+    if (!partnerId) {
+      console.warn('[Odoo] WARNING: Impossible de trouver ou creer un partenaire, utilisation du partenaire par defaut')
+      // Chercher le partenaire "Public User" ou utiliser l'ID 1
+      partnerId = 1
+    }
 
     // Préparer la note de commande
     const noteParts: string[] = []
@@ -373,7 +443,7 @@ export async function createOdooSalesOrder(
       noteParts.push(`Tél: ${customerPhone}`)
     }
 
-    // Créer la commande de vente dans Odoo via JSON-RPC
+    // Créer la commande de vente dans Odoo via JSON-RPC avec partner_id
     const response = await fetch(`${config.url}/jsonrpc`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -390,6 +460,7 @@ export async function createOdooSalesOrder(
             'sale.order',
             'create',
             [{
+              partner_id: partnerId,
               client_order_ref: `APP-${order._id.toString().substring(0, 8)}`,
               order_line: orderLines,
               note: noteParts.join('\n'),

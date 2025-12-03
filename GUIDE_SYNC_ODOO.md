@@ -64,3 +64,4 @@ Quand un client crée une commande dans l'app :
 
 Voir `CONFIG_ODOO.md` pour plus de détails.
 
+

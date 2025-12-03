@@ -137,11 +137,27 @@ export function OrderDetailsModal() {
   }
 
   return (
-    <Modal isOpen={currentModal === 'orderDetails'} onClose={closeModal} title="Commande confirmée" size="xl">
-      {loading && <div className="text-center py-8 text-gray-500">Chargement...</div>}
-      {error && <div className="text-red-600 text-center py-4">{error}</div>}
-      {!loading && !error && order && (
-        <div className="space-y-6">
+    <Modal isOpen={currentModal === 'orderDetails'} onClose={closeModal} size="xl" noScroll={false} customHeader={true}>
+      <div className="flex flex-col h-full">
+        {/* Header personnalisé avec fond vert */}
+        <div className="bg-[#39512a] text-white px-4 py-4 flex items-center gap-3 flex-shrink-0 z-30 rounded-t-lg">
+          <button
+            onClick={closeModal}
+            className="p-1 hover:bg-white/20 rounded-full transition-colors flex-shrink-0"
+            aria-label="Retour"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h2 className="text-lg font-bold flex-1">Détails de commande</h2>
+        </div>
+        
+        <div className="overflow-y-auto flex-1 bg-white">
+          {loading && <div className="text-center py-8 text-gray-500">Chargement...</div>}
+          {error && <div className="text-red-600 text-center py-4">{error}</div>}
+          {!loading && !error && order && (
+            <div className="space-y-6 p-6">
           {/* Message de remerciement */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
             <div className="flex-shrink-0 mt-0.5">
@@ -286,8 +302,10 @@ export function OrderDetailsModal() {
               Retour au menu
             </button>
           </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </Modal>
   )
 }
