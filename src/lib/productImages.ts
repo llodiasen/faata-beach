@@ -6,6 +6,15 @@ type ProductRef = {
 const encodeMenuImagePath = (fileName: string) =>
   `/images/Menu/menu og/${encodeURIComponent(fileName).replace(/%2F/g, '/')}`
 
+const encodeDirectMenuImagePath = (fileName: string) =>
+  `/images/Menu/${encodeURIComponent(fileName).replace(/%2F/g, '/')}`
+
+// Images directement dans le dossier Menu (pas dans menu og)
+const directMenuImages: Record<string, string> = {
+  'Brochettes lotte': 'Brochettes lotte.png',
+  'Brochettes de lotte': 'Brochettes lotte.png', // Variante avec "de"
+}
+
 export const productImageFileMap: Record<string, string> = {
   // Boissons - Cocktails sans alcools
   'Île du Saloum': 'Île du Saloum.jpg',
@@ -78,7 +87,6 @@ export const productImageFileMap: Record<string, string> = {
   'Soupe de poisson': 'Soupe de poisson.webp',
   
   // Plats - À base de poisson
-  'Brochettes lotte': 'Brochettes lotte.jpeg',
   'Poisson braisé': 'Poisson braisé.jpg',
   'Filet lotte pané': 'Filet lotte pane.png',
   'Sole meunière': 'Sole meuniere.png',
@@ -143,6 +151,11 @@ export const productImageFileMap: Record<string, string> = {
 export const productImagePathMap: Record<string, string> = Object.fromEntries(
   Object.entries(productImageFileMap).map(([name, file]) => [name, encodeMenuImagePath(file)])
 )
+
+// Ajouter les images directes du dossier Menu
+Object.entries(directMenuImages).forEach(([name, file]) => {
+  productImagePathMap[name] = encodeDirectMenuImagePath(file)
+})
 
 export const getImagePathByName = (name?: string | null) => {
   if (!name) return null

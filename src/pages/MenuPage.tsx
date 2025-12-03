@@ -56,6 +56,7 @@ export default function MenuPage() {
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [cartNotification, setCartNotification] = useState<string | null>(null)
   const [language, setLanguage] = useState<'fr' | 'en'>('fr')
   const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -176,21 +177,29 @@ export default function MenuPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true)
+      const startTime = Date.now()
+      
       try {
-        console.log('[MenuPage] Fetching categories and products...')
         const [categoriesData, productsData] = await Promise.all([
           categoriesAPI.getAll(),
           productsAPI.getAll()
         ])
         
-        console.log('[MenuPage] Categories received:', categoriesData?.length || 0)
-        console.log('[MenuPage] Products received:', productsData?.length || 0)
-        
         setCategories(categoriesData)
         setAllProducts(productsData)
         setFilteredProducts(productsData)
+        
+        // Attendre au moins 1 seconde pour l'animation du loader
+        const elapsedTime = Date.now() - startTime
+        const minLoadingTime = 1000
+        if (elapsedTime < minLoadingTime) {
+          await new Promise(resolve => setTimeout(resolve, minLoadingTime - elapsedTime))
+        }
       } catch (err) {
         console.error('[MenuPage] Error fetching data:', err)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -199,7 +208,6 @@ export default function MenuPage() {
 
   // Filtrer les produits selon la catégorie sélectionnée
   useEffect(() => {
-    console.log('[MenuPage] Filtering products. selectedCategory:', selectedCategory, 'allProducts:', allProducts.length)
     if (selectedCategory) {
       // Filtrer par categoryId
       const filtered = allProducts.filter(product => {
@@ -208,10 +216,8 @@ export default function MenuPage() {
           : product.categoryId?.toString()
         return productCategoryId === selectedCategory
       })
-      console.log('[MenuPage] Filtered products count:', filtered.length)
       setFilteredProducts(filtered)
     } else {
-      console.log('[MenuPage] No category selected, showing all products:', allProducts.length)
       setFilteredProducts(allProducts)
     }
   }, [selectedCategory, allProducts])
@@ -1127,8 +1133,25 @@ export default function MenuPage() {
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             {/* Colonne gauche - Produits */}
             <div className="flex-1 space-y-10">
+              {/* Loader pendant le chargement */}
+              {isLoading && (
+                <div className="flex flex-col items-center justify-center py-20 min-h-[400px]">
+                  <div className="relative mb-8">
+                    <img 
+                      src="/images/logo.png" 
+                      alt="FAATA BEACH" 
+                      className="h-24 md:h-32 lg:h-40 animate-pulse"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-16 border-4 border-[#39512a] border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  </div>
+                  <p className="text-[#39512a] font-medium text-lg animate-pulse">Chargement des produits...</p>
+                </div>
+              )}
+
               {/* Produits filtrés par catégorie */}
-              {selectedCategory && filteredProducts.length > 0 && (
+              {!isLoading && selectedCategory && filteredProducts.length > 0 && (
                 <section>
                   <h2 className="text-xl font-semibold text-[#39512a] mb-4">
                     {(() => {
@@ -1156,7 +1179,7 @@ export default function MenuPage() {
               )}
 
               {/* Tous les produits si aucune catégorie sélectionnée */}
-              {!selectedCategory && filteredProducts.length > 0 && (
+              {!isLoading && !selectedCategory && filteredProducts.length > 0 && (
                 <section>
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
                     {filteredProducts.map((product) => renderProductCard(product, 'default'))}
@@ -1164,20 +1187,14 @@ export default function MenuPage() {
                 </section>
               )}
 
-              {/* Message si aucun produit */}
-              {filteredProducts.length === 0 && (
+              {/* Message si aucun produit (seulement si pas en chargement) */}
+              {!isLoading && filteredProducts.length === 0 && (
                 <div className="text-center py-20">
-                  <p className="text-gray-500">Aucun produit trouvé</p>
-                  <p className="text-sm text-gray-400 mt-2">
-                    selectedCategory: {selectedCategory || 'null'}, 
-                    allProducts: {allProducts.length}, 
-                    filteredProducts: {filteredProducts.length}
-                  </p>
                   <div className="text-6xl mb-4">🔍</div>
                   <p className="text-gray-700 text-base font-normal mb-2">Aucun produit trouvé</p>
                   <p className="text-gray-500 text-base">Essayez de modifier vos filtres ou votre recherche</p>
                   {selectedCategory && (
-        <button
+                    <button
                       onClick={() => {
                         setSelectedCategory(null)
                         setStoreSelectedCategory(null)
@@ -1185,8 +1202,8 @@ export default function MenuPage() {
                       className="mt-4 px-3 py-2 bg-[#39512a] text-white rounded-full font-medium hover:opacity-90 transition-colors text-sm"
                     >
                       Réinitialiser les filtres
-        </button>
-      )}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
